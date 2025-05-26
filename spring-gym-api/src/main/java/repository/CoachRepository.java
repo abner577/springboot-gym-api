@@ -1,4 +1,7 @@
 package repository;
 
-public class CoachRepository {
+import entity.CoachEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface CoachRepository extends JpaRepository<CoachEntity, Long> {
 }
