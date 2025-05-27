@@ -17,7 +17,7 @@ public class MemberEntity {
 
    @ManyToOne
    @JoinColumn(name = "coach_id")
-   private String coachedBy;
+   private CoachEntity coachedBy;
    private String membershipDate;
    private Roles role;
    @Transient
@@ -28,7 +28,7 @@ public class MemberEntity {
    private int deadlift;
    private int total;
 
-    public MemberEntity(Long id, String name, LocalDate dateOfBirth, String coachedBy, String membershipDate, Roles role, int bench, int squat, int deadlift, int total) {
+    public MemberEntity(Long id, String name, LocalDate dateOfBirth, CoachEntity coachedBy, String membershipDate, Roles role, int bench, int squat, int deadlift, int total) {
         this.id = id;
         this.name = name;
         this.dateOfBirth = dateOfBirth;
@@ -40,10 +40,9 @@ public class MemberEntity {
         this.deadlift = deadlift;
         this.total = total;
     }
-    public MemberEntity(String name, LocalDate dateOfBirth, String coachedBy, String membershipDate, Roles role, int bench, int squat, int deadlift, int total) {
+    public MemberEntity(String name, LocalDate dateOfBirth, String membershipDate, Roles role, int bench, int squat, int deadlift, int total) {
         this.name = name;
         this.dateOfBirth = dateOfBirth;
-        this.coachedBy = coachedBy;
         this.membershipDate = membershipDate;
         this.role = role;
         this.bench = bench;
@@ -81,11 +80,11 @@ public class MemberEntity {
         this.dateOfBirth = dateOfBirth;
     }
 
-    public String getCoachedBy() {
+    public CoachEntity getCoachedBy() {
         return coachedBy;
     }
 
-    public void setCoachedBy(String coachedBy) {
+    public void setCoachedBy(CoachEntity coachedBy) {
         this.coachedBy = coachedBy;
     }
 

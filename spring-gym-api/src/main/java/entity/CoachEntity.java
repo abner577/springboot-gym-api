@@ -17,7 +17,12 @@ public class CoachEntity {
     private LocalDate dateOfBirth;
     private Roles role;
 
-    @OneToMany(mappedBy = "coaches")
+    @OneToMany(mappedBy = "coaches", cascade = {
+            CascadeType.PERSIST,
+            CascadeType.DETACH,
+            CascadeType.MERGE,
+            CascadeType.REFRESH
+    })
     private List<MemberEntity> clients;
     private List<String> workoutPlans;
     @Transient
@@ -31,7 +36,7 @@ public class CoachEntity {
         this.clients = clients;
         this.workoutPlans = workoutPlans;
     }
-    public CoachEntity( String name, LocalDate dateOfBirth, Roles role, List<MemberEntity> clients, List<String> workoutPlans) {
+    public CoachEntity(String name, LocalDate dateOfBirth, Roles role, List<MemberEntity> clients, List<String> workoutPlans) {
         this.name = name;
         this.dateOfBirth = dateOfBirth;
         this.role = role;
@@ -74,9 +79,7 @@ public class CoachEntity {
         return role;
     }
 
-    public void setRole(Roles role) {
-        this.role = role;
-    }
+    public void setRole(Roles role) {this.role = role;}
 
     public List<MemberEntity> getClients() {
         return clients;

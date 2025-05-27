@@ -1,4 +1,5 @@
 package dto;
 
-public class MemberDTO {
-}
+import java.time.LocalDate;
+
+public record MemberDTO(String name, LocalDate dateOfBirth, int age) {}

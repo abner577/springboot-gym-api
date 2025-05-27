@@ -1,4 +1,6 @@
 package dto;
 
-public class CoachDTO {
-}
+import entity.CoachEntity;
+import java.time.LocalDate;
+
+public record CoachDTO(String name, LocalDate dateOfBirth, int age) {}
