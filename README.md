@@ -5,26 +5,6 @@ This project manages coaches, members, and workers, each with distinct roles and
 
 ---
 
-## Project Structure
-
-src
-└── main
-├── java
-│ └── com.yourpackage
-│ ├── config # Configuration classes (CommandLineRunners, ModelMapper, etc.)
-│ ├── controller # REST controllers
-│ ├── entity # JPA entity classes
-│ ├── entity.enums # Enum definitions (e.g., Role)\
-│ ├── dto # DTO clases
-│ ├── dto.impl # DTO clases
-│ ├── repository # Spring Data JPA repositories
-│ └── service # Business logic 
-│ └── service.impl # Business logic 
-└── resources
-└── application.properties
-
----
-
 ## Features
 
 - CRUD support for 'Member', 'Coach', and 'Worker'
