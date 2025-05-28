@@ -20,7 +20,7 @@ public class MemberMapperimpl implements MemberMapper {
     }
 
     @Override
-    public MemberDTO converToMemberDTO(MemberEntity memberEntity) {
+    public MemberDTO convertToMemberDTO(MemberEntity memberEntity) {
         return modelMapper.map(memberEntity, MemberDTO.class);
     }
 }

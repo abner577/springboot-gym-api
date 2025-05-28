@@ -17,7 +17,7 @@ public class CoachEntity {
     private LocalDate dateOfBirth;
     private Roles role;
 
-    @OneToMany(mappedBy = "coaches", cascade = {
+    @OneToMany(mappedBy = "coachedBy", cascade = {
             CascadeType.PERSIST,
             CascadeType.DETACH,
             CascadeType.MERGE,

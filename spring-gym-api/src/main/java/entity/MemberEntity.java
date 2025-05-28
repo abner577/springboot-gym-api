@@ -50,10 +50,7 @@ public class MemberEntity {
         this.deadlift = deadlift;
         this.total = total;
     }
-    public MemberEntity(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
+
     public MemberEntity() {}
 
     public Long getId() {
