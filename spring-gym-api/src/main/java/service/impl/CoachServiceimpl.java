@@ -22,7 +22,7 @@ public class CoachServiceimpl implements CoachService {
 
     @Override
     public List<CoachEntity> getAllCoaches() {
-        return List.of();
+        return coachRepository.findAll();
     }
 
     @Override
