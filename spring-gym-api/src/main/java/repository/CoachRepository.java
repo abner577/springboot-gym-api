@@ -2,11 +2,17 @@ package repository;
 
 import entity.CoachEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+
+import java.awt.print.Pageable;
 import java.util.Optional;
 
 @Repository
 public interface CoachRepository extends JpaRepository<CoachEntity, Long> {
 
+    /**/
+    @Query("SELECT c FROM CoachEntity c ORDER BY SIZE(c.clients) DESC")
+    CoachEntity findCoachWithMostClients(Pageable pageable);
 
 }

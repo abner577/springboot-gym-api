@@ -3,15 +3,16 @@ package controller;
 import dto.CoachDTO;
 import dto.CoachMapper;
 import entity.CoachEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import service.CoachService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "api/v1/gym-api")
@@ -32,19 +33,36 @@ public class CoachController {
     }
 
     @GetMapping(path = "/coaches")
-    public List<CoachDTO> getAllCoaches(){
+    public Page<CoachDTO> getAllCoaches(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size
+    ){
+        Pageable pageable = PageRequest.of(page, size);
         List<CoachDTO> coachDTOSToReturn = new ArrayList<>();
-        List<CoachEntity> coachEntities = coachService.getAllCoaches();
+        Page<CoachEntity> coachEntities = coachService.getAllCoachesPageable(pageable);
+        if(coachEntities.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No coaches avaliable");
+
         for(CoachEntity coachEntity : coachEntities) {
             CoachDTO coachDTO =  coachMapper.convertToCoachDto(coachEntity);
             coachDTOSToReturn.add(coachDTO);
         }
-        return coachDTOSToReturn;
+        return (Page<CoachDTO>) coachDTOSToReturn;
     }
-    /* Functional Programming approach to this method
-        return coachService.getAllCoaches()
-        .stream()
-        .map(coachMapper::convertToCoachDto)
-        .collect(Collectors.toList());
-    */
+
+    @GetMapping (path = "/best/coach")
+    public CoachDTO getCoachWithTheHighestAmountOfClients1(){
+        List<CoachEntity> entityList = coachService.getAllCoaches();
+        if(entityList.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No coaches avaliable");
+        int max = entityList.get(0).getClients().size();
+        CoachEntity entityToReturn = entityList.get(0);
+
+        for(CoachEntity coachEntity : entityList){
+            if(coachEntity.getClients().size() > max) {
+                entityToReturn = coachEntity;
+                max = coachEntity.getClients().size();
+            }
+        }
+        CoachDTO coachDTO = coachMapper.convertToCoachDto(entityToReturn);
+        return coachDTO;
+    }
 }

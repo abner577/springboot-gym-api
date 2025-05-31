@@ -1,6 +1,8 @@
 package service.impl;
 
 import entity.CoachEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import repository.CoachRepository;
 import service.CoachService;
@@ -21,13 +23,13 @@ public class CoachServiceimpl implements CoachService {
     }
 
     @Override
-    public List<CoachEntity> getAllCoaches() {
-        return coachRepository.findAll();
+    public Page<CoachEntity> getAllCoachesPageable(Pageable pageable) {
+        return coachRepository.findAll(pageable);
     }
 
     @Override
-    public CoachEntity getCoachByHighestAmountOfClients() {
-        return null;
+    public List<CoachEntity> getAllCoaches() {
+        return coachRepository.findAll();
     }
 
     @Override
