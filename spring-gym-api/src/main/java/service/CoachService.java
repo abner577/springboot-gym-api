@@ -5,14 +5,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface CoachService {
     // --- GET methods ---
     CoachEntity getCoachById(Long id);
     Page<CoachEntity> getAllCoachesPageable(Pageable pageable);
     List<CoachEntity> getAllCoaches();
-    CoachEntity getCoachByLowestAmountOfClients();
-    List<String> getWorkoutPlansByCoach(CoachEntity coachEntity);
+    List<String> getWorkoutPlansByCoachName(String name);
 
 
     // --- POST methods ---

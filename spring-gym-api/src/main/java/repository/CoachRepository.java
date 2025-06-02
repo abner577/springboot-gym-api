@@ -11,8 +11,11 @@ import java.util.Optional;
 @Repository
 public interface CoachRepository extends JpaRepository<CoachEntity, Long> {
 
-    /**/
-    @Query("SELECT c FROM CoachEntity c ORDER BY SIZE(c.clients) DESC")
+    /*
+    @Query("SELECT c FROM CoachEntity c ORDER BY SIZE(c.client.orEs) DESC")
     CoachEntity findCoachWithMostClients(Pageable pageable);
+    */
 
+    Optional<CoachEntity> findCoachByName(String name);
+    Boolean existsByName(String name);
 }

@@ -3,6 +3,8 @@ package controller;
 import dto.CoachDTO;
 import dto.CoachMapper;
 import entity.CoachEntity;
+import jakarta.validation.Valid;
+import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -40,7 +42,6 @@ public class CoachController {
         Pageable pageable = PageRequest.of(page, size);
         List<CoachDTO> coachDTOSToReturn = new ArrayList<>();
         Page<CoachEntity> coachEntities = coachService.getAllCoachesPageable(pageable);
-        if(coachEntities.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No coaches avaliable");
 
         for(CoachEntity coachEntity : coachEntities) {
             CoachDTO coachDTO =  coachMapper.convertToCoachDto(coachEntity);
@@ -50,9 +51,8 @@ public class CoachController {
     }
 
     @GetMapping (path = "/best/coach")
-    public CoachDTO getCoachWithTheHighestAmountOfClients1(){
+    public CoachDTO getCoachWithTheHighestAmountOfClients(){
         List<CoachEntity> entityList = coachService.getAllCoaches();
-        if(entityList.isEmpty()) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No coaches avaliable");
         int max = entityList.get(0).getClients().size();
         CoachEntity entityToReturn = entityList.get(0);
 
@@ -65,4 +65,38 @@ public class CoachController {
         CoachDTO coachDTO = coachMapper.convertToCoachDto(entityToReturn);
         return coachDTO;
     }
+
+    @GetMapping (path = "/worst/coach")
+    public CoachDTO getCoachWithTheLowestAmountOfClients(){
+        List<CoachEntity> entityList = coachService.getAllCoaches();
+        int min = entityList.get(0).getClients().size();
+        CoachEntity entityToReturn = entityList.get(0);
+
+        for(CoachEntity coachEntity : entityList){
+            if(coachEntity.getClients().size() < min) {
+                entityToReturn = coachEntity;
+                min = coachEntity.getClients().size();
+            }
+        }
+        CoachDTO coachDTO = coachMapper.convertToCoachDto(entityToReturn);
+        return coachDTO;
+    }
+
+    @GetMapping (path = "/coach/{coach_name}")
+    public List<String> getWorkoutPlansByCoachName(@PathVariable(name = "coach_name") String name){
+        List<String> workoutPlans = coachService.getWorkoutPlansByCoachName(name);
+        return workoutPlans;
+    }
+
+    @PostMapping (path = "/coach")
+    public void registerNewCoach(@Valid @RequestBody CoachEntity coachEntity){
+        coachService.registerNewCoach(coachEntity);
+    }
+
+    @PostMapping (path = "/coaches")
+    public void registerNewCoaches(@Valid @RequestBody List<CoachEntity> coachEntities){
+        coachService.registerNewCoaches(coachEntities);
+    }
+
+
 }

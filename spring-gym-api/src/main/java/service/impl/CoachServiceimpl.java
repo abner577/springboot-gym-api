@@ -7,7 +7,10 @@ import org.springframework.stereotype.Service;
 import repository.CoachRepository;
 import service.CoachService;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CoachServiceimpl implements CoachService {
@@ -19,7 +22,8 @@ public class CoachServiceimpl implements CoachService {
 
     @Override
     public CoachEntity getCoachById(Long id) {
-        return coachRepository.getById(id);
+        return coachRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
     }
 
     @Override
@@ -29,27 +33,31 @@ public class CoachServiceimpl implements CoachService {
 
     @Override
     public List<CoachEntity> getAllCoaches() {
-        return coachRepository.findAll();
+        List<CoachEntity> list =  coachRepository.findAll();
+        if(list.isEmpty()) throw new IllegalStateException("No coaches currently registered");
+        return list;
     }
 
     @Override
-    public CoachEntity getCoachByLowestAmountOfClients() {
-        return null;
-    }
-
-    @Override
-    public List<String> getWorkoutPlansByCoach(CoachEntity coachEntity) {
-        return List.of();
+    public List<String> getWorkoutPlansByCoachName(String name) {
+        CoachEntity coachEntity = coachRepository.findCoachByName(name)
+                .orElseThrow(() -> new IllegalStateException("Coach with a name of: " + name + " doesnt exist"));
+        return coachEntity.getWorkoutPlans();
     }
 
     @Override
     public void registerNewCoach(CoachEntity coachEntity) {
-
+        Optional<CoachEntity> coachEntity1 = coachRepository.findCoachByName(coachEntity.getName());
+        if(coachEntity1.isPresent()) throw new IllegalStateException("Coach with a name of: " + coachEntity.getName() + " already exists");
+        coachRepository.save(coachEntity);
     }
 
     @Override
     public void registerNewCoaches(List<CoachEntity> coachEntities) {
-
+        for(CoachEntity coachEntity : coachEntities){
+            if(coachRepository.existsByName(coachEntity.getName())) throw new IllegalStateException("Coach with a name of: " + coachEntity.getName() + " already exists");
+        }
+        coachRepository.saveAll(coachEntities);
     }
 
     @Override

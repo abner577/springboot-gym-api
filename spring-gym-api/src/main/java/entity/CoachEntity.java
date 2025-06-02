@@ -2,6 +2,7 @@ package entity;
 
 import entity.enums.Roles;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -13,8 +14,16 @@ public class CoachEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
+
+    @NotBlank(message = "Name is Required")
     private String name;
+
+    @NotBlank(message = "Date of Birth is Required")
+    @Past
     private LocalDate dateOfBirth;
+
+    @NotBlank(message = "Role is Required")
+    @Enumerated(EnumType.STRING)
     private Roles role;
 
     @OneToMany(mappedBy = "coachedBy", cascade = {
@@ -23,8 +32,11 @@ public class CoachEntity {
             CascadeType.MERGE,
             CascadeType.REFRESH
     })
+    @NotEmpty
     private List<MemberEntity> clients;
-    private List<String> workoutPlans;
+
+    @ElementCollection
+    private List<@NotBlank(message = "Workout plans are required") String> workoutPlans;
     @Transient
     private int age;
 
@@ -43,8 +55,6 @@ public class CoachEntity {
         this.clients = clients;
         this.workoutPlans = workoutPlans;
     }
-
-    public CoachEntity() {}
 
     public CoachEntity(Long id, String name) {
         this.id = id;
