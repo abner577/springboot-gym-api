@@ -28,18 +28,6 @@ public class MemberEntity {
    private int deadlift;
    private int total;
 
-    public MemberEntity(Long id, String name, LocalDate dateOfBirth, CoachEntity coachedBy, String membershipDate, Roles role, int bench, int squat, int deadlift, int total) {
-        this.id = id;
-        this.name = name;
-        this.dateOfBirth = dateOfBirth;
-        this.coachedBy = coachedBy;
-        this.membershipDate = membershipDate;
-        this.role = role;
-        this.bench = bench;
-        this.squat = squat;
-        this.deadlift = deadlift;
-        this.total = total;
-    }
     public MemberEntity(String name, LocalDate dateOfBirth, String membershipDate, Roles role, int bench, int squat, int deadlift, int total) {
         this.name = name;
         this.dateOfBirth = dateOfBirth;
@@ -51,7 +39,6 @@ public class MemberEntity {
         this.total = total;
     }
 
-    public MemberEntity() {}
 
     public Long getId() {
         return id;

@@ -21,18 +21,11 @@ public class WorkerEntity {
     @Transient
     private int age;
 
-    public WorkerEntity(Long id, String name, LocalDate dateOfBirth, Roles role) {
-        this.id = id;
-        this.name = name;
-        this.dateOfBirth = dateOfBirth;
-        this.role = role;
-    }
     public WorkerEntity(String name, LocalDate dateOfBirth, Roles role) {
         this.name = name;
         this.dateOfBirth = dateOfBirth;
         this.role = role;
     }
-    public WorkerEntity () {};
 
     public Long getId() {
         return id;

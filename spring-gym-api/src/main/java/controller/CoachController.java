@@ -3,6 +3,8 @@ package controller;
 import dto.CoachDTO;
 import dto.CoachMapper;
 import entity.CoachEntity;
+import entity.MemberEntity;
+import entity.wrapper.CoachListWrapper;
 import jakarta.validation.Valid;
 import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.data.domain.Page;
@@ -93,10 +95,26 @@ public class CoachController {
         coachService.registerNewCoach(coachEntity);
     }
 
-    @PostMapping (path = "/coaches")
-    public void registerNewCoaches(@Valid @RequestBody List<CoachEntity> coachEntities){
-        coachService.registerNewCoaches(coachEntities);
+    @PostMapping(path = "/coaches")
+    public void registerNewCoaches(@Valid @RequestBody CoachListWrapper coachListWrapper) {
+        coachService.registerNewCoaches(coachListWrapper.getCoachList());
     }
 
+    @PatchMapping(path = "/update/coach/{coach_id}")
+    public void updateNameOrClientsById(
+            @PathVariable("coach_id") Long id,
+            @RequestParam(required = false) String name,
+            @RequestBody List<MemberEntity> clients) {
+        coachService.updateNameOrClientsById(id, name, clients);
+    }
+
+    @DeleteMapping(path = "/coach/{coach_id}")
+    public void deleteCoach(@PathVariable("coach_id") Long id){
+        coachService.deleteCoachById(id);
+    }
+    @DeleteMapping(path = "/coach")
+    public void deleteAllCoaches(){
+        coachService.deleteAllCoaches();
+    }
 
 }

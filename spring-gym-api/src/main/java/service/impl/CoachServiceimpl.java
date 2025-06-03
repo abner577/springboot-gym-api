@@ -1,16 +1,16 @@
 package service.impl;
 
 import entity.CoachEntity;
+import entity.MemberEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import repository.CoachRepository;
 import service.CoachService;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class CoachServiceimpl implements CoachService {
@@ -61,23 +61,33 @@ public class CoachServiceimpl implements CoachService {
     }
 
     @Override
-    public void updateNameAndEmailById(Long id, String name, String email) {
+    public void updateNameOrClientsById(Long id, String name, List<MemberEntity> clients) {
+        if(name == null && clients == null) throw new IllegalStateException("Provide either a new name or a new client name to update credentials");
+        if(coachRepository.existsByName(name)) throw new IllegalStateException("Coach with a name of: " + name + " already exists");
 
-    }
+        CoachEntity coachToUpdate = coachRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
 
-    @Override
-    public void updateAmountOfClientsById(Long id) {
+        if(name != null && name.length() > 0) coachToUpdate.setName(name);
+        else throw new IllegalStateException("New name cannot be null or an empty string");
 
+        HashSet<MemberEntity> newClientSet = coachToUpdate.getClients();
+        newClientSet.addAll(clients);
+        if(clients != null && clients.size() > 0) {
+            coachToUpdate.setClients(newClientSet);
+            coachRepository.save(coachToUpdate);
+        } else throw new IllegalStateException("Client/clients cannot be empty or null");
     }
 
     @Override
     public void deleteCoachById(Long id) {
-
+        if(coachRepository.existsById(id)) coachRepository.deleteById(id);
+        else throw new IllegalStateException("Coach with an id of: " + id + " doesnt exist");
     }
 
     @Override
     public void deleteAllCoaches() {
-
+        coachRepository.deleteAll();
     }
 
 }

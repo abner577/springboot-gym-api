@@ -6,6 +6,7 @@ import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.HashSet;
 import java.util.List;
 
 @Entity
@@ -33,22 +34,14 @@ public class CoachEntity {
             CascadeType.REFRESH
     })
     @NotEmpty
-    private List<MemberEntity> clients;
+    private HashSet<MemberEntity> clients;
 
     @ElementCollection
     private List<@NotBlank(message = "Workout plans are required") String> workoutPlans;
     @Transient
     private int age;
 
-    public CoachEntity(Long id, String name, LocalDate dateOfBirth, Roles role, List<MemberEntity> clients, List<String> workoutPlans) {
-        this.id = id;
-        this.name = name;
-        this.dateOfBirth = dateOfBirth;
-        this.role = role;
-        this.clients = clients;
-        this.workoutPlans = workoutPlans;
-    }
-    public CoachEntity(String name, LocalDate dateOfBirth, Roles role, List<MemberEntity> clients, List<String> workoutPlans) {
+    public CoachEntity(String name, LocalDate dateOfBirth, Roles role, HashSet<MemberEntity> clients, List<String> workoutPlans) {
         this.name = name;
         this.dateOfBirth = dateOfBirth;
         this.role = role;
@@ -56,14 +49,7 @@ public class CoachEntity {
         this.workoutPlans = workoutPlans;
     }
 
-    public CoachEntity(Long id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public int getId() {
-        return Period.between(this.dateOfBirth, LocalDate.now()).getYears();
-    }
+    public Long getId() {return id;}
 
     public void setId(Long id) {
         this.id = id;
@@ -77,8 +63,8 @@ public class CoachEntity {
         this.name = name;
     }
 
-    public LocalDate getDateOfBirth() {
-        return dateOfBirth;
+    public int getDateOfBirth() {
+        return Period.between(this.dateOfBirth, LocalDate.now()).getYears();
     }
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
@@ -91,11 +77,11 @@ public class CoachEntity {
 
     public void setRole(Roles role) {this.role = role;}
 
-    public List<MemberEntity> getClients() {
+    public HashSet<MemberEntity> getClients() {
         return clients;
     }
 
-    public void setClients(List<MemberEntity> clients) {
+    public void setClients(HashSet<MemberEntity> clients) {
         this.clients = clients;
     }
 

@@ -13,6 +13,7 @@ import repository.WorkerRepository;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 @Configuration
@@ -29,7 +30,7 @@ public class EntityConfig {
                     "Alex Smith",
                     LocalDate.of(1980, 4, 12),
                     Roles.ROLE_COACH,
-                    new ArrayList<>(),
+                    new HashSet<>(),
                     List.of("FBEOD" , "Upper/Lower")
             );
 
@@ -37,7 +38,7 @@ public class EntityConfig {
                     "Maria Gonzalez",
                     LocalDate.of(1985, 11, 3),
                     Roles.ROLE_WORKER,
-                    new ArrayList<>(),
+                    new HashSet<>(),
                     List.of("PPL/Upper Lower", "PPL/Arnold")
             );
 

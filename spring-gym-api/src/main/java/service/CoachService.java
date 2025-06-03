@@ -1,6 +1,7 @@
 package service;
 
 import entity.CoachEntity;
+import entity.MemberEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -20,10 +21,9 @@ public interface CoachService {
     void registerNewCoaches(List<CoachEntity> coachEntities);
 
     // --- PUT/PATCH methods ---
-    void updateNameAndEmailById(Long id, String name, String email);
-    void updateAmountOfClientsById(Long id); // --> figure out how to implement this later
+    void updateNameOrClientsById(Long id, String name, List<MemberEntity> clients);
 
-    // --- DELETE methods --- *All Delete methods need to have authentication implemented, we are lookign for a heading that has a ROLE-WORKER*
+    // --- DELETE methods --- *All Delete methods need to have authentication implemented, we are looking for a heading that has a ROLE-WORKER*
     void deleteCoachById(Long id);
     void deleteAllCoaches();
 
