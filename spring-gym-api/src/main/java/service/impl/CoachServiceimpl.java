@@ -80,6 +80,19 @@ public class CoachServiceimpl implements CoachService {
     }
 
     @Override
+    public void updateCoachById(Long id, CoachEntity coachEntity) {
+        CoachEntity coachEntityToUpdate = coachRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
+
+        coachEntityToUpdate.setName(coachEntity.getName());
+        coachEntityToUpdate.setClients(coachEntity.getClients());
+        coachEntityToUpdate.setAge(coachEntity.getAge());
+        coachEntityToUpdate.setWorkoutPlans(coachEntity.getWorkoutPlans());
+
+        coachRepository.save(coachEntity);
+    }
+
+    @Override
     public void deleteCoachById(Long id) {
         if(coachRepository.existsById(id)) coachRepository.deleteById(id);
         else throw new IllegalStateException("Coach with an id of: " + id + " doesnt exist");

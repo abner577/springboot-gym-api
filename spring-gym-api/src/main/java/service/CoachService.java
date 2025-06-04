@@ -22,6 +22,7 @@ public interface CoachService {
 
     // --- PUT/PATCH methods ---
     void updateNameOrClientsById(Long id, String name, List<MemberEntity> clients);
+    void updateCoachById(Long id, CoachEntity coachEntity);
 
     // --- DELETE methods --- *All Delete methods need to have authentication implemented, we are looking for a heading that has a ROLE-WORKER*
     void deleteCoachById(Long id);

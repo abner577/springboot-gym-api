@@ -6,13 +6,10 @@ import entity.CoachEntity;
 import entity.MemberEntity;
 import entity.wrapper.CoachListWrapper;
 import jakarta.validation.Valid;
-import org.springframework.boot.context.config.ConfigDataResourceNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 import service.CoachService;
 
 import java.util.ArrayList;
@@ -104,8 +101,17 @@ public class CoachController {
     public void updateNameOrClientsById(
             @PathVariable("coach_id") Long id,
             @RequestParam(required = false) String name,
-            @RequestBody List<MemberEntity> clients) {
+            @RequestBody(required = false) List<MemberEntity> clients
+    ) {
         coachService.updateNameOrClientsById(id, name, clients);
+    }
+
+    @PutMapping(path = "/update/coach/{coach_id}")
+    public void updateCoach(
+            @PathVariable("coach_id") Long id,
+            @RequestBody CoachEntity coachEntity
+    ) {
+        coachService.updateCoachById(id, coachEntity);
     }
 
     @DeleteMapping(path = "/coach/{coach_id}")
