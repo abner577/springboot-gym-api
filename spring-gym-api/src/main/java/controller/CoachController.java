@@ -9,6 +9,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import service.CoachService;
 
@@ -27,10 +28,10 @@ public class CoachController {
         this.coachMapper= coachMapper;
     }
     @GetMapping(path = "/coach/{coach_id}")
-    public CoachDTO getCoachById(@PathVariable("coach_id") Long id) {
+    public ResponseEntity<CoachDTO> getCoachById(@PathVariable("coach_id") Long id) {
         CoachEntity coachEntity = coachService.getCoachById(id);
         CoachDTO coachDTO = coachMapper.convertToCoachDto(coachEntity);
-        return coachDTO;
+        return ResponseEntity.ok(coachDTO);
     }
 
     @GetMapping(path = "/coaches")

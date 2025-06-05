@@ -38,6 +38,9 @@ public class MemberEntity {
         this.deadlift = deadlift;
         this.total = total;
     }
+    public MemberEntity(String name) {
+        this.name = name;
+    }
 
 
     public Long getId() {

@@ -42,10 +42,6 @@ public class EntityConfig {
                     List.of("PPL/Upper Lower", "PPL/Arnold")
             );
 
-            listOfCoaches.add(coach1);
-            listOfCoaches.add(coach2);
-            coachRepository.save(coach1);
-
             MemberEntity member1 = new MemberEntity(
                     "John Doe",
                     LocalDate.of(1995, 3, 15),
@@ -56,7 +52,6 @@ public class EntityConfig {
                     315,
                     225 + 275 +315
             );
-            member1.setCoachedBy(coach1);
 
             MemberEntity member2 = new MemberEntity(
                     "Jane Smith",
@@ -68,7 +63,6 @@ public class EntityConfig {
                     200,
                     135 + 185 + 200
             );
-            member2.setCoachedBy(coach2);
 
             MemberEntity member3 = new MemberEntity(
                     "David Lee",
@@ -80,7 +74,6 @@ public class EntityConfig {
                     405,
                     225 + 315 + 405
             );
-            member3.setCoachedBy(coach1);
 
             MemberEntity member4 = new MemberEntity(
                     "Emily Chen",
@@ -92,7 +85,6 @@ public class EntityConfig {
                     160,
                     115 + 145 + 160
             );
-            member4.setCoachedBy(coach2);
 
             MemberEntity member5 = new MemberEntity(
                     "Carlos Rivera",
@@ -104,14 +96,31 @@ public class EntityConfig {
                     275,
                     200 + 250 + 275
             );
+
+            // set members coaches
+            member1.setCoachedBy(coach1);
+            member2.setCoachedBy(coach2);
+            member3.setCoachedBy(coach1);
+            member4.setCoachedBy(coach2);
             member5.setCoachedBy(coach1);
 
-                    listOfMembers.add(member1);
-                    listOfMembers.add(member2);
-                    listOfMembers.add(member3);
-                    listOfMembers.add(member4);
-                    listOfMembers.add(member5);
-                    memberRepository.saveAll(listOfMembers);
+            // set coaches client list
+            coach1.getClients().addAll(List.of(member1, member3, member5));
+            coach2.getClients().addAll(List.of(member2, member4));
+
+            // add coaches to coachesList
+            listOfCoaches.add(coach1);
+            listOfCoaches.add(coach2);
+
+            // add members to membersList
+            listOfMembers.add(member1);
+            listOfMembers.add(member2);
+            listOfMembers.add(member3);
+            listOfMembers.add(member4);
+            listOfMembers.add(member5);
+
+            coachRepository.saveAll(listOfCoaches);
+            memberRepository.saveAll(listOfMembers);
         };
     }
     // ───── Seed Workers ─────
