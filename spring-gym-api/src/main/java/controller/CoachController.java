@@ -28,10 +28,12 @@ public class CoachController {
         this.coachMapper= coachMapper;
     }
     @GetMapping(path = "/coach/{coach_id}")
-    public ResponseEntity<CoachDTO> getCoachById(@PathVariable("coach_id") Long id) {
+    public ResponseEntity<CoachEntity> getCoachById(@PathVariable("coach_id") Long id) {
         CoachEntity coachEntity = coachService.getCoachById(id);
-        CoachDTO coachDTO = coachMapper.convertToCoachDto(coachEntity);
-        return ResponseEntity.ok(coachDTO);
+        return ResponseEntity.ok(coachEntity);
+
+        // CoachDTO coachDTO = coachMapper.convertToCoachDto(coachEntity);
+       // return ResponseEntity.ok(coachDTO);
     }
 
     @GetMapping(path = "/coaches")

@@ -2,7 +2,6 @@ package service.impl;
 
 import entity.MemberEntity;
 import org.springframework.stereotype.Service;
-import repository.CoachRepository;
 import repository.MemberRepository;
 import service.MemberService;
 

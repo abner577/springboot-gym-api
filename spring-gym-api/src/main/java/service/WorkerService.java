@@ -3,8 +3,6 @@ package service;
 
 import entity.WorkerEntity;
 
-import java.util.List;
-
 public interface WorkerService {
     // --- GET methods ---
     WorkerEntity getWorkerById(Long id);

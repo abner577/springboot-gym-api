@@ -63,9 +63,7 @@ public class CoachEntity {
         this.name = name;
     }
 
-    public int getDateOfBirth() {
-        return Period.between(this.dateOfBirth, LocalDate.now()).getYears();
-    }
+    public LocalDate getDateOfBirth() {return this.dateOfBirth;}
 
     public void setDateOfBirth(LocalDate dateOfBirth) {
         this.dateOfBirth = dateOfBirth;
@@ -94,7 +92,7 @@ public class CoachEntity {
     }
 
     public int getAge() {
-        return age;
+        return Period.between(this.dateOfBirth, LocalDate.now()).getYears();
     }
 
     public void setAge(int age) {

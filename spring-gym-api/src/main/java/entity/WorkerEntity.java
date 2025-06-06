@@ -2,7 +2,6 @@ package entity;
 
 import entity.enums.Roles;
 import jakarta.persistence.*;
-import org.hibernate.jdbc.Work;
 
 import java.time.LocalDate;
 import java.time.Period;
