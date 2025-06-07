@@ -1,7 +1,7 @@
 package practice.spring_gym_api.testdata;
 
-import entity.WorkerEntity;
-import entity.enums.Roles;
+import practice.spring_gym_api.entity.WorkerEntity;
+import practice.spring_gym_api.entity.enums.Roles;
 
 import java.time.LocalDate;
 

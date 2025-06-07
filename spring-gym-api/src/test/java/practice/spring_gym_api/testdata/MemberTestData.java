@@ -1,8 +1,8 @@
 package practice.spring_gym_api.testdata;
 
-import entity.CoachEntity;
-import entity.MemberEntity;
-import entity.enums.Roles;
+import practice.spring_gym_api.entity.CoachEntity;
+import practice.spring_gym_api.entity.MemberEntity;
+import practice.spring_gym_api.entity.enums.Roles;
 
 import java.time.LocalDate;
 import java.util.HashSet;
