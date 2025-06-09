@@ -1,7 +1,6 @@
 package practice.spring_gym_api.controller;
 
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.data.domain.PageImpl;
 import practice.spring_gym_api.dto.CoachDTO;
 import practice.spring_gym_api.dto.CoachMapper;
 import practice.spring_gym_api.entity.CoachEntity;
@@ -15,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import practice.spring_gym_api.service.CoachService;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
