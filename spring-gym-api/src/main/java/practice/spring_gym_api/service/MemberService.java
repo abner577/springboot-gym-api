@@ -24,9 +24,10 @@ public interface MemberService {
     void registerNewMembers(List<MemberEntity> memberEntities);
 
     // --- PUT/PATCH methods ---
-    void updateNameById(Long id, String name);
-    void updateMultipleMembersNameById(List<Long> ids, List<String> names);
+    void updateNameByIdAndEmail(Long id, String name, String email);
+    void updateMultipleMembersNameByIdAndEmail(List<Long> ids, List<String> names, List<String> emails);
     void updateSBDStatus(Long id, int bench, int squat, int deadlift); //make these requestParams, so make them optional, any one of them
+    void updateCompleteMember(Long id, MemberEntity memberEntity);
 
     // --- DELETE methods --- *All Delete methods need to have authentication implemented, we are lookign for a heading that has a ROLE-WORKER*
     void deleteMemberById(Long id);

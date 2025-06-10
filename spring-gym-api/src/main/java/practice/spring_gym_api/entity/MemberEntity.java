@@ -1,4 +1,5 @@
 package practice.spring_gym_api.entity;
+import jakarta.validation.constraints.*;
 import practice.spring_gym_api.entity.enums.Roles;
 import jakarta.persistence.*;
 
@@ -10,29 +11,58 @@ import java.time.Period;
 public class MemberEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-   private Long id;
+    @SequenceGenerator(
+            name = "coach_sequence",
+            sequenceName = "coach_sequence",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "coach_sequence"
+    )
+    private Long id;
+
+    @NotBlank(message = "Name is Required")
    private String name;
+
+    @NotNull
+    @Past
    private LocalDate dateOfBirth;
+
+    @NotBlank(message = "Email is Required")
+    @Email(message = "Invalid email format")
+    private String email;
+
 
    @ManyToOne
    @JoinColumn(name = "coach_id")
+   @NotNull(message = "Coach is required")
    private CoachEntity coachedBy;
+
+    @NotBlank(message = "Membership date is Required")
    private String membershipDate;
+
+    @NotNull(message = "Role is Required")
+    @Enumerated(EnumType.STRING)
    private Roles role;
    @Transient
    private int age;
 
+    @Min(value = 1, message = "Bench must be greater than 0")
    private int bench;
+    @Min(value = 1, message = "Squat must be greater than 0")
    private int squat;
+    @Min(value = 1, message = "Deadlift must be greater than 0")
    private int deadlift;
+    @Min(value = 1, message = "Total must be greater than 0")
    private int total;
 
-    public MemberEntity(String name, LocalDate dateOfBirth, String membershipDate, Roles role, int bench, int squat, int deadlift, int total) {
+    public MemberEntity(String name, LocalDate dateOfBirth, String membershipDate, String email,  Roles role, int bench, int squat, int deadlift, int total) {
         this.name = name;
         this.dateOfBirth = dateOfBirth;
         this.membershipDate = membershipDate;
         this.role = role;
+        this.email = email;
         this.bench = bench;
         this.squat = squat;
         this.deadlift = deadlift;
@@ -131,4 +161,8 @@ public class MemberEntity {
     public void setTotal(int total) {
         this.total = total;
     }
+
+    public String getEmail() {return email;}
+
+    public void setEmail(String email) {this.email = email;}
 }

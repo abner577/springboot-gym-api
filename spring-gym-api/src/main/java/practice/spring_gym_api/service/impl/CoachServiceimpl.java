@@ -47,23 +47,22 @@ public class CoachServiceimpl implements CoachService {
 
     @Override
     public void registerNewCoach(CoachEntity coachEntity) {
-        Optional<CoachEntity> coachEntity1 = coachRepository.findCoachByName(coachEntity.getName());
-        if(coachEntity1.isPresent()) throw new IllegalStateException("Coach with a name of: " + coachEntity.getName() + " already exists");
+        Optional<CoachEntity> coachEntity1 = Optional.ofNullable(coachRepository.findByEmail(coachEntity.getEmail()));
+        if(coachEntity1.isPresent()) throw new IllegalStateException("Coach with an email of: " + coachEntity.getEmail() + " already exists");
         coachRepository.save(coachEntity);
     }
 
     @Override
     public void registerNewCoaches(List<CoachEntity> coachEntities) {
         for(CoachEntity coachEntity : coachEntities){
-            if(coachRepository.existsByName(coachEntity.getName())) throw new IllegalStateException("Coach with a name of: " + coachEntity.getName() + " already exists");
+            if(coachRepository.existsByEmail(coachEntity.getEmail())) throw new IllegalStateException("Coach with an email of: " + coachEntity.getEmail() + " already exists");
         }
         coachRepository.saveAll(coachEntities);
     }
 
     @Override
     public void updateNameOrClientsById(Long id, String name, List<MemberEntity> clients) {
-        if(name == null && clients == null) throw new IllegalStateException("Provide either a new name or a new client name to update credentials");
-        if(coachRepository.existsByName(name)) throw new IllegalStateException("Coach with a name of: " + name + " already exists");
+        if(name == null || clients == null) throw new IllegalStateException("Provide either a new name or a new client name to update credentials");
 
         CoachEntity coachToUpdate = coachRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
@@ -80,15 +79,23 @@ public class CoachServiceimpl implements CoachService {
     }
 
     @Override
-    public void updateCoachById(Long id, CoachEntity coachEntity) {
+    public void updateCoachByIdAndEmail(Long id, String email, CoachEntity coachEntity) {
         CoachEntity coachEntityToUpdate = coachRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
+
+        if(!coachRepository.existsByEmail(email)){
+            throw new IllegalStateException("Coach with an email of: " + email + " doesnt exist");
+        }
+        else if (coachEntityToUpdate != coachRepository.findByEmail(email)) {
+            throw new IllegalStateException("Coach with an id of: " + id + " is not the same coach that has an email of: " + email);
+        }
 
         coachEntityToUpdate.setName(coachEntity.getName());
         coachEntityToUpdate.setClients(coachEntity.getClients());
         coachEntityToUpdate.setAge(coachEntity.getAge());
         coachEntityToUpdate.setWorkoutPlans(coachEntity.getWorkoutPlans());
-
+        coachEntityToUpdate.setDateOfBirth(coachEntity.getDateOfBirth());
+        coachEntityToUpdate.setEmail(coachEntity.getEmail());
         coachRepository.save(coachEntity);
     }
 

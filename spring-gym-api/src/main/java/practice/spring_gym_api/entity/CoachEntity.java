@@ -28,6 +28,10 @@ public class CoachEntity {
     @NotBlank(message = "Name is Required")
     private String name;
 
+    @NotBlank(message = "Email is Required")
+    @Email(message = "Invalid email format")
+    private String email;
+
     @NotNull
     @Past
     private LocalDate dateOfBirth;
@@ -46,15 +50,18 @@ public class CoachEntity {
     private Set<MemberEntity> clients;
 
     @ElementCollection
+    @NotNull(message = "Workout plans list must not be null")
+    @Size(min = 1, message = "At least one workout plan must be provided")
     private List<@NotBlank(message = "Workout plans are required") String> workoutPlans;
     @Transient
     private int age;
 
-    public CoachEntity(String name, LocalDate dateOfBirth, Roles role, Set<MemberEntity> clients, List<String> workoutPlans) {
+    public CoachEntity(String name, LocalDate dateOfBirth, Roles role, Set<MemberEntity> clients, String email, List<String> workoutPlans) {
         this.name = name;
         this.dateOfBirth = dateOfBirth;
         this.role = role;
         this.clients = clients;
+        this.email = email;
         this.workoutPlans = workoutPlans;
     }
 
@@ -109,4 +116,8 @@ public class CoachEntity {
     public void setAge(int age) {
         this.age = age;
     }
+
+    public String getEmail() {return email;}
+
+    public void setEmail(String email) {this.email = email;}
 }

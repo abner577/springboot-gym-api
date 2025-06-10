@@ -1,5 +1,9 @@
 package practice.spring_gym_api.entity;
 
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Past;
 import practice.spring_gym_api.entity.enums.Roles;
 import jakarta.persistence.*;
 
@@ -11,17 +15,38 @@ import java.time.Period;
 public class WorkerEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(
+            name = "coach_sequence",
+            sequenceName = "coach_sequence",
+            allocationSize = 1
+    )
+    @GeneratedValue(
+            strategy = GenerationType.SEQUENCE,
+            generator = "coach_sequence"
+    )
     private Long id;
+
+    @NotBlank(message = "Name is Required")
     private String name;
+
+    @NotNull
+    @Past
     private LocalDate dateOfBirth;
+
+    @NotNull(message = "Role is Required")
+    @Enumerated(EnumType.STRING)
     private Roles role;
+
+    @NotBlank(message = "Email is Required")
+    @Email(message = "Invalid email format")
+    private String email;
 
     @Transient
     private int age;
 
-    public WorkerEntity(String name, LocalDate dateOfBirth, Roles role) {
+    public WorkerEntity(String name, String email, LocalDate dateOfBirth, Roles role) {
         this.name = name;
+        this.email = email;
         this.dateOfBirth = dateOfBirth;
         this.role = role;
     }
@@ -66,4 +91,8 @@ public class WorkerEntity {
     public void setAge(int age) {
         this.age = age;
     }
+
+    public String getEmail() {return email;}
+
+    public void setEmail(String email) {this.email = email;}
 }

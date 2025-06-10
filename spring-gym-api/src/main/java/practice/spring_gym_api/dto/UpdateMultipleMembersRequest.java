@@ -17,6 +17,10 @@ public class UpdateMultipleMembersRequest {
     @Size(min = 2, message = "At least two names must be provided")
     private List<@NotBlank(message = "Name must not be blank") String> names;
 
+    @NotNull(message = "List of emails must not be null")
+    @Size(min = 2, message = "At least two emails must be provided")
+    private List<@NotBlank(message = "Email must not be blank") String> emails;
+
     public List<Long> getIds() {
         return ids;
     }
@@ -31,5 +35,13 @@ public class UpdateMultipleMembersRequest {
 
     public void setNames(List<String> names) {
         this.names = names;
+    }
+
+    public List<String> getEmails() {
+        return emails;
+    }
+
+    public void setEmails(List<String> emails) {
+        this.emails = emails;
     }
 }

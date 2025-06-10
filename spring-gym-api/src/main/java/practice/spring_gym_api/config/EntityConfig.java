@@ -31,6 +31,7 @@ public class EntityConfig {
                     LocalDate.of(1980, 4, 12),
                     Roles.ROLE_COACH,
                     new HashSet<>(),
+                    "alexSmith@gmail.com",
                     List.of("FBEOD" , "Upper/Lower")
             );
 
@@ -39,6 +40,7 @@ public class EntityConfig {
                     LocalDate.of(1985, 11, 3),
                     Roles.ROLE_WORKER,
                     new HashSet<>(),
+                    "mariaGonzalez@gmail.com",
                     List.of("PPL/Upper Lower", "PPL/Arnold")
             );
 
@@ -46,6 +48,7 @@ public class EntityConfig {
                     "John Doe",
                     LocalDate.of(1995, 3, 15),
             "2024-01-10",
+                    "johnDoe@gmail.com",
                     Roles.ROLE_MEMBER,
                     225,
                     275,
@@ -57,6 +60,7 @@ public class EntityConfig {
                     "Jane Smith",
                     LocalDate.of(1990, 7, 22),
                     "2023-11-02",
+                    "janeSmith@gmail.com",
                     Roles.ROLE_MEMBER,
                     135,
                     185,
@@ -68,6 +72,7 @@ public class EntityConfig {
                     "David Lee",
                     LocalDate.of(1988, 6, 10),
                     "2023-05-20",
+                    "davidLee@gmail.com",
                     Roles.ROLE_MEMBER,
                     225,
                     315,
@@ -79,6 +84,7 @@ public class EntityConfig {
                     "Emily Chen",
                     LocalDate.of(1997, 9, 1),
                     "2024-03-01",
+                    "emelyChen@gmail.com",
                     Roles.ROLE_MEMBER,
                     115,
                     145,
@@ -90,6 +96,7 @@ public class EntityConfig {
                     "Carlos Rivera",
                     LocalDate.of(1992, 12, 5),
                     "2023-08-15",
+                    "carlosRivera@gmail.com",
                     Roles.ROLE_MEMBER,
                     200,
                     250,
@@ -131,12 +138,14 @@ public class EntityConfig {
 
             WorkerEntity worker1 = new WorkerEntity(
                     "Rachel Thomas",
+                    "rachelThomas@gmail.com",
                     LocalDate.of(1985, 2, 14),
                     Roles.ROLE_WORKER
             );
 
             WorkerEntity worker2 = new WorkerEntity(
                     "James Wu",
+                    "jamesWu@gmail.com",
                     LocalDate.of(1990, 10, 30),
                     Roles.ROLE_WORKER
             );

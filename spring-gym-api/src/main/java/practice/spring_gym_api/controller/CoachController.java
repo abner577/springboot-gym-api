@@ -100,17 +100,18 @@ public class CoachController {
     public void updateNameOrClientsById(
             @PathVariable("coach_id") Long id,
             @RequestParam(required = false) String name,
-            @RequestBody(required = false) List<MemberEntity> clients
+           @Valid @RequestBody(required = false) List<MemberEntity> clients
     ) {
         coachService.updateNameOrClientsById(id, name, clients);
     }
 
     @PutMapping(path = "/update/coach/{coach_id}")
-    public void updateCoach(
+    public void updateCoachByIdAndEmail(
             @PathVariable("coach_id") Long id,
-            @RequestBody CoachEntity coachEntity
+            @RequestParam(required = true) String name,
+            @Valid @RequestBody CoachEntity coachEntity
     ) {
-        coachService.updateCoachById(id, coachEntity);
+        coachService.updateCoachByIdAndEmail(id, name, coachEntity);
     }
 
     @DeleteMapping(path = "/coach/{coach_id}")

@@ -104,23 +104,27 @@ public class MemberServiceimpl implements MemberService {
 
     @Override
     public void registerNewMember(MemberEntity memberEntity) {
-        if(memberRepository.findMemberByName(memberEntity.getName())) throw new IllegalStateException("Member with a name of: " + memberEntity.getName() + " already exists");
+        if(memberRepository.existsByEmail(memberEntity.getEmail())) throw new IllegalStateException("Member with an email of: " + memberEntity.getEmail() + " already exists");
         memberRepository.save(memberEntity);
     }
 
     @Override
     public void registerNewMembers(List<MemberEntity> memberEntities) {
         for(MemberEntity memberEntity : memberEntities){
-            if(memberRepository.findMemberByName(memberEntity.getName())) throw new IllegalStateException("Member with a name of: " + memberEntity.getName() + " already exists");
+            if(memberRepository.existsByEmail(memberEntity.getEmail())) throw new IllegalStateException("Member with an email of: " + memberEntity.getEmail() + " already exists");
         }
         memberRepository.saveAll(memberEntities);
     }
 
     @Override
-    public void updateNameById(Long id, String name) {
+    public void updateNameByIdAndEmail(Long id, String name, String email) {
         MemberEntity memberEntityToUpdate = memberRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
-        if(memberRepository.findMemberByName(name)) throw new IllegalStateException("Member with a name of: " + name + " already exists");
+        if(!memberRepository.existsByEmail(email)) {
+            throw new IllegalStateException("Member with an email of: " + email + " doesnt exist");
+        } else if (memberEntityToUpdate != memberRepository.findMemberByEmail(email)) {
+            throw new IllegalStateException("Member with an id of: " + id + " is not the same member that has an email of: " + email);
+        }
 
         if(name != null && name.length() > 0) {
             memberEntityToUpdate.setName(name);
@@ -129,42 +133,91 @@ public class MemberServiceimpl implements MemberService {
     }
 
     @Override
-    public void updateMultipleMembersNameById(List<Long> ids, List<String> names) {
-        if(ids.size() != names.size()) throw new IllegalStateException("Size of names and id's lists must be equal");
-        Set<Long> idsCopy = new HashSet<>();
+    public void updateMultipleMembersNameByIdAndEmail(List<Long> ids, List<String> names, List<String> emails) {
+        if(ids.size() != names.size() || ids.size() != emails.size() || names.size() != emails.size()) {
+            throw new IllegalStateException("Size of names, id's, and emails lists must be equal");
+        }
 
+        Set<Long> idsCopy = new HashSet<>();
         for(Long id : ids){
             idsCopy.add(id);
             memberRepository.findById(id)
                     .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
         }
+        Set<String> emailsCopy = new HashSet<>();
+        for(String email : emails){
+            emailsCopy.add(email);
+            if(!memberRepository.existsByEmail(email)) throw new IllegalStateException("Member with an email of: " + email + " doesnt exist");
+        }
+
         if(idsCopy.size() != ids.size()) throw new IllegalStateException("Duplicates detected inside of id list, each id must be unique");
+        if(emailsCopy.size() != emails.size()) throw new IllegalStateException("Duplicates detected inside of email list, each email must be unique");
 
         List<MemberEntity> memberEntitiesToUpdate = memberRepository.findAllById(ids);
 
         for(int i =0; i < memberEntitiesToUpdate.size(); i++){
-            if(names.get(i) == null || names.get(i).isEmpty() || names.get(i).length() < 0) throw new IllegalStateException("Name provided must be not-null and must not be an empty string");
+            if(names.get(i) == null || names.get(i).isEmpty() || names.get(i).length() < 0) {
+                throw new IllegalStateException("Name provided must be not-null and must not be an empty string");
+            }
+            if (!memberEntitiesToUpdate.get(i).equals(memberRepository.findMemberByEmail(emails.get(i)))) {
+                throw new IllegalStateException("Provided ID and email do not belong to the same member");
+            }
 
-            if(memberRepository.findMemberByName(names.get(i)))
-                throw new IllegalStateException("Member with a name of: " + memberEntitiesToUpdate.get(i).getName() + " already exists");
             memberEntitiesToUpdate.get(i).setName(names.get(i));
         }
         memberRepository.saveAll(memberEntitiesToUpdate);
     }
 
-
     @Override
     public void updateSBDStatus(Long id, int bench, int squat, int deadlift) {
+        MemberEntity entityToUpdate = memberRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
 
+        if(bench < 1 || squat < 1 || deadlift < 1){
+            throw new IllegalStateException("Lifts cannot be negative or 0");
+        } else {
+            int total = bench + squat + deadlift;
+            entityToUpdate.setBench(bench);
+            entityToUpdate.setSquat(squat);
+            entityToUpdate.setDeadlift(deadlift);
+            entityToUpdate.setTotal(total);
+            memberRepository.save(entityToUpdate);
+        }
+    }
+
+    @Override
+    public void updateCompleteMember(Long id, MemberEntity memberEntity) {
+        MemberEntity entityToUpdate = memberRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
+        int total = memberEntity.getBench() + memberEntity.getSquat() + memberEntity.getDeadlift();
+
+        entityToUpdate.setName(memberEntity.getName());
+        entityToUpdate.setEmail(memberEntity.getEmail());
+        entityToUpdate.setAge(memberEntity.getAge());
+        entityToUpdate.setRole(memberEntity.getRole());
+        entityToUpdate.setDateOfBirth(memberEntity.getDateOfBirth());
+        entityToUpdate.setMembershipDate(memberEntity.getMembershipDate());
+        entityToUpdate.setBench(memberEntity.getBench());
+        entityToUpdate.setSquat(memberEntity.getSquat());
+        entityToUpdate.setDeadlift(memberEntity.getDeadlift());
+        entityToUpdate.setTotal(total);
+
+        memberRepository.save(entityToUpdate);
     }
 
     @Override
     public void deleteMemberById(Long id) {
-
+        memberRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
+        memberRepository.deleteById(id);
     }
 
     @Override
     public void deleteMembersBelowATotal(int total) {
+        List<MemberEntity> memberEntities = memberRepository.findAll();
 
+        for(MemberEntity memberEntity : memberEntities){
+            if(memberEntity.getTotal() < total) memberRepository.deleteById(memberEntity.getId());
+        }
     }
 }

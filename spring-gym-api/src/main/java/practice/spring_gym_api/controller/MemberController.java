@@ -10,6 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import practice.spring_gym_api.dto.MemberDTO;
 import practice.spring_gym_api.dto.MemberMapper;
+import practice.spring_gym_api.dto.UpdateMultipleMembersRequest;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import practice.spring_gym_api.service.MemberService;
@@ -90,7 +91,7 @@ public class MemberController {
 
     @PostMapping(path = "/members")
     public void registerMultipleMembers(
-            @Size(min = 2, message = "At least two memberts must be provided,  if you only need to register one member use the singular endpoint")
+            @Size(min = 2, message = "At least two members must be provided,  if you only need to register one member use the singular endpoint")
             @NotNull(message = "List of members must not be null")
             @RequestBody List<@Valid MemberEntity> memberEntities){
         memberService.registerNewMembers(memberEntities);
@@ -99,20 +100,42 @@ public class MemberController {
     @PatchMapping(path = "/member/{member_id}")
     public void updateNameById(
             @PathVariable("member_id") Long id,
-            @RequestParam(name = "name", required = true) String name
+           @RequestParam(name = "name", required = true) String name,
+           @RequestParam(name = "email", required = true) String email
     ) {
-        memberService.updateNameById(id, name);
+        memberService.updateNameByIdAndEmail(id, name, email);
     }
 
     @PatchMapping(path = "/update/members")
-    public void updateListOfNamesByListOfIds(
-            @Size(min = 2, message = "More than one ud must be provided, if you only need to update one member use the singular endpoint")
-            @RequestBody List<@Valid Long> listOfIds,
+    public void updateListOfNamesByListOfIds(@Valid @RequestBody UpdateMultipleMembersRequest request){
+        memberService.updateMultipleMembersNameByIdAndEmail(request.getIds(), request.getNames(), request.getEmails());
+    }
 
-             @Size(min = 2, message = "More than one name must be provided, if you only need to update one member use the singular endpoint")
-             @NotNull(message = "List of names must not be null")
-             @RequestBody List<@Valid String> listOfNames
+    @PatchMapping(path = "/update/sbd/{member_id}")
+    public void updateSBDStats(
+            @PathVariable("member_id") Long id,
+            @RequestParam(required = true) int bench,
+            @RequestParam(required = true) int squat,
+            @RequestParam(required = true) int deadlift
+    ) {
+        memberService.updateSBDStatus(id, bench, squat, deadlift);
+    }
+
+    @PutMapping(path = "/member/{member_id}")
+    public void updateFullMember(
+            @PathVariable("member_id") Long id,
+            @Valid @RequestBody MemberEntity updatedEntity
     ){
-        memberService.updateMultipleMembersNameById(listOfIds, listOfNames);
+        memberService.updateCompleteMember(id, updatedEntity);
+    }
+
+    @DeleteMapping(path = "member/{member_id}")
+    public void deleteMemberById(@PathVariable("member_id") Long id){
+        memberService.deleteMemberById(id);
+    }
+
+    @DeleteMapping(path = "delete/all/below/total")
+    public void deleteAllMembersBelowATotal(@RequestParam(required = true) int total){
+        memberService.deleteMembersBelowATotal(total);
     }
 }
