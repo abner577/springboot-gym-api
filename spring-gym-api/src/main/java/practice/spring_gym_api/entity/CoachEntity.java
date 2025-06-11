@@ -46,8 +46,7 @@ public class CoachEntity {
             CascadeType.MERGE,
             CascadeType.REFRESH
     })
-    @NotEmpty
-    private Set<MemberEntity> clients;
+    private Set<MemberEntity> clients = new HashSet<>();
 
     @ElementCollection
     @NotNull(message = "Workout plans list must not be null")
@@ -56,14 +55,14 @@ public class CoachEntity {
     @Transient
     private int age;
 
-    public CoachEntity(String name, LocalDate dateOfBirth, Roles role, Set<MemberEntity> clients, String email, List<String> workoutPlans) {
+    public CoachEntity(String name, LocalDate dateOfBirth, Roles role, String email, List<String> workoutPlans) {
         this.name = name;
         this.dateOfBirth = dateOfBirth;
         this.role = role;
-        this.clients = clients;
         this.email = email;
         this.workoutPlans = workoutPlans;
     }
+
 
     public CoachEntity() {}
 

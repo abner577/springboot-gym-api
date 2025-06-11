@@ -30,7 +30,6 @@ public class EntityConfig {
                     "Alex Smith",
                     LocalDate.of(1980, 4, 12),
                     Roles.ROLE_COACH,
-                    new HashSet<>(),
                     "alexSmith@gmail.com",
                     List.of("FBEOD" , "Upper/Lower")
             );
@@ -38,8 +37,7 @@ public class EntityConfig {
             CoachEntity coach2 = new CoachEntity(
                     "Maria Gonzalez",
                     LocalDate.of(1985, 11, 3),
-                    Roles.ROLE_WORKER,
-                    new HashSet<>(),
+                    Roles.ROLE_COACH,
                     "mariaGonzalez@gmail.com",
                     List.of("PPL/Upper Lower", "PPL/Arnold")
             );

@@ -62,7 +62,7 @@ public class CoachServiceimpl implements CoachService {
 
     @Override
     public void updateNameOrClientsById(Long id, String name, List<MemberEntity> clients) {
-        if(name == null || clients == null) throw new IllegalStateException("Provide either a new name or a new client name to update credentials");
+        if(name == null && clients == null) throw new IllegalStateException("Provide either a new name or a new client name to update credentials");
 
         CoachEntity coachToUpdate = coachRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
@@ -93,6 +93,7 @@ public class CoachServiceimpl implements CoachService {
         coachEntityToUpdate.setName(coachEntity.getName());
         coachEntityToUpdate.setClients(coachEntity.getClients());
         coachEntityToUpdate.setAge(coachEntity.getAge());
+        coachEntityToUpdate.setClients(coachEntity.getClients());
         coachEntityToUpdate.setWorkoutPlans(coachEntity.getWorkoutPlans());
         coachEntityToUpdate.setDateOfBirth(coachEntity.getDateOfBirth());
         coachEntityToUpdate.setEmail(coachEntity.getEmail());
