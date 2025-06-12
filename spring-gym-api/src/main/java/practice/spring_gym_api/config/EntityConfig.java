@@ -153,5 +153,4 @@ public class EntityConfig {
                     workerRepository.saveAll(listOfWorkers);
         };
     }
-
 }

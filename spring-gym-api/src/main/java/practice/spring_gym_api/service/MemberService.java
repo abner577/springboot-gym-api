@@ -24,6 +24,7 @@ public interface MemberService {
     void registerNewMembers(List<MemberEntity> memberEntities);
 
     // --- PUT/PATCH methods ---
+    void updateCoachedByById(Long id, Long coachID);
     void updateNameByIdAndEmail(Long id, String name, String email);
     void updateMultipleMembersNameByIdAndEmail(List<Long> ids, List<String> names, List<String> emails);
     void updateSBDStatus(Long id, int bench, int squat, int deadlift); //make these requestParams, so make them optional, any one of them

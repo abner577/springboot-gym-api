@@ -2,8 +2,10 @@ package practice.spring_gym_api.service.impl;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import org.springframework.stereotype.Service;
+import practice.spring_gym_api.repository.CoachRepository;
 import practice.spring_gym_api.repository.MemberRepository;
 import practice.spring_gym_api.service.MemberService;
 
@@ -12,25 +14,50 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Service implementation for managing Member-related operations.
+ * Handles business logic and interacts with the MemberRepository.
+ */
 @Service
 public class MemberServiceimpl implements MemberService {
 
     private final MemberRepository memberRepository;
-    public MemberServiceimpl(MemberRepository memberRepository) {
+    private final CoachRepository coachRepository;
+
+    public MemberServiceimpl(MemberRepository memberRepository, CoachRepository coachRepository) {
         this.memberRepository = memberRepository;
+        this.coachRepository = coachRepository;
     }
 
+    /**
+     * Retrieves a member by ID.
+     *
+     * @param id Member ID
+     * @return MemberEntity if found
+     * @throws IllegalStateException if no member exists with the given ID
+     */
     @Override
     public MemberEntity getMemberById(Long id) {
         return memberRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
     }
 
+    /**
+     * Retrieves a paginated list of all members.
+     *
+     * @param pageable Pagination settings
+     * @return Page of MemberEntity
+     */
     @Override
     public Page<MemberEntity> getAllMembers(Pageable pageable) {
         return memberRepository.findAll(pageable);
     }
 
+    /**
+     * Retrieves the member with the highest bench press.
+     *
+     * @return MemberEntity with highest bench
+     */
     @Override
     public MemberEntity getMemberByHighestBench() {
         List<MemberEntity> listOfAllEntities = memberRepository.findAll();
@@ -46,6 +73,11 @@ public class MemberServiceimpl implements MemberService {
         return entityWithMax;
     }
 
+    /**
+     * Retrieves the member with the highest squat.
+     *
+     * @return MemberEntity with highest squat
+     */
     @Override
     public MemberEntity getMemberByHighestSquat() {
         List<MemberEntity> listOfAllEntities = memberRepository.findAll();
@@ -61,6 +93,11 @@ public class MemberServiceimpl implements MemberService {
         return entityWithMax;
     }
 
+    /**
+     * Retrieves the member with the highest deadlift.
+     *
+     * @return MemberEntity with highest deadlift
+     */
     @Override
     public MemberEntity getMemberByHighestDeadlift() {
         List<MemberEntity> listOfAllEntities = memberRepository.findAll();
@@ -76,6 +113,11 @@ public class MemberServiceimpl implements MemberService {
         return entityWithMax;
     }
 
+    /**
+     * Retrieves the member with the highest total (bench + squat + deadlift).
+     *
+     * @return MemberEntity with highest total
+     */
     @Override
     public MemberEntity getMemberByHighestTotal() {
         List<MemberEntity> listOfAllEntities = memberRepository.findAll();
@@ -91,6 +133,12 @@ public class MemberServiceimpl implements MemberService {
         return entityWithMax;
     }
 
+    /**
+     * Retrieves all members whose total is greater than the specified value.
+     *
+     * @param total The threshold total
+     * @return List of MemberEntity with totals greater than specified
+     */
     @Override
     public List<MemberEntity> getAllMembersAboveATotal(int total) {
         List<MemberEntity> listOfAllEntities = memberRepository.findAll();
@@ -102,12 +150,24 @@ public class MemberServiceimpl implements MemberService {
         return listOfEntitiesToReturn;
     }
 
+    /**
+     * Registers a new member after checking for email uniqueness.
+     *
+     * @param memberEntity Member to register
+     * @throws IllegalStateException if a member with the same email exists
+     */
     @Override
     public void registerNewMember(MemberEntity memberEntity) {
         if(memberRepository.existsByEmail(memberEntity.getEmail())) throw new IllegalStateException("Member with an email of: " + memberEntity.getEmail() + " already exists");
         memberRepository.save(memberEntity);
     }
 
+    /**
+     * Registers multiple members at once. All emails must be unique.
+     *
+     * @param memberEntities List of members to register
+     * @throws IllegalStateException if any email already exists
+     */
     @Override
     public void registerNewMembers(List<MemberEntity> memberEntities) {
         for(MemberEntity memberEntity : memberEntities){
@@ -116,6 +176,33 @@ public class MemberServiceimpl implements MemberService {
         memberRepository.saveAll(memberEntities);
     }
 
+    /**
+     * Updates the coach assigned to a specific member.
+     *
+     * @param id       The ID of the member whose coach is being updated.
+     * @param coachID  The ID of the coach to assign to the member.
+     * @throws IllegalStateException if either the member or the coach does not exist.
+     */
+    @Override
+    public void updateCoachedByById(Long id, Long coachID) {
+        MemberEntity memberEntityToUpdate = memberRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
+
+        CoachEntity coachEntity = coachRepository.findById(coachID)
+                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + coachID + " doesnt exist"));
+
+        memberEntityToUpdate.setCoachedBy(coachEntity);
+        memberRepository.save(memberEntityToUpdate);
+    }
+
+    /**
+     * Updates a member's name by ID and verifies their email for identity match.
+     *
+     * @param id    Member ID
+     * @param name  New name
+     * @param email Email for identity verification
+     * @throws IllegalStateException if the ID/email pair is invalid or mismatched
+     */
     @Override
     public void updateNameByIdAndEmail(Long id, String name, String email) {
         MemberEntity memberEntityToUpdate = memberRepository.findById(id)
@@ -132,6 +219,14 @@ public class MemberServiceimpl implements MemberService {
         } else throw new IllegalStateException("Name provided must be not-null and must not be an empty string");
     }
 
+    /**
+     * Updates multiple members' names by their IDs and associated emails.
+     *
+     * @param ids    List of member IDs
+     * @param names  List of names to update
+     * @param emails List of emails for identity verification
+     * @throws IllegalArgumentException if input sizes mismatch
+     */
     @Override
     public void updateMultipleMembersNameByIdAndEmail(List<Long> ids, List<String> names, List<String> emails) {
         if(ids.size() != names.size() || ids.size() != emails.size() || names.size() != emails.size()) {
@@ -168,6 +263,15 @@ public class MemberServiceimpl implements MemberService {
         memberRepository.saveAll(memberEntitiesToUpdate);
     }
 
+    /**
+     * Updates SBD stats for a member by ID.
+     *
+     * @param id       Member ID
+     * @param bench    New bench value
+     * @param squat    New squat value
+     * @param deadlift New deadlift value
+     * @throws IllegalStateException if member is not found
+     */
     @Override
     public void updateSBDStatus(Long id, int bench, int squat, int deadlift) {
         MemberEntity entityToUpdate = memberRepository.findById(id)
@@ -185,6 +289,14 @@ public class MemberServiceimpl implements MemberService {
         }
     }
 
+
+    /**
+     * Fully replaces the data of a member by ID.
+     *
+     * @param id            Member ID
+     * @param memberEntity The full replacement member entity
+     * @throws IllegalStateException if no member with the given ID exists
+     */
     @Override
     public void updateCompleteMember(Long id, MemberEntity memberEntity) {
         MemberEntity entityToUpdate = memberRepository.findById(id)
@@ -205,6 +317,12 @@ public class MemberServiceimpl implements MemberService {
         memberRepository.save(entityToUpdate);
     }
 
+    /**
+     * Deletes a member by ID.
+     *
+     * @param id Member ID
+     * @throws IllegalStateException if the member does not exist
+     */
     @Override
     public void deleteMemberById(Long id) {
         memberRepository.findById(id)
@@ -212,6 +330,11 @@ public class MemberServiceimpl implements MemberService {
         memberRepository.deleteById(id);
     }
 
+    /**
+     * Deletes all members whose total is below the specified value.
+     *
+     * @param total Threshold for deletion
+     */
     @Override
     public void deleteMembersBelowATotal(int total) {
         List<MemberEntity> memberEntities = memberRepository.findAll();

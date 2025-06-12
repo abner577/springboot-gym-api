@@ -10,6 +10,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Represents a Coach in the gym system.
+ * A coach can have multiple clients (members) and multiple workout plans.
+ * This entity is mapped to the "coaches" table in the database.
+ */
 @Entity
 @Table(name = "coaches")
 public class CoachEntity {
@@ -40,6 +45,12 @@ public class CoachEntity {
     @Enumerated(EnumType.STRING)
     private Roles role;
 
+    /**
+     * Bidirectional one-to-many relationship with MemberEntity.
+     * This is the inverse side of the relationship.
+     * The actual foreign key (coach_id) resides in MemberEntity.
+     * Every coach will start off with an empty set of clients.
+     */
     @OneToMany(mappedBy = "coachedBy", cascade = {
             CascadeType.PERSIST,
             CascadeType.DETACH,
@@ -52,12 +63,29 @@ public class CoachEntity {
     @NotNull(message = "Workout plans list must not be null")
     @Size(min = 1, message = "At least one workout plan must be provided")
     private List<@NotBlank(message = "Workout plans are required") String> workoutPlans;
+
+    /**
+     * Age is calculated at runtime and not stored in the database.
+     */
     @Transient
     private int age;
 
+    /**
+     * Constructor used for creating new coaches with essential fields.
+     * Does not include the client list, which can be added later.
+     */
     public CoachEntity(String name, LocalDate dateOfBirth, Roles role, String email, List<String> workoutPlans) {
         this.name = name;
         this.dateOfBirth = dateOfBirth;
+        this.role = role;
+        this.email = email;
+        this.workoutPlans = workoutPlans;
+    }
+
+    public CoachEntity(String name, LocalDate dateOfBirth, Set<MemberEntity> clients, Roles role, String email, List<String> workoutPlans) {
+        this.name = name;
+        this.dateOfBirth = dateOfBirth;
+        this.clients = clients;
         this.role = role;
         this.email = email;
         this.workoutPlans = workoutPlans;

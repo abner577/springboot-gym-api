@@ -10,10 +10,18 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.Period;
 
+/**
+ * Represents a non-coaching worker in the gym system, such as administrative or support staff.
+ * This entity is mapped to the "workers" table in the database.
+ */
 @Entity
 @Table(name = "workers")
 public class WorkerEntity {
 
+    /**
+     * Primary key for the Worker table.
+     * Uses a sequence generator to assign unique IDs.
+     */
     @Id
     @SequenceGenerator(
             name = "coach_sequence",

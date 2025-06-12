@@ -6,10 +6,19 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.Period;
 
+/**
+ * Represents a Member (client) in the gym system.
+ * Each member may optionally be associated with one coach.
+ * This entity is mapped to the "members" table in the database.
+ */
 @Entity
 @Table(name = "members")
 public class MemberEntity {
 
+    /**
+     * Primary key for the Member table.
+     * Uses a sequence generator to assign unique IDs.
+     */
     @Id
     @SequenceGenerator(
             name = "coach_sequence",
@@ -33,10 +42,12 @@ public class MemberEntity {
     @Email(message = "Invalid email format")
     private String email;
 
-
+    /**
+     * Many-to-one relationship to CoachEntity.
+     * This is the owning side of the relationship — the foreign key `coach_id` is stored here.
+     */
    @ManyToOne
    @JoinColumn(name = "coach_id")
-   @NotNull(message = "Coach is required")
    private CoachEntity coachedBy;
 
     @NotBlank(message = "Membership date is Required")
@@ -45,6 +56,11 @@ public class MemberEntity {
     @NotNull(message = "Role is Required")
     @Enumerated(EnumType.STRING)
    private Roles role;
+
+    /**
+     * Age is dynamically calculated based on the date of birth.
+     * It is not stored in the database.
+     */
    @Transient
    private int age;
 
@@ -57,6 +73,11 @@ public class MemberEntity {
     @Min(value = 1, message = "Total must be greater than 0")
    private int total;
 
+    /**
+     * Constructor used when registering a member without assigning a coach.
+     * Useful for POST endpoints where coach assignment is null.
+     * Coach assignment is handled later on in a PATCH endpoint.
+     */
     public MemberEntity(String name, LocalDate dateOfBirth, String membershipDate, String email,  Roles role, int bench, int squat, int deadlift, int total) {
         this.name = name;
         this.dateOfBirth = dateOfBirth;
@@ -68,11 +89,11 @@ public class MemberEntity {
         this.deadlift = deadlift;
         this.total = total;
     }
+
     public MemberEntity(String name) {
         this.name = name;
     }
     public MemberEntity() {}
-
 
     public Long getId() {
         return id;
