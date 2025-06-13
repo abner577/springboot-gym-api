@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -147,4 +148,17 @@ public class CoachEntity {
     public String getEmail() {return email;}
 
     public void setEmail(String email) {this.email = email;}
+
+    @Override
+    public boolean equals(Object o) {
+        if(this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CoachEntity that = (CoachEntity) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
 }

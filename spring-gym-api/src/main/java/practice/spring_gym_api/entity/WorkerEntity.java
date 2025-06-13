@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Objects;
 
 /**
  * Represents a non-coaching worker in the gym system, such as administrative or support staff.
@@ -103,4 +104,17 @@ public class WorkerEntity {
     public String getEmail() {return email;}
 
     public void setEmail(String email) {this.email = email;}
+
+    @Override
+    public boolean equals(Object o) {
+        if(this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        WorkerEntity that = (WorkerEntity) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
 }

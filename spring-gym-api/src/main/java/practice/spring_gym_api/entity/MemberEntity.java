@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.util.Objects;
 
 /**
  * Represents a Member (client) in the gym system.
@@ -186,4 +187,17 @@ public class MemberEntity {
     public String getEmail() {return email;}
 
     public void setEmail(String email) {this.email = email;}
+
+    @Override
+    public boolean equals(Object o) {
+        if(this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        MemberEntity that = (MemberEntity) o;
+        return Objects.equals(id, that.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
+    }
 }

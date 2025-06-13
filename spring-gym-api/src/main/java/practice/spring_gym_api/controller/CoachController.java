@@ -148,11 +148,12 @@ public class CoachController {
      * @param name the new name
      */
     @PatchMapping(path = "/update/coach/name/{coach_id}")
-    public void updateNameById(
+    public void updateNameByIdAndEmail(
             @PathVariable("coach_id") Long id,
-            @RequestParam(required = true) String name
+            @RequestParam(required = true) String name,
+            @RequestParam(required = true) String email
     ) {
-        coachService.updateNameById(id, name);
+        coachService.updateNameByIdAndEmail(id, name, email);
     }
 
 

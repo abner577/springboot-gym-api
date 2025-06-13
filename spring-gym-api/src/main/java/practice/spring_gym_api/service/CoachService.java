@@ -22,7 +22,7 @@ public interface CoachService {
     void registerNewCoaches(List<CoachEntity> coachEntities);
 
     // --- PUT/PATCH methods ---
-    void updateNameById(Long id, String name);
+    void updateNameByIdAndEmail(Long id, String name, String email);
     void updateClientsById(Long id, Set<MemberEntity> clients);
     void updateCoachByIdAndEmail(Long id,String email, CoachEntity coachEntity);
 

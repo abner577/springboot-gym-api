@@ -127,14 +127,18 @@ public class CoachServiceimpl implements CoachService {
      * @throws IllegalStateException if ID is invalid or name is null/empty
      */
     @Override
-    public void updateNameById(Long id, String name) {
+    public void updateNameByIdAndEmail(Long id, String name, String email) {
         if(name == null || name.isEmpty()) throw new IllegalStateException("Name cannot be null or an empty string");
 
-        CoachEntity coachEntityToUpdateName = coachRepository.findById(id)
+        CoachEntity coachEntityToUpdateNameFromId = coachRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
 
-        coachEntityToUpdateName.setName(name);
-        coachRepository.save(coachEntityToUpdateName);
+        CoachEntity coachEntityToUpdateNameFromEmail = coachRepository.findByEmail(email);
+        if(coachEntityToUpdateNameFromEmail == null) throw new IllegalStateException("Coach with an email of: " + email + " doesnt exist");
+        if(!coachEntityToUpdateNameFromId.equals(coachEntityToUpdateNameFromEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
+
+        coachEntityToUpdateNameFromId.setName(name);
+        coachRepository.save(coachEntityToUpdateNameFromId);
     }
 
     /**

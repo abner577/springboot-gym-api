@@ -9,6 +9,7 @@ import practice.spring_gym_api.repository.CoachRepository;
 import practice.spring_gym_api.repository.MemberRepository;
 import practice.spring_gym_api.service.MemberService;
 
+import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -192,7 +193,8 @@ public class MemberServiceimpl implements MemberService {
                 .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + coachID + " doesnt exist"));
 
         memberEntityToUpdate.setCoachedBy(coachEntity);
-        memberRepository.save(memberEntityToUpdate);
+        coachEntity.getClients().add(memberEntityToUpdate);
+        coachRepository.save(coachEntity);
     }
 
     /**
@@ -205,17 +207,16 @@ public class MemberServiceimpl implements MemberService {
      */
     @Override
     public void updateNameByIdAndEmail(Long id, String name, String email) {
-        MemberEntity memberEntityToUpdate = memberRepository.findById(id)
+        MemberEntity memberEntityToUpdateById = memberRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
-        if(!memberRepository.existsByEmail(email)) {
-            throw new IllegalStateException("Member with an email of: " + email + " doesnt exist");
-        } else if (memberEntityToUpdate != memberRepository.findMemberByEmail(email)) {
-            throw new IllegalStateException("Member with an id of: " + id + " is not the same member that has an email of: " + email);
-        }
+
+        MemberEntity memberEntityToUpdateByEmail = memberRepository.findMemberByEmail(email);
+        if(memberEntityToUpdateByEmail == null)  throw new IllegalStateException("Member with an email of: " + email + " doesnt exist");
+        if(!memberEntityToUpdateById.equals(memberEntityToUpdateByEmail)) throw new IllegalStateException("Member with an id of: " + id + " is not the same member that has an email of: " + email);
 
         if(name != null && name.length() > 0) {
-            memberEntityToUpdate.setName(name);
-            memberRepository.save(memberEntityToUpdate);
+            memberEntityToUpdateById.setName(name);
+            memberRepository.save(memberEntityToUpdateById);
         } else throw new IllegalStateException("Name provided must be not-null and must not be an empty string");
     }
 
