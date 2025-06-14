@@ -15,6 +15,7 @@ public interface CoachService {
     List<CoachEntity> getAllCoaches();
     List<String> getWorkoutPlansByCoachName(String name);
     Set<MemberEntity> getAllClientsByCoachId(Long id);
+    List<CoachEntity> getAllCoachesThatAreAvaliable();
 
 
     // --- POST methods ---
@@ -23,7 +24,7 @@ public interface CoachService {
 
     // --- PUT/PATCH methods ---
     void updateNameByIdAndEmail(Long id, String name, String email);
-    void updateClientsById(Long id, Set<MemberEntity> clients);
+    void updateClientsByIdAndEmail(Long id, String email, Set<MemberEntity> clients);
     void updateCoachByIdAndEmail(Long id,String email, CoachEntity coachEntity);
 
     // --- DELETE methods --- *All Delete methods need to have authentication implemented, we are looking for a heading that has a ROLE-WORKER*

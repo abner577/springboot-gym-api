@@ -152,6 +152,25 @@ public class MemberServiceimpl implements MemberService {
     }
 
     /**
+     * Finds and returns all members who are not currently coached by anyone.
+     *
+     * This method filters the entire list of members and includes only those
+     * whose {@code coachedBy} property is {@code null}.
+     *
+     * @return a list of {@link MemberEntity} objects who are available (not assigned to any coach).
+     */
+    @Override
+    public List<MemberEntity> getAllAvaliableMembers() {
+        List<MemberEntity> memberEntities = memberRepository.findAll();
+        List<MemberEntity> memberEntitiesToReturn = new ArrayList<>();
+
+        for(MemberEntity memberEntity : memberEntities){
+            if(memberEntity.getCoachedBy() == null) memberEntitiesToReturn.add(memberEntity);
+        }
+        return memberEntitiesToReturn;
+    }
+
+    /**
      * Registers a new member after checking for email uniqueness.
      *
      * @param memberEntity Member to register
@@ -258,7 +277,6 @@ public class MemberServiceimpl implements MemberService {
             if (!memberEntitiesToUpdate.get(i).equals(memberRepository.findMemberByEmail(emails.get(i)))) {
                 throw new IllegalStateException("Provided ID and email do not belong to the same member");
             }
-
             memberEntitiesToUpdate.get(i).setName(names.get(i));
         }
         memberRepository.saveAll(memberEntitiesToUpdate);
@@ -274,22 +292,25 @@ public class MemberServiceimpl implements MemberService {
      * @throws IllegalStateException if member is not found
      */
     @Override
-    public void updateSBDStatus(Long id, int bench, int squat, int deadlift) {
-        MemberEntity entityToUpdate = memberRepository.findById(id)
+    public void updateSBDStatus(Long id, String email, int bench, int squat, int deadlift) {
+        MemberEntity entityToUpdateID = memberRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
+
+        MemberEntity entityToUpdateEmail = memberRepository.findMemberByEmail(email);
+        if(entityToUpdateEmail == null) throw new IllegalStateException("Member with an email of: " + email + " doesnt exist");
+        if(!entityToUpdateID.equals(entityToUpdateEmail)) throw new IllegalStateException("Member with an id of: " + id + " is not the same member that has an email of: " + email);
 
         if(bench < 1 || squat < 1 || deadlift < 1){
             throw new IllegalStateException("Lifts cannot be negative or 0");
         } else {
             int total = bench + squat + deadlift;
-            entityToUpdate.setBench(bench);
-            entityToUpdate.setSquat(squat);
-            entityToUpdate.setDeadlift(deadlift);
-            entityToUpdate.setTotal(total);
-            memberRepository.save(entityToUpdate);
+            entityToUpdateID.setBench(bench);
+            entityToUpdateID.setSquat(squat);
+            entityToUpdateID.setDeadlift(deadlift);
+            entityToUpdateID.setTotal(total);
+            memberRepository.save(entityToUpdateID);
         }
     }
-
 
     /**
      * Fully replaces the data of a member by ID.
@@ -299,9 +320,14 @@ public class MemberServiceimpl implements MemberService {
      * @throws IllegalStateException if no member with the given ID exists
      */
     @Override
-    public void updateCompleteMember(Long id, MemberEntity memberEntity) {
+    public void updateCompleteMember(Long id, String email, MemberEntity memberEntity) {
         MemberEntity entityToUpdate = memberRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
+
+        MemberEntity entityToUpdateEmail = memberRepository.findMemberByEmail(email);
+        if(entityToUpdateEmail == null) throw new IllegalStateException("Member with an email of: " + email + " doesnt exist");
+        if(!entityToUpdate.equals(entityToUpdateEmail)) throw new IllegalStateException("Member with an id of: " + id + " is not the same member that has an email of: " + email);
+
         int total = memberEntity.getBench() + memberEntity.getSquat() + memberEntity.getDeadlift();
 
         entityToUpdate.setName(memberEntity.getName());

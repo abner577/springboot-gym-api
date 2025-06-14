@@ -6,10 +6,7 @@ import jakarta.validation.constraints.*;
 
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Represents a Coach in the gym system.

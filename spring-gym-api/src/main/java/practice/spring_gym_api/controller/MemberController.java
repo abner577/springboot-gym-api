@@ -121,6 +121,20 @@ public class MemberController {
     }
 
     /**
+     * Retrieves all available members who are not currently assigned to a coach.
+     *
+     * @return a list of {@link MemberDTO} objects representing avaliable members (members without coaches).
+     * @throws IllegalStateException if no available members are found (thrown from the service layer).
+     */
+    @GetMapping(path = "/avaliable/members")
+    public List<MemberDTO> getAllAvaliableMembers(){
+        List<MemberEntity> memberEntities = memberService.getAllAvaliableMembers();
+        return memberEntities.stream()
+                .map(memberMapper::convertToMemberDTO)
+                .toList();
+    }
+
+    /**
      * Registers a single new member.
      * @param memberEntity The member entity to be saved
      */
@@ -176,11 +190,12 @@ public class MemberController {
     @PatchMapping(path = "/update/sbd/{member_id}")
     public void updateSBDStats(
             @PathVariable("member_id") Long id,
+            @RequestParam(required = true) String email,
             @RequestParam(required = true) int bench,
             @RequestParam(required = true) int squat,
             @RequestParam(required = true) int deadlift
     ) {
-        memberService.updateSBDStatus(id, bench, squat, deadlift);
+        memberService.updateSBDStatus(id, email, bench, squat, deadlift);
     }
 
     /**
@@ -191,9 +206,10 @@ public class MemberController {
     @PutMapping(path = "/member/{member_id}")
     public void updateFullMember(
             @PathVariable("member_id") Long id,
+            @RequestParam(required = true) String email,
             @Valid @RequestBody MemberEntity updatedEntity
     ){
-        memberService.updateCompleteMember(id, updatedEntity);
+        memberService.updateCompleteMember(id, email, updatedEntity);
     }
 
     /**

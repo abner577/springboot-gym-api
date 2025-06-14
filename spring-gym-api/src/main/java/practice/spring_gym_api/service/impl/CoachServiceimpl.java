@@ -6,12 +6,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import practice.spring_gym_api.repository.CoachRepository;
+import practice.spring_gym_api.repository.MemberRepository;
 import practice.spring_gym_api.service.CoachService;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Service implementation for Coach-related operations.
@@ -21,8 +19,10 @@ import java.util.Set;
 public class CoachServiceimpl implements CoachService {
 
     private final CoachRepository coachRepository;
-    public CoachServiceimpl(CoachRepository coachRepository) {
+    private final MemberRepository memberRepository;
+    public CoachServiceimpl(CoachRepository coachRepository, MemberRepository memberRepository) {
         this.coachRepository = coachRepository;
+        this.memberRepository = memberRepository;
     }
 
     /**
@@ -92,6 +92,17 @@ public class CoachServiceimpl implements CoachService {
        else return new HashSet<>();
     }
 
+    @Override
+    public List<CoachEntity> getAllCoachesThatAreAvaliable() {
+        List<CoachEntity> coachEntities = coachRepository.findAll();
+        List<CoachEntity> coachEntitiesToReturn = new ArrayList<>();
+
+        for(CoachEntity coachEntity : coachEntities){
+            if(coachEntity.getClients().size() == 0) coachEntitiesToReturn.add(coachEntity);
+        }
+        return coachEntitiesToReturn;
+    }
+
     /**
      * Registers a new coach, ensuring email uniqueness.
      *
@@ -150,15 +161,21 @@ public class CoachServiceimpl implements CoachService {
      * @throws IllegalStateException if coach is not found
      */
     @Override
-    public void updateClientsById(Long id, Set<MemberEntity> memberEntities) {
-        CoachEntity coachEntityToUpdateClients = coachRepository.findById(id)
+    public void updateClientsByIdAndEmail(Long id, String email, Set<MemberEntity> memberEntities) {
+        CoachEntity coachEntityToUpdateClientsID = coachRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
 
-            for(MemberEntity memberEntity : memberEntities){
-                memberEntity.setCoachedBy(coachEntityToUpdateClients);
+        CoachEntity coachEntityToUpdateClientsEmail = coachRepository.findByEmail(email);
+        if(coachEntityToUpdateClientsEmail == null) throw new IllegalStateException("Coach with an email of: " + email + " doesnt exist");
+        if(!coachEntityToUpdateClientsID.equals(coachEntityToUpdateClientsEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
+
+        for(MemberEntity memberEntity : memberEntities){
+            System.out.println("Assigning coach to: " + memberEntity.getEmail());
+            memberEntity.setCoachedBy(coachEntityToUpdateClientsID);
             }
-            coachEntityToUpdateClients.getClients().addAll(memberEntities);
-            coachRepository.save(coachEntityToUpdateClients);
+
+        coachEntityToUpdateClientsID.getClients().addAll(memberEntities);
+        coachRepository.save(coachEntityToUpdateClientsID);
     }
 
     /**
@@ -174,12 +191,9 @@ public class CoachServiceimpl implements CoachService {
         CoachEntity coachEntityToUpdate = coachRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
 
-        if(!coachRepository.existsByEmail(email)){
-            throw new IllegalStateException("Coach with an email of: " + email + " doesnt exist");
-        }
-        else if (coachEntityToUpdate != coachRepository.findByEmail(email)) {
-            throw new IllegalStateException("Coach with an id of: " + id + " is not the same coach that has an email of: " + email);
-        }
+        CoachEntity coachEntityToUpdateEmail = coachRepository.findByEmail(email);
+        if(coachEntityToUpdateEmail == null) throw new IllegalStateException("Coach with an email of: " + email + " doesnt exist");
+        if(!coachEntityToUpdate.equals(coachEntityToUpdateEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
 
         coachEntityToUpdate.setName(coachEntity.getName());
         coachEntityToUpdate.setClients(coachEntity.getClients());

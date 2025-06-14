@@ -3,6 +3,8 @@ package practice.spring_gym_api.controller;
 import org.springframework.beans.factory.annotation.Qualifier;
 import practice.spring_gym_api.dto.CoachDTO;
 import practice.spring_gym_api.dto.CoachMapper;
+import practice.spring_gym_api.dto.MemberDTO;
+import practice.spring_gym_api.dto.MemberMapper;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import practice.spring_gym_api.entity.wrapper.CoachListWrapper;
@@ -16,6 +18,7 @@ import practice.spring_gym_api.service.CoachService;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing coaches.
@@ -28,10 +31,12 @@ public class CoachController {
 
     private final CoachService coachService;
     private final CoachMapper coachMapper;
+    private final MemberMapper memberMapper;
 
-    public CoachController(CoachService coachService, @Qualifier("coachMapperimpl") CoachMapper coachMapper) {
+    public CoachController(CoachService coachService, @Qualifier("coachMapperimpl") CoachMapper coachMapper, MemberMapper memberMapper) {
         this.coachService = coachService;
         this.coachMapper= coachMapper;
+        this.memberMapper = memberMapper;
     }
 
     /**
@@ -110,6 +115,21 @@ public class CoachController {
     }
 
     /**
+     * Returns all the clients of a coach.
+     *
+     * @param id the id used to identify the coach
+     * @return the set of the coaches clients
+     */
+    @GetMapping (path = "/clients/of/{coach_id}")
+    public Set<MemberDTO> getAllClientsOfACoach(@PathVariable("coach_id") Long id) {
+        Set<MemberEntity> memberEntities = coachService.getAllClientsByCoachId(id);
+
+        return memberEntities.stream()
+                .map(memberMapper::convertToMemberDTO)
+                .collect(Collectors.toSet());
+    }
+
+    /**
      * Retrieves the workout plans associated with a coach, using their name.
      *
      * @param name the coach's name
@@ -119,6 +139,15 @@ public class CoachController {
     public List<String> getWorkoutPlansByCoachName(@PathVariable(name = "coach_name") String name){
         List<String> workoutPlans = coachService.getWorkoutPlansByCoachName(name);
         return workoutPlans;
+    }
+
+    @GetMapping (path = "/avaliable/coaches")
+    public List<CoachDTO> getAvaliableCoaches(){
+        List<CoachEntity> coachEntities = coachService.getAllCoachesThatAreAvaliable();
+
+        return coachEntities.stream()
+                .map(coachMapper::convertToCoachDto)
+                .toList();
     }
 
     /**
@@ -156,7 +185,6 @@ public class CoachController {
         coachService.updateNameByIdAndEmail(id, name, email);
     }
 
-
     /**
      * Updates the list of clients (members) assigned to a coach.
      *
@@ -164,11 +192,12 @@ public class CoachController {
      * @param memberEntitySet the new set of clients
      */
     @PatchMapping(path = "/update/coach/clients/{coach_id}")
-    public void updateClientsById(
+    public void updateClientsByIdAndEmail(
             @PathVariable("coach_id") Long id,
+            @RequestParam(required = true) String email,
             @Valid @RequestBody Set<MemberEntity> memberEntitySet
     ) {
-        coachService.updateClientsById(id, memberEntitySet);
+        coachService.updateClientsByIdAndEmail(id, email, memberEntitySet);
     }
 
     /**
