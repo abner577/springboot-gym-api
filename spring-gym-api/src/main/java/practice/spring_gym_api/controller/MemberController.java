@@ -216,9 +216,12 @@ public class MemberController {
      * Deletes a single member by ID.
      * @param id Member ID
      */
-    @DeleteMapping(path = "member/{member_id}")
-    public void deleteMemberById(@PathVariable("member_id") Long id){
-        memberService.deleteMemberById(id);
+    @DeleteMapping(path = "member/{member_id}/{coach_id}")
+    public void deleteMemberById(
+            @PathVariable("member_id") Long id,
+            @PathVariable("coach_id")Long coachID
+    ){
+        memberService.deleteMemberById(id, coachID);
     }
 
     /**

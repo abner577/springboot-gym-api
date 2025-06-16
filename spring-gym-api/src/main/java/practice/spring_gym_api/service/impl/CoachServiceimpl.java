@@ -19,10 +19,9 @@ import java.util.*;
 public class CoachServiceimpl implements CoachService {
 
     private final CoachRepository coachRepository;
-    private final MemberRepository memberRepository;
-    public CoachServiceimpl(CoachRepository coachRepository, MemberRepository memberRepository) {
+
+    public CoachServiceimpl(CoachRepository coachRepository) {
         this.coachRepository = coachRepository;
-        this.memberRepository = memberRepository;
     }
 
     /**
@@ -170,7 +169,6 @@ public class CoachServiceimpl implements CoachService {
         if(!coachEntityToUpdateClientsID.equals(coachEntityToUpdateClientsEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
 
         for(MemberEntity memberEntity : memberEntities){
-            System.out.println("Assigning coach to: " + memberEntity.getEmail());
             memberEntity.setCoachedBy(coachEntityToUpdateClientsID);
             }
 
@@ -213,13 +211,25 @@ public class CoachServiceimpl implements CoachService {
      */
     @Override
     public void deleteCoachById(Long id) {
-        if(coachRepository.existsById(id)) coachRepository.deleteById(id);
-        else throw new IllegalStateException("Coach with an id of: " + id + " doesnt exist");
+        CoachEntity coachEntity = coachRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
+        coachEntity.getClients().clear();
+
+        coachRepository.save(coachEntity);
+        coachRepository.deleteById(id);
     }
 
     /**
      * Deletes all coaches from the repository.
      */
     @Override
-    public void deleteAllCoaches() {coachRepository.deleteAll();}
+    public void deleteAllCoaches() {
+        List<CoachEntity> allcoachEntities = coachRepository.findAll();
+
+        for(CoachEntity coachEntity : allcoachEntities) {
+            coachEntity.getClients().clear();
+        }
+        coachRepository.saveAll(allcoachEntities);
+        coachRepository.deleteAll();
+    }
 }

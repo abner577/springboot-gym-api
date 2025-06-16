@@ -54,7 +54,7 @@ public class CoachEntity {
             CascadeType.DETACH,
             CascadeType.MERGE,
             CascadeType.REFRESH
-    })
+    }, orphanRemoval = true)
     private Set<MemberEntity> clients = new HashSet<>();
 
     @ElementCollection
