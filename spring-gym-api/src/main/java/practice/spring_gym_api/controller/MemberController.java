@@ -156,6 +156,20 @@ public class MemberController {
         memberService.registerNewMembers(memberEntities);
     }
 
+    @PatchMapping(path = "/update/coachedBy/{member_id}/{oldCoach_ID}/{newCoach_id}")
+    public void replaceCoach(
+            @PathVariable("member_id") Long id,
+            @PathVariable("oldCoach_ID") Long oldCoachesID,
+            @PathVariable("newCoach_id") Long newCoachesID
+    ){
+      memberService.replaceCoach(id, oldCoachesID, newCoachesID);
+    }
+
+    @PatchMapping(path = "/remove/coachedBy/{member_id}")
+    public void removeCoachedBy(@PathVariable("member_id") Long id){
+        memberService.removeCoachedBy(id);
+    }
+
     /**
      * Updates the name of a member using their ID and email for validation.
      * @param id Member ID
@@ -216,19 +230,16 @@ public class MemberController {
      * Deletes a single member by ID.
      * @param id Member ID
      */
-    @DeleteMapping(path = "member/{member_id}/{coach_id}")
-    public void deleteMemberById(
-            @PathVariable("member_id") Long id,
-            @PathVariable("coach_id")Long coachID
-    ){
-        memberService.deleteMemberById(id, coachID);
+    @DeleteMapping(path = "member/{member_id}")
+    public void deleteMemberById(@PathVariable("member_id") Long id){
+        memberService.deleteMemberById(id);
     }
 
     /**
      * Deletes all members whose total (bench + squat + deadlift) is below the specified value.
      * @param total The minimum total threshold
      */
-    @DeleteMapping(path = "delete/all/below/total")
+    @DeleteMapping(path = "delete/all/below")
     public void deleteAllMembersBelowATotal(@RequestParam(required = true) int total){
         memberService.deleteMembersBelowATotal(total);
     }

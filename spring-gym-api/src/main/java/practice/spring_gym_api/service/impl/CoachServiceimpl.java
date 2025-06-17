@@ -19,9 +19,11 @@ import java.util.*;
 public class CoachServiceimpl implements CoachService {
 
     private final CoachRepository coachRepository;
+    private final MemberRepository memberRepository;
 
-    public CoachServiceimpl(CoachRepository coachRepository) {
+    public CoachServiceimpl(CoachRepository coachRepository, MemberRepository memberRepository) {
         this.coachRepository = coachRepository;
+        this.memberRepository = memberRepository;
     }
 
     /**
@@ -213,9 +215,13 @@ public class CoachServiceimpl implements CoachService {
     public void deleteCoachById(Long id) {
         CoachEntity coachEntity = coachRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
-        coachEntity.getClients().clear();
 
-        coachRepository.save(coachEntity);
+        Set<MemberEntity> memberEntities = coachEntity.getClients();
+        for(MemberEntity memberEntity : memberEntities){
+            memberEntity.setCoachedBy(null);
+        }
+
+        memberRepository.saveAll(memberEntities);
         coachRepository.deleteById(id);
     }
 
@@ -224,12 +230,11 @@ public class CoachServiceimpl implements CoachService {
      */
     @Override
     public void deleteAllCoaches() {
-        List<CoachEntity> allcoachEntities = coachRepository.findAll();
-
-        for(CoachEntity coachEntity : allcoachEntities) {
-            coachEntity.getClients().clear();
+        List<MemberEntity> memberEntities = memberRepository.findAll();
+        for(MemberEntity memberEntity : memberEntities){
+            memberEntity.setCoachedBy(null);
         }
-        coachRepository.saveAll(allcoachEntities);
+        memberRepository.saveAll(memberEntities);
         coachRepository.deleteAll();
     }
 }

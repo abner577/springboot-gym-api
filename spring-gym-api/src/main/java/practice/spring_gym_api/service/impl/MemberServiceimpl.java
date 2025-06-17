@@ -197,23 +197,36 @@ public class MemberServiceimpl implements MemberService {
     }
 
     /**
-     * Updates the coach assigned to a specific member.
+     * Replaces the coach assigned to a specific member.
      *
-     * @param id       The ID of the member whose coach is being updated.
-     * @param coachID  The ID of the coach to assign to the member.
-     * @throws IllegalStateException if either the member or the coach does not exist.
+     * @param id             The ID of the member whose coach is being updated.
+     * @param oldCoachesID   The ID of the current coach assigned to the member.
+     * @param newCoachesID   The ID of the new coach to assign to the member.
+     * @throws IllegalStateException if the member, old coach, or new coach does not exist.
      */
     @Override
-    public void updateCoachedByById(Long id, Long coachID) {
+    public void replaceCoach(Long id, Long oldCoachesID, Long newCoachesID) {
         MemberEntity memberEntityToUpdate = memberRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
 
-        CoachEntity coachEntity = coachRepository.findById(coachID)
-                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + coachID + " doesnt exist"));
+        CoachEntity oldCoachEntity = coachRepository.findById(oldCoachesID)
+                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + oldCoachesID + " doesnt exist"));
 
-        memberEntityToUpdate.setCoachedBy(coachEntity);
-        coachEntity.getClients().add(memberEntityToUpdate);
-        coachRepository.save(coachEntity);
+        CoachEntity newCoachEntity = coachRepository.findById(newCoachesID)
+                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + newCoachesID + " doesnt exist"));
+
+        memberEntityToUpdate.setCoachedBy(newCoachEntity);
+        oldCoachEntity.getClients().remove(memberEntityToUpdate);
+        newCoachEntity.getClients().add(memberEntityToUpdate);
+        memberRepository.save(memberEntityToUpdate);
+    }
+
+    @Override
+    public void removeCoachedBy(Long id) {
+        MemberEntity memberEntityToUpdate = memberRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
+        memberEntityToUpdate.setCoachedBy(null);
+        memberRepository.save(memberEntityToUpdate);
     }
 
     /**
@@ -351,15 +364,13 @@ public class MemberServiceimpl implements MemberService {
      * @throws IllegalStateException if the member does not exist
      */
     @Override
-    public void deleteMemberById(Long id, Long coachID) {
+    public void deleteMemberById(Long id) {
        MemberEntity memberEntity = memberRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
-       CoachEntity coachEntity = coachRepository.findById(coachID)
-                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
-        Set<MemberEntity> coachClientList = coachEntity.getClients();
-        coachClientList.remove(memberEntity);
 
-       coachRepository.save(coachEntity);
+       memberEntity.setCoachedBy(null);
+
+       memberRepository.save(memberEntity);
        memberRepository.deleteById(id);
     }
 
@@ -372,23 +383,16 @@ public class MemberServiceimpl implements MemberService {
     public void deleteMembersBelowATotal(int total) {
         List<MemberEntity> memberEntities = memberRepository.findAll();
         List<MemberEntity> memberEntitiesToDelete = new ArrayList<>();
-        List<CoachEntity> coachEntities = coachRepository.findAll();
-        List<CoachEntity> coachEntitiesToUpdate = new ArrayList<>();
 
         for(MemberEntity memberEntity : memberEntities){
-            if(memberEntity.getTotal() < total) memberEntitiesToDelete.add(memberEntity);
-        }
-        for(CoachEntity coachEntity : coachEntities){
-            if(coachEntity.getClients().contains(memberEntitiesToDelete)) coachEntitiesToUpdate.add(coachEntity);
-        }
-
-        for(MemberEntity memberEntity : memberEntitiesToDelete) {
-            for(CoachEntity coachEntity : coachEntitiesToUpdate) {
-                if(coachEntity.getClients().contains(memberEntity)) coachEntity.getClients().remove(memberEntity);
+            if(memberEntity.getTotal() < total) {
+                memberEntitiesToDelete.add(memberEntity);
+                memberEntity.setCoachedBy(null);
             }
         }
 
-        coachRepository.saveAll(coachEntitiesToUpdate);
+        memberRepository.saveAll(memberEntitiesToDelete);
         memberRepository.deleteAll(memberEntitiesToDelete);
+
     }
 }
