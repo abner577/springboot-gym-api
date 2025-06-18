@@ -91,6 +91,13 @@ public class MemberEntity {
         this.total = total;
     }
 
+    public MemberEntity(String name, LocalDate dateOfBirth, Roles role, String email) {
+        this.name = name;
+        this.dateOfBirth = dateOfBirth;
+        this.role = role;
+        this.email = email;
+    }
+
     public MemberEntity(String name) {
         this.name = name;
     }

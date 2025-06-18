@@ -2,9 +2,15 @@ package practice.spring_gym_api.dto.impl;
 
 import practice.spring_gym_api.dto.MemberDTO;
 import practice.spring_gym_api.dto.MemberMapper;
+import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
+import practice.spring_gym_api.entity.WorkerEntity;
+import practice.spring_gym_api.entity.enums.Roles;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class MemberMapperimpl implements MemberMapper {
@@ -22,5 +28,15 @@ public class MemberMapperimpl implements MemberMapper {
     @Override
     public MemberDTO convertToMemberDTO(MemberEntity memberEntity) {
         return modelMapper.map(memberEntity, MemberDTO.class);
+    }
+
+    @Override
+    public CoachEntity convertMemberToCoachEntity (MemberEntity memberEntity){
+        return new CoachEntity(memberEntity.getName(), memberEntity.getDateOfBirth(), Roles.ROLE_COACH, memberEntity.getEmail(), List.of("Temporary Placeholder"));
+    }
+
+    @Override
+    public WorkerEntity convertMemberToWorkerEntity (MemberEntity memberEntity){
+        return modelMapper.map(memberEntity, WorkerEntity.class);
     }
 }

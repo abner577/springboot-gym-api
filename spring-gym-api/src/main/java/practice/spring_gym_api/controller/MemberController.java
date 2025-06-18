@@ -212,6 +212,14 @@ public class MemberController {
         memberService.updateSBDStatus(id, email, bench, squat, deadlift);
     }
 
+    @PatchMapping(path = "/update/role/of/member/{member_id}")
+    public void updateRoleOfAMemberById(
+            @PathVariable("member_id") Long id,
+            @RequestParam(required = true) String role
+    ) {
+        memberService.updatedRoleOfAMemberById(id, role);
+    }
+
     /**
      * Updates a member's entire record using their ID.
      * @param id Member ID

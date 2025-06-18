@@ -178,6 +178,11 @@ public class CoachServiceimpl implements CoachService {
         coachRepository.save(coachEntityToUpdateClientsID);
     }
 
+    @Override
+    public void updateWorkoutPlans(Long id, List<String> workoutPlans) {
+
+    }
+
     /**
      * Fully updates a coach by ID and email, ensuring they match the record being updated.
      *

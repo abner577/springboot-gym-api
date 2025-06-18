@@ -2,11 +2,15 @@ package practice.spring_gym_api.service.impl;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import practice.spring_gym_api.dto.MemberMapper;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import org.springframework.stereotype.Service;
+import practice.spring_gym_api.entity.WorkerEntity;
+import practice.spring_gym_api.entity.enums.Roles;
 import practice.spring_gym_api.repository.CoachRepository;
 import practice.spring_gym_api.repository.MemberRepository;
+import practice.spring_gym_api.repository.WorkerRepository;
 import practice.spring_gym_api.service.MemberService;
 
 import java.lang.reflect.Member;
@@ -24,10 +28,14 @@ public class MemberServiceimpl implements MemberService {
 
     private final MemberRepository memberRepository;
     private final CoachRepository coachRepository;
+    private final WorkerRepository workerRepository;
+    private final MemberMapper memberMapper;
 
-    public MemberServiceimpl(MemberRepository memberRepository, CoachRepository coachRepository) {
+    public MemberServiceimpl(MemberRepository memberRepository, CoachRepository coachRepository, WorkerRepository workerRepository, MemberMapper memberMapper) {
         this.memberRepository = memberRepository;
         this.coachRepository = coachRepository;
+        this.workerRepository = workerRepository;
+        this.memberMapper = memberMapper;
     }
 
     /**
@@ -216,8 +224,6 @@ public class MemberServiceimpl implements MemberService {
                 .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + newCoachesID + " doesnt exist"));
 
         memberEntityToUpdate.setCoachedBy(newCoachEntity);
-        oldCoachEntity.getClients().remove(memberEntityToUpdate);
-        newCoachEntity.getClients().add(memberEntityToUpdate);
         memberRepository.save(memberEntityToUpdate);
     }
 
@@ -358,6 +364,35 @@ public class MemberServiceimpl implements MemberService {
     }
 
     /**
+     * Updates the role of a member
+     *
+     * @param id            Member ID
+     * @param role The new role assigned to the member
+     * @throws IllegalStateException if no member with the given ID exists
+     * @throws IllegalStateException if user tries to assign member a role that they already have
+     */
+    @Override
+    public void updatedRoleOfAMemberById(Long id, String role) {
+        MemberEntity memberEntity = memberRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
+
+        if(role.equalsIgnoreCase(String.valueOf(Roles.ROLE_MEMBER))) throw new IllegalStateException("Member: " + memberEntity.getName() + " already has a role of ROLE_MEMBER");
+        else if (role.equalsIgnoreCase(String.valueOf(Roles.ROLE_COACH))) {
+            CoachEntity coachEntityFromMember = memberMapper.convertMemberToCoachEntity(memberEntity);
+
+            deleteMemberById(id);
+            coachRepository.save(coachEntityFromMember);
+        }
+        else if (role.equalsIgnoreCase(String.valueOf(Roles.ROLE_WORKER))) {
+            WorkerEntity workerEntityFromMember = memberMapper.convertMemberToWorkerEntity(memberEntity);
+
+            deleteMemberById(id);
+            workerRepository.save(workerEntityFromMember);
+        }
+        else throw new IllegalStateException("Role must be either ROLE_COACH, ROLE_WORKER, or ROLE_MEMBER");
+    }
+
+    /**
      * Deletes a member by ID.
      *
      * @param id Member ID
@@ -393,6 +428,5 @@ public class MemberServiceimpl implements MemberService {
 
         memberRepository.saveAll(memberEntitiesToDelete);
         memberRepository.deleteAll(memberEntitiesToDelete);
-
     }
 }

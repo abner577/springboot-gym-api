@@ -15,16 +15,21 @@ public class WorkerServiceimpl implements WorkerService {
 
     @Override
     public WorkerEntity getWorkerById(Long id) {
-        return null;
+        return workerRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Worker with an id of: " + id + " doesnt exist"));
+
     }
 
     @Override
     public void registerNewWorker(WorkerEntity workerEntity) {
-
+        if(workerRepository.existsByEmail(workerEntity.getEmail())) throw new IllegalStateException("Worker with an email of: " + workerEntity.getEmail() + " already exists");
+        workerRepository.save(workerEntity);
     }
 
     @Override
     public void deleteWorkerbyId(Long id) {
-
+        WorkerEntity workerEntity = workerRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Worker with an id of: " + id + " doesnt exist"));
+        workerRepository.delete(workerEntity);
     }
 }
