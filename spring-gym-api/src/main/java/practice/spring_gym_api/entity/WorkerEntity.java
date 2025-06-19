@@ -53,11 +53,11 @@ public class WorkerEntity {
     @Transient
     private int age;
 
-    public WorkerEntity(String name, String email, LocalDate dateOfBirth, Roles role) {
+    public WorkerEntity(String name, LocalDate dateOfBirth, Roles role, String email) {
         this.name = name;
-        this.email = email;
         this.dateOfBirth = dateOfBirth;
         this.role = role;
+        this.email = email;
     }
     public WorkerEntity() {}
 
@@ -107,10 +107,18 @@ public class WorkerEntity {
 
     @Override
     public boolean equals(Object o) {
-        if(this == o) return true;
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         WorkerEntity that = (WorkerEntity) o;
-        return Objects.equals(id, that.id);
+
+        // If both have non-null IDs, compare IDs (standard persistence logic)
+        if (id != null && that.id != null) {
+            return Objects.equals(id, that.id);
+        }
+
+        // Otherwise, fallback to email
+        return Objects.equals(email, that.email);
     }
 
     @Override

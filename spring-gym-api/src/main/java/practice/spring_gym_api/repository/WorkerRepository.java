@@ -1,5 +1,6 @@
 package practice.spring_gym_api.repository;
 
+import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.WorkerEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -8,4 +9,5 @@ import org.springframework.stereotype.Repository;
 public interface WorkerRepository extends JpaRepository<WorkerEntity, Long>{
 
     boolean existsByEmail(String email);
+    WorkerEntity findByEmail(String email);
 }

@@ -30,6 +30,15 @@ public class WorkerController {
         workerService.registerNewWorker(workerEntity);
     }
 
+    @PatchMapping (path = "update/worker/role/{worker_id}")
+    public void updateRoleOfAWorker(
+            @PathVariable("worker_id") Long id,
+            @RequestParam String email,
+            @RequestParam String role
+    ){
+        workerService.updateRoleOfAWorker(id, email, role);
+    }
+
     @DeleteMapping (path = "worker/{worker_id}")
     public void deleteWorkerByID(@PathVariable("worker_id") Long id){
         workerService.deleteWorkerbyId(id);

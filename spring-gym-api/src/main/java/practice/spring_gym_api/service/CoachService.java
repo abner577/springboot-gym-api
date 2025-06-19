@@ -26,7 +26,8 @@ public interface CoachService {
     void updateNameByIdAndEmail(Long id, String name, String email);
     void updateClientsByIdAndEmail(Long id, String email, Set<MemberEntity> clients);
     void updateCoachByIdAndEmail(Long id, String email, CoachEntity coachEntity);
-    void updateWorkoutPlans(Long id, List<String> workoutPlans);
+    void updateWorkoutPlans(Long id, String email, List<String> workoutPlans);
+    void updateRoleOfACoach(Long id, String email, String role);
 
     // --- DELETE methods --- *All Delete methods need to have authentication implemented, we are looking for a heading that has a ROLE-WORKER*
     void deleteCoachById(Long id);

@@ -227,6 +227,12 @@ public class MemberServiceimpl implements MemberService {
         memberRepository.save(memberEntityToUpdate);
     }
 
+    /**
+     * Removes the coach assigned to a specific member.
+     *
+     * @param id Member ID
+     * @throws IllegalStateException if member is not found
+     */
     @Override
     public void removeCoachedBy(Long id) {
         MemberEntity memberEntityToUpdate = memberRepository.findById(id)
@@ -347,11 +353,15 @@ public class MemberServiceimpl implements MemberService {
         if(entityToUpdateEmail == null) throw new IllegalStateException("Member with an email of: " + email + " doesnt exist");
         if(!entityToUpdate.equals(entityToUpdateEmail)) throw new IllegalStateException("Member with an id of: " + id + " is not the same member that has an email of: " + email);
 
+        if(!entityToUpdate.getEmail().equals(memberEntity.getEmail())) {
+            MemberEntity memberEntity1 = memberRepository.findMemberByEmail(email);
+            if(memberEntity1 != null) throw new IllegalStateException("The updated email that you are trying to give to " + memberEntity.getName() + " is already registered under another member");
+        }
+
         int total = memberEntity.getBench() + memberEntity.getSquat() + memberEntity.getDeadlift();
 
         entityToUpdate.setName(memberEntity.getName());
         entityToUpdate.setEmail(memberEntity.getEmail());
-        entityToUpdate.setAge(memberEntity.getAge());
         entityToUpdate.setRole(memberEntity.getRole());
         entityToUpdate.setDateOfBirth(memberEntity.getDateOfBirth());
         entityToUpdate.setMembershipDate(memberEntity.getMembershipDate());
@@ -372,19 +382,25 @@ public class MemberServiceimpl implements MemberService {
      * @throws IllegalStateException if user tries to assign member a role that they already have
      */
     @Override
-    public void updatedRoleOfAMemberById(Long id, String role) {
-        MemberEntity memberEntity = memberRepository.findById(id)
+    public void updatedRoleOfAMemberByIdAndEmail(Long id, String email, String role) {
+        MemberEntity memberEntityById = memberRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
+        MemberEntity memberEntityByEmail = memberRepository.findMemberByEmail(email);
 
-        if(role.equalsIgnoreCase(String.valueOf(Roles.ROLE_MEMBER))) throw new IllegalStateException("Member: " + memberEntity.getName() + " already has a role of ROLE_MEMBER");
+        // Validation of credentials
+        if(memberEntityByEmail == null) throw new IllegalStateException("Member with an email of: " + email + " doesnt exist");
+        if(!memberEntityById.equals(memberEntityByEmail)) throw new IllegalStateException("Member with an id of: " + id + " is not the same member that has an email of: " + email);
+
+        // Checking which role to update member to
+        if(role.equalsIgnoreCase(String.valueOf(Roles.ROLE_MEMBER))) throw new IllegalStateException("Member: " + memberEntityById.getName() + " already has a role of ROLE_MEMBER");
         else if (role.equalsIgnoreCase(String.valueOf(Roles.ROLE_COACH))) {
-            CoachEntity coachEntityFromMember = memberMapper.convertMemberToCoachEntity(memberEntity);
+            CoachEntity coachEntityFromMember = memberMapper.convertMemberToCoachEntity(memberEntityById);
 
             deleteMemberById(id);
             coachRepository.save(coachEntityFromMember);
         }
         else if (role.equalsIgnoreCase(String.valueOf(Roles.ROLE_WORKER))) {
-            WorkerEntity workerEntityFromMember = memberMapper.convertMemberToWorkerEntity(memberEntity);
+            WorkerEntity workerEntityFromMember = memberMapper.convertMemberToWorkerEntity(memberEntityById);
 
             deleteMemberById(id);
             workerRepository.save(workerEntityFromMember);

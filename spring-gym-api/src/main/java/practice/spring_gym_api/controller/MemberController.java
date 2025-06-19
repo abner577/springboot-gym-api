@@ -179,8 +179,8 @@ public class MemberController {
     @PatchMapping(path = "/member/{member_id}")
     public void updateNameById(
             @PathVariable("member_id") Long id,
-           @RequestParam(name = "name", required = true) String name,
-           @RequestParam(name = "email", required = true) String email
+           @RequestParam(name = "name") String name,
+           @RequestParam(name = "email") String email
     ) {
         memberService.updateNameByIdAndEmail(id, name, email);
     }
@@ -204,20 +204,21 @@ public class MemberController {
     @PatchMapping(path = "/update/sbd/{member_id}")
     public void updateSBDStats(
             @PathVariable("member_id") Long id,
-            @RequestParam(required = true) String email,
-            @RequestParam(required = true) int bench,
-            @RequestParam(required = true) int squat,
-            @RequestParam(required = true) int deadlift
+            @RequestParam String email,
+            @RequestParam int bench,
+            @RequestParam int squat,
+            @RequestParam int deadlift
     ) {
         memberService.updateSBDStatus(id, email, bench, squat, deadlift);
     }
 
     @PatchMapping(path = "/update/role/of/member/{member_id}")
-    public void updateRoleOfAMemberById(
+    public void updateRoleOfAMemberByIdAndEmail(
             @PathVariable("member_id") Long id,
-            @RequestParam(required = true) String role
+            @RequestParam String email,
+            @RequestParam String role
     ) {
-        memberService.updatedRoleOfAMemberById(id, role);
+        memberService.updatedRoleOfAMemberByIdAndEmail(id, email, role);
     }
 
     /**
@@ -228,7 +229,7 @@ public class MemberController {
     @PutMapping(path = "/member/{member_id}")
     public void updateFullMember(
             @PathVariable("member_id") Long id,
-            @RequestParam(required = true) String email,
+            @RequestParam String email,
             @Valid @RequestBody MemberEntity updatedEntity
     ){
         memberService.updateCompleteMember(id, email, updatedEntity);
@@ -248,7 +249,7 @@ public class MemberController {
      * @param total The minimum total threshold
      */
     @DeleteMapping(path = "delete/all/below")
-    public void deleteAllMembersBelowATotal(@RequestParam(required = true) int total){
+    public void deleteAllMembersBelowATotal(@RequestParam int total){
         memberService.deleteMembersBelowATotal(total);
     }
 }

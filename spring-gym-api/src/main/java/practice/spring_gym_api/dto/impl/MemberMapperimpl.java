@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import practice.spring_gym_api.entity.WorkerEntity;
 import practice.spring_gym_api.entity.enums.Roles;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -37,6 +36,6 @@ public class MemberMapperimpl implements MemberMapper {
 
     @Override
     public WorkerEntity convertMemberToWorkerEntity (MemberEntity memberEntity){
-        return modelMapper.map(memberEntity, WorkerEntity.class);
+        return new WorkerEntity(memberEntity.getName(), memberEntity.getDateOfBirth(), Roles.ROLE_COACH, memberEntity.getEmail());
     }
 }

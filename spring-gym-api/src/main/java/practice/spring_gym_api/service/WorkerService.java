@@ -11,7 +11,9 @@ public interface WorkerService {
     void registerNewWorker(WorkerEntity workerEntity);
 
     // --- PUT/PATCH methods ---
+    void updateRoleOfAWorker(Long id, String email, String role);
+    void updateWorkerById(Long id, String email, WorkerEntity updatedWorkerEntity);
 
-    // --- DELETE methods --- *All Delete methods need to have authentication implemented, we are lookign for a heading that has a ROLE-WORKER*
+    // --- DELETE methods --- *All Delete methods need to have authentication implemented, we are looking for a heading that has a ROLE-WORKER*
     void deleteWorkerbyId(Long id);
 }

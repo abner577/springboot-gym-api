@@ -1,5 +1,7 @@
 package practice.spring_gym_api.controller;
 
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Qualifier;
 import practice.spring_gym_api.dto.CoachDTO;
 import practice.spring_gym_api.dto.CoachMapper;
@@ -179,8 +181,8 @@ public class CoachController {
     @PatchMapping(path = "/update/coach/name/{coach_id}")
     public void updateNameByIdAndEmail(
             @PathVariable("coach_id") Long id,
-            @RequestParam(required = true) String name,
-            @RequestParam(required = true) String email
+            @RequestParam String name,
+            @RequestParam String email
     ) {
         coachService.updateNameByIdAndEmail(id, name, email);
     }
@@ -194,10 +196,19 @@ public class CoachController {
     @PatchMapping(path = "/update/coach/clients/{coach_id}")
     public void updateClientsByIdAndEmail(
             @PathVariable("coach_id") Long id,
-            @RequestParam(required = true) String email,
+            @RequestParam String email,
             @Valid @RequestBody Set<MemberEntity> memberEntitySet
     ) {
         coachService.updateClientsByIdAndEmail(id, email, memberEntitySet);
+    }
+
+    @PatchMapping(path = "update/coach/role/{coach_id}")
+    public void updateRoleOfACoach(
+            @PathVariable("coach_id") Long id,
+            @RequestParam String email,
+            @RequestParam String role
+    ) {
+        coachService.updateRoleOfACoach(id, email, role);
     }
 
     /**
@@ -210,10 +221,22 @@ public class CoachController {
     @PutMapping(path = "/update/coach/{coach_id}")
     public void updateCoachByIdAndEmail(
             @PathVariable("coach_id") Long id,
-            @RequestParam(required = true) String name,
+            @RequestParam String name,
             @Valid @RequestBody CoachEntity coachEntity
     ) {
         coachService.updateCoachByIdAndEmail(id, name, coachEntity);
+    }
+
+    @PutMapping(path = "/update/workout/plans/{coach_id}")
+    public void updateWorkoutPlans(
+            @PathVariable("coach_id") Long id,
+            @RequestParam String email,
+
+            @NotNull(message = "Workout plans list must not be null")
+            @Size(min = 1, message = "At least one workout plan must be provided")
+            @Valid @RequestBody List<String> workoutPlans
+    ) {
+        coachService.updateWorkoutPlans(id, email, workoutPlans);
     }
 
     /**

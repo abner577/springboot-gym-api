@@ -1,12 +1,16 @@
 package practice.spring_gym_api.service.impl;
 
+import org.springframework.beans.factory.annotation.Qualifier;
+import practice.spring_gym_api.dto.CoachMapper;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import practice.spring_gym_api.entity.WorkerEntity;
 import practice.spring_gym_api.repository.CoachRepository;
 import practice.spring_gym_api.repository.MemberRepository;
+import practice.spring_gym_api.repository.WorkerRepository;
 import practice.spring_gym_api.service.CoachService;
 
 import java.util.*;
@@ -20,10 +24,14 @@ public class CoachServiceimpl implements CoachService {
 
     private final CoachRepository coachRepository;
     private final MemberRepository memberRepository;
+    private final WorkerRepository workerRepository;
+    private final CoachMapper coachMapper;
 
-    public CoachServiceimpl(CoachRepository coachRepository, MemberRepository memberRepository) {
+    public CoachServiceimpl(CoachRepository coachRepository, MemberRepository memberRepository, WorkerRepository workerRepository, @Qualifier("coachMapperimpl") CoachMapper coachMapper) {
         this.coachRepository = coachRepository;
         this.memberRepository = memberRepository;
+        this.workerRepository = workerRepository;
+        this.coachMapper = coachMapper;
     }
 
     /**
@@ -93,6 +101,11 @@ public class CoachServiceimpl implements CoachService {
        else return new HashSet<>();
     }
 
+    /**
+     * Retrieves all coaches with no assigned clients.
+     *
+     * @return List of available coaches
+     */
     @Override
     public List<CoachEntity> getAllCoachesThatAreAvaliable() {
         List<CoachEntity> coachEntities = coachRepository.findAll();
@@ -178,9 +191,25 @@ public class CoachServiceimpl implements CoachService {
         coachRepository.save(coachEntityToUpdateClientsID);
     }
 
+    /**
+     * Updates a coach's workout plans.
+     *
+     * @param id           Coach ID
+     * @param email        Coach email for verification
+     * @param workoutPlans New list of workout plans to assign
+     * @throws IllegalStateException if coach is not found
+     */
     @Override
-    public void updateWorkoutPlans(Long id, List<String> workoutPlans) {
+    public void updateWorkoutPlans(Long id, String email, List<String> workoutPlans) {
+        CoachEntity coachEntityById = coachRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
+        CoachEntity coachEntityByEmail = coachRepository.findByEmail(email);
 
+        if(coachEntityByEmail == null) throw new IllegalStateException("Coach with an email of: " + email + " doesnt exist");
+        if(!coachEntityById.equals(coachEntityByEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
+
+        coachEntityById.setWorkoutPlans(workoutPlans);
+        coachRepository.save(coachEntityById);
     }
 
     /**
@@ -200,14 +229,47 @@ public class CoachServiceimpl implements CoachService {
         if(coachEntityToUpdateEmail == null) throw new IllegalStateException("Coach with an email of: " + email + " doesnt exist");
         if(!coachEntityToUpdate.equals(coachEntityToUpdateEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
 
+        if(!coachEntityToUpdate.getEmail().equals(coachEntity.getEmail())) {
+            CoachEntity coachEntity1 = coachRepository.findByEmail(email);
+            if(coachEntity1 != null) throw new IllegalStateException("The updated email that you are trying to give to " + coachEntityToUpdate.getName() + " is already registered under another coach");
+        }
+
         coachEntityToUpdate.setName(coachEntity.getName());
-        coachEntityToUpdate.setClients(coachEntity.getClients());
-        coachEntityToUpdate.setAge(coachEntity.getAge());
+        coachEntityToUpdate.setRole(coachEntity.getRole());
         coachEntityToUpdate.setClients(coachEntity.getClients());
         coachEntityToUpdate.setWorkoutPlans(coachEntity.getWorkoutPlans());
         coachEntityToUpdate.setDateOfBirth(coachEntity.getDateOfBirth());
         coachEntityToUpdate.setEmail(coachEntity.getEmail());
         coachRepository.save(coachEntity);
+    }
+
+    @Override
+    public void updateRoleOfACoach(Long id, String email, String role) {
+        CoachEntity coachEntityById = coachRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
+        CoachEntity coachEntityByEmail = coachRepository.findByEmail(email);
+
+        if(coachEntityByEmail == null) throw new IllegalStateException("Coach with an email of: " + email + " doesnt exist");
+        if(!coachEntityById.equals(coachEntityByEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
+
+        if(role.equalsIgnoreCase("ROLE_COACH")) throw new IllegalStateException("Coach: " + coachEntityById.getName() + " already has a role of ROLE_COACH");
+        else if (role.equalsIgnoreCase("ROLE_MEMBER")) {
+            MemberEntity memberEntity = coachMapper.covertCoachToMemberEntity(coachEntityById);
+
+            for(MemberEntity client : coachEntityById.getClients()) client.setCoachedBy(null);
+            memberRepository.saveAll(coachEntityById.getClients());
+
+            deleteCoachById(id);
+            memberRepository.save(memberEntity);
+        } else if (role.equalsIgnoreCase("ROLE_WORKER")) {
+            WorkerEntity workerEntity = coachMapper.covertCoachToWorkerEntity(coachEntityById);
+
+            for(MemberEntity client : coachEntityById.getClients()) client.setCoachedBy(null);
+            memberRepository.saveAll(coachEntityById.getClients());
+
+            deleteCoachById(id);
+            workerRepository.save(workerEntity);
+        }  else throw new IllegalStateException("Role must be either ROLE_COACH, ROLE_WORKER, or ROLE_MEMBER");
     }
 
     /**

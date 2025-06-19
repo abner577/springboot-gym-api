@@ -5,6 +5,11 @@ import practice.spring_gym_api.dto.CoachMapper;
 import practice.spring_gym_api.entity.CoachEntity;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
+import practice.spring_gym_api.entity.MemberEntity;
+import practice.spring_gym_api.entity.WorkerEntity;
+import practice.spring_gym_api.entity.enums.Roles;
+
+import java.util.List;
 
 @Component
 public class CoachMapperimpl implements CoachMapper {
@@ -22,5 +27,15 @@ public class CoachMapperimpl implements CoachMapper {
     @Override
     public CoachEntity convertToCoachEntity(CoachDTO coachDTO) {
         return modelMapper.map(coachDTO, CoachEntity.class);
+    }
+
+    @Override
+    public MemberEntity covertCoachToMemberEntity(CoachEntity coachEntity) {
+        return new MemberEntity(coachEntity.getName(), coachEntity.getDateOfBirth(), Roles.ROLE_MEMBER, coachEntity.getEmail());
+    }
+
+    @Override
+    public WorkerEntity covertCoachToWorkerEntity(CoachEntity coachEntity) {
+        return new WorkerEntity(coachEntity.getName(), coachEntity.getDateOfBirth(), Roles.ROLE_WORKER, coachEntity.getEmail());
     }
 }

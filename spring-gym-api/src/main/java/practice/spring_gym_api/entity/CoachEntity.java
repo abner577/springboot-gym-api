@@ -155,10 +155,18 @@ public class CoachEntity {
 
     @Override
     public boolean equals(Object o) {
-        if(this == o) return true;
+        if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+
         CoachEntity that = (CoachEntity) o;
-        return Objects.equals(id, that.id);
+
+        // If both have non-null IDs, compare IDs (standard persistence logic)
+        if (id != null && that.id != null) {
+            return Objects.equals(id, that.id);
+        }
+
+        // Otherwise, fallback to email
+        return Objects.equals(email, that.email);
     }
 
     @Override

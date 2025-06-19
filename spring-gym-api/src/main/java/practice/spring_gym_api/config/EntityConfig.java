@@ -136,16 +136,16 @@ public class EntityConfig {
 
             WorkerEntity worker1 = new WorkerEntity(
                     "Rachel Thomas",
-                    "rachelThomas@gmail.com",
                     LocalDate.of(1985, 2, 14),
-                    Roles.ROLE_WORKER
+                    Roles.ROLE_WORKER,
+                    "rachelThomas@gmail.com"
             );
 
             WorkerEntity worker2 = new WorkerEntity(
                     "James Wu",
-                    "jamesWu@gmail.com",
                     LocalDate.of(1990, 10, 30),
-                    Roles.ROLE_WORKER
+                    Roles.ROLE_WORKER,
+                    "jamesWu@gmail.com"
             );
 
                     listOfWorkers.add(worker1);
