@@ -193,13 +193,22 @@ public class CoachController {
      * @param id the coach ID
      * @param memberEntitySet the new set of clients
      */
-    @PatchMapping(path = "/update/coach/clients/{coach_id}")
-    public void updateClientsByIdAndEmail(
+    @PatchMapping(path = "/add/clients/{coach_id}")
+    public void addClientsByIdAndEmail(
             @PathVariable("coach_id") Long id,
             @RequestParam String email,
             @Valid @RequestBody Set<MemberEntity> memberEntitySet
     ) {
-        coachService.updateClientsByIdAndEmail(id, email, memberEntitySet);
+        coachService.addClientsByIdAndEmail(id, email, memberEntitySet);
+    }
+
+    @PatchMapping(path = "/replace/coach/clients/{coach_id}")
+    public void replaceCLientList(
+            @PathVariable("coach_id") Long id,
+            @RequestParam String email,
+           @Valid @RequestBody Set<MemberEntity> memberEntities
+    )  {
+        coachService.replaceClientListByIdAndEmail(id, email, memberEntities);
     }
 
     @PatchMapping(path = "update/coach/role/{coach_id}")
@@ -215,16 +224,16 @@ public class CoachController {
      * Performs a full update on a coach using both ID and email for verification.
      *
      * @param id the coach ID
-     * @param name the new name
+     * @param email the email of the coach
      * @param coachEntity the updated coach object
      */
     @PutMapping(path = "/update/coach/{coach_id}")
     public void updateCoachByIdAndEmail(
             @PathVariable("coach_id") Long id,
-            @RequestParam String name,
+            @RequestParam String email,
             @Valid @RequestBody CoachEntity coachEntity
     ) {
-        coachService.updateCoachByIdAndEmail(id, name, coachEntity);
+        coachService.updateCoachByIdAndEmail(id, email, coachEntity);
     }
 
     @PutMapping(path = "/update/workout/plans/{coach_id}")

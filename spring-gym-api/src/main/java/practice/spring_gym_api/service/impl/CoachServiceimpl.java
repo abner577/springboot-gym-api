@@ -175,7 +175,7 @@ public class CoachServiceimpl implements CoachService {
      * @throws IllegalStateException if coach is not found
      */
     @Override
-    public void updateClientsByIdAndEmail(Long id, String email, Set<MemberEntity> memberEntities) {
+    public void addClientsByIdAndEmail(Long id, String email, Set<MemberEntity> memberEntities) {
         CoachEntity coachEntityToUpdateClientsID = coachRepository.findById(id)
                 .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
 
@@ -189,6 +189,22 @@ public class CoachServiceimpl implements CoachService {
 
         coachEntityToUpdateClientsID.getClients().addAll(memberEntities);
         coachRepository.save(coachEntityToUpdateClientsID);
+    }
+
+    @Override
+    public void replaceClientListByIdAndEmail(Long id, String email, Set<MemberEntity> newClientList) {
+        CoachEntity coachEntityById = coachRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
+        CoachEntity coachEntityByEmail = coachRepository.findByEmail(email);
+        if(coachEntityByEmail == null) throw new IllegalStateException("Coach with an email of: " + email + " doesnt exist");
+        if(!coachEntityById.equals(coachEntityByEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
+
+        for(MemberEntity memberEntity : coachEntityById.getClients()) memberEntity.setCoachedBy(null);
+
+        for(MemberEntity memberEntity : newClientList) {
+            memberEntity.setCoachedBy(coachEntityById);
+        }
+        memberRepository.saveAll(newClientList);
     }
 
     /**
@@ -230,7 +246,7 @@ public class CoachServiceimpl implements CoachService {
         if(!coachEntityToUpdate.equals(coachEntityToUpdateEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
 
         if(!coachEntityToUpdate.getEmail().equals(coachEntity.getEmail())) {
-            CoachEntity coachEntity1 = coachRepository.findByEmail(email);
+            CoachEntity coachEntity1 = coachRepository.findByEmail(coachEntity.getEmail());
             if(coachEntity1 != null) throw new IllegalStateException("The updated email that you are trying to give to " + coachEntityToUpdate.getName() + " is already registered under another coach");
         }
 
@@ -240,7 +256,7 @@ public class CoachServiceimpl implements CoachService {
         coachEntityToUpdate.setWorkoutPlans(coachEntity.getWorkoutPlans());
         coachEntityToUpdate.setDateOfBirth(coachEntity.getDateOfBirth());
         coachEntityToUpdate.setEmail(coachEntity.getEmail());
-        coachRepository.save(coachEntity);
+        coachRepository.save(coachEntityToUpdate);
     }
 
     @Override

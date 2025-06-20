@@ -24,7 +24,8 @@ public interface CoachService {
 
     // --- PUT/PATCH methods ---
     void updateNameByIdAndEmail(Long id, String name, String email);
-    void updateClientsByIdAndEmail(Long id, String email, Set<MemberEntity> clients);
+    void addClientsByIdAndEmail(Long id, String email, Set<MemberEntity> clients);
+    void replaceClientListByIdAndEmail(Long id, String email, Set<MemberEntity> newClientList);
     void updateCoachByIdAndEmail(Long id, String email, CoachEntity coachEntity);
     void updateWorkoutPlans(Long id, String email, List<String> workoutPlans);
     void updateRoleOfACoach(Long id, String email, String role);
