@@ -19,17 +19,35 @@ public class WorkerController {
         this.workerMapper= workerMapper;
     }
 
+    /**
+     * Retrieves a worker by their ID.
+     *
+     * @param id Worker ID
+     * @return WorkerDTO representing the worker
+     */
     @GetMapping(path = "worker/{worker_id}")
     public WorkerDTO getWorkerByID(@PathVariable("worker_id") Long id){
         WorkerEntity workerEntity = workerService.getWorkerById(id);
         return workerMapper.convertToWorkerDTO(workerEntity);
     }
 
+    /**
+     * Registers a new worker in the system.
+     *
+     * @param workerEntity WorkerEntity object to be registered
+     */
     @PostMapping (path = "worker")
     public void registerNewWorker(@Valid @RequestBody WorkerEntity workerEntity) {
         workerService.registerNewWorker(workerEntity);
     }
 
+    /**
+     * Updates the role of a worker by ID and email.
+     *
+     * @param id    Worker ID
+     * @param email Worker email
+     * @param role  New role to assign
+     */
     @PatchMapping (path = "update/worker/role/{worker_id}")
     public void updateRoleOfAWorker(
             @PathVariable("worker_id") Long id,
@@ -39,6 +57,11 @@ public class WorkerController {
         workerService.updateRoleOfAWorker(id, email, role);
     }
 
+    /**
+     * Deletes a worker from the system by ID.
+     *
+     * @param id Worker ID
+     */
     @DeleteMapping (path = "worker/{worker_id}")
     public void deleteWorkerByID(@PathVariable("worker_id") Long id){
         workerService.deleteWorkerbyId(id);

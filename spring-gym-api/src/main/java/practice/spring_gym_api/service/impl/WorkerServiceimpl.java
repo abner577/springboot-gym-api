@@ -53,6 +53,15 @@ public class WorkerServiceimpl implements WorkerService {
         workerRepository.save(workerEntity);
     }
 
+    /**
+     * Updates the role of a worker to a new role (member or coach).
+     * Deletes the worker and converts to the new entity type.
+     *
+     * @param id    Worker ID
+     * @param email Worker email
+     * @param role  New role to assign (ROLE_MEMBER or ROLE_COACH)
+     * @throws IllegalStateException if credentials are invalid or role is unchanged/invalid
+     */
     @Override
     public void updateRoleOfAWorker(Long id, String email, String role) {
         WorkerEntity workerEntityById = workerRepository.findById(id)
@@ -77,6 +86,15 @@ public class WorkerServiceimpl implements WorkerService {
         }  else throw new IllegalStateException("Role must be either ROLE_COACH, ROLE_WORKER, or ROLE_MEMBER");
     }
 
+    /**
+     * Updates a worker's details by ID and email.
+     * Verifies credentials and email uniqueness before updating fields.
+     *
+     * @param id                Worker ID
+     * @param email             Current worker email
+     * @param updatedWorkerEntity Updated worker data
+     * @throws IllegalStateException if credentials are invalid or email is already in use
+     */
     @Override
     public void updateWorkerById(Long id, String email, WorkerEntity updatedWorkerEntity) {
         WorkerEntity workerEntity = workerRepository.findById(id)

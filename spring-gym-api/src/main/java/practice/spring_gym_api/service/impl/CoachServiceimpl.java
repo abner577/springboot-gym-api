@@ -191,6 +191,15 @@ public class CoachServiceimpl implements CoachService {
         coachRepository.save(coachEntityToUpdateClientsID);
     }
 
+    /**
+     * Replaces the entire client list of a coach.
+     * Clears old clients’ coach references and sets new ones.
+     *
+     * @param id             Coach ID
+     * @param email          Coach email
+     * @param newClientList  New set of clients to assign to the coach
+     * @throws IllegalStateException if the coach is not found or ID and email don't match
+     */
     @Override
     public void replaceClientListByIdAndEmail(Long id, String email, Set<MemberEntity> newClientList) {
         CoachEntity coachEntityById = coachRepository.findById(id)
@@ -259,6 +268,15 @@ public class CoachServiceimpl implements CoachService {
         coachRepository.save(coachEntityToUpdate);
     }
 
+    /**
+     * Updates a coach's role to MEMBER or WORKER.
+     * Converts and saves new entity, clears client links, and deletes the coach.
+     *
+     * @param id    Coach ID
+     * @param email Coach email
+     * @param role  New role to assign
+     * @throws IllegalStateException if credentials are invalid or role is unchanged
+     */
     @Override
     public void updateRoleOfACoach(Long id, String email, String role) {
         CoachEntity coachEntityById = coachRepository.findById(id)

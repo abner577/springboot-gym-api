@@ -143,6 +143,11 @@ public class CoachController {
         return workoutPlans;
     }
 
+    /**
+     * Retrieves all available coaches (coaches with no clients).
+     *
+     * @return List of available CoachDTOs
+     */
     @GetMapping (path = "/avaliable/coaches")
     public List<CoachDTO> getAvaliableCoaches(){
         List<CoachEntity> coachEntities = coachService.getAllCoachesThatAreAvaliable();
@@ -202,6 +207,13 @@ public class CoachController {
         coachService.addClientsByIdAndEmail(id, email, memberEntitySet);
     }
 
+    /**
+     * Replaces a coach's entire client list by ID and email.
+     *
+     * @param id             Coach ID
+     * @param email          Coach email
+     * @param memberEntities New set of clients
+     */
     @PatchMapping(path = "/replace/coach/clients/{coach_id}")
     public void replaceCLientList(
             @PathVariable("coach_id") Long id,
@@ -211,6 +223,14 @@ public class CoachController {
         coachService.replaceClientListByIdAndEmail(id, email, memberEntities);
     }
 
+    /**
+     * Updates a coach's role to MEMBER or WORKER.
+     * Deletes the original coach and saves a new entity of the target role.
+     *
+     * @param id    Coach ID
+     * @param email Coach email
+     * @param role  New role (ROLE_MEMBER or ROLE_WORKER)
+     */
     @PatchMapping(path = "update/coach/role/{coach_id}")
     public void updateRoleOfACoach(
             @PathVariable("coach_id") Long id,
@@ -236,6 +256,13 @@ public class CoachController {
         coachService.updateCoachByIdAndEmail(id, email, coachEntity);
     }
 
+    /**
+     * Updates the workout plans of a coach by ID and email.
+     *
+     * @param id           Coach ID
+     * @param email        Coach email for verification
+     * @param workoutPlans List of new workout plans to assign
+     */
     @PutMapping(path = "/update/workout/plans/{coach_id}")
     public void updateWorkoutPlans(
             @PathVariable("coach_id") Long id,

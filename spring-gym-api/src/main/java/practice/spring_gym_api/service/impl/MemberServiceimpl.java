@@ -13,7 +13,6 @@ import practice.spring_gym_api.repository.MemberRepository;
 import practice.spring_gym_api.repository.WorkerRepository;
 import practice.spring_gym_api.service.MemberService;
 
-import java.lang.reflect.Member;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;

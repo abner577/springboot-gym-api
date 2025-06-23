@@ -156,6 +156,13 @@ public class MemberController {
         memberService.registerNewMembers(memberEntities);
     }
 
+    /**
+     * Replaces the current coach of a member with a new coach.
+     *
+     * @param id             Member ID
+     * @param oldCoachesID   ID of the current coach
+     * @param newCoachesID   ID of the new coach to assign
+     */
     @PatchMapping(path = "/update/coachedBy/{member_id}/{oldCoach_ID}/{newCoach_id}")
     public void replaceCoach(
             @PathVariable("member_id") Long id,
@@ -165,6 +172,11 @@ public class MemberController {
       memberService.replaceCoach(id, oldCoachesID, newCoachesID);
     }
 
+    /**
+     * Removes the current coach assignment from a member.
+     *
+     * @param id Member ID
+     */
     @PatchMapping(path = "/remove/coachedBy/{member_id}")
     public void removeCoachedBy(@PathVariable("member_id") Long id){
         memberService.removeCoachedBy(id);
@@ -212,6 +224,13 @@ public class MemberController {
         memberService.updateSBDStatus(id, email, bench, squat, deadlift);
     }
 
+    /**
+     * Updates the role of a member by ID and email.
+     *
+     * @param id    Member ID
+     * @param email Member email for verification
+     * @param role  New role to assign (ROLE_COACH, ROLE_WORKER, or ROLE_MEMBER)
+     */
     @PatchMapping(path = "/update/role/of/member/{member_id}")
     public void updateRoleOfAMemberByIdAndEmail(
             @PathVariable("member_id") Long id,
