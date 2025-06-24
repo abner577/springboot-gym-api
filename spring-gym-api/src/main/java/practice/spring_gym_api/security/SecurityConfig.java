@@ -7,24 +7,34 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import practice.spring_gym_api.security.filter.ValidRequestFilter;
+import practice.spring_gym_api.security.filter.WorkerAuthFilter;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
     private final AuthenticationManager authenticationManager;
+    private final ValidRequestFilter validRequestFilter;
+    private final WorkerAuthFilter workerAuthFilter;
 
-    public SecurityConfig(AuthenticationManager authenticationManager) {
+    public SecurityConfig(AuthenticationManager authenticationManager, ValidRequestFilter validRequestFilter, WorkerAuthFilter workerAuthFilter) {
         this.authenticationManager = authenticationManager;
+        this.validRequestFilter = validRequestFilter;
+        this.workerAuthFilter = workerAuthFilter;
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
+                .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.GET, "/**").permitAll()
                         .anyRequest().authenticated()
                 )
+                .addFilterBefore(validRequestFilter, AuthorizationFilter.class)
+                .addFilterBefore(workerAuthFilter, AuthorizationFilter.class)
                 .build();
     }
 }
