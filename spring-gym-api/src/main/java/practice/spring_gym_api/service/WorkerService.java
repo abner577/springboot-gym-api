@@ -6,6 +6,7 @@ import practice.spring_gym_api.entity.WorkerEntity;
 public interface WorkerService {
     // --- GET methods ---
     WorkerEntity getWorkerById(Long id);
+    WorkerEntity getWorkerByWorkerCode(String code);
 
     // --- POST methods ---
     void registerNewWorker(WorkerEntity workerEntity);

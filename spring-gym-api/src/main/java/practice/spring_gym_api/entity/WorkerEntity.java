@@ -50,14 +50,18 @@ public class WorkerEntity {
     @Email(message = "Invalid email format")
     private String email;
 
+    @NotBlank(message = "Worker Code is Required")
+    private String workerCode;
+
     @Transient
     private int age;
 
-    public WorkerEntity(String name, LocalDate dateOfBirth, Roles role, String email) {
+    public WorkerEntity(String name, LocalDate dateOfBirth, Roles role, String email, String workerCode) {
         this.name = name;
         this.dateOfBirth = dateOfBirth;
         this.role = role;
         this.email = email;
+        this.workerCode = workerCode;
     }
     public WorkerEntity() {}
 
@@ -104,6 +108,14 @@ public class WorkerEntity {
     public String getEmail() {return email;}
 
     public void setEmail(String email) {this.email = email;}
+
+    public String getWorkerCode() {
+        return workerCode;
+    }
+
+    public void setWorkerCode(String workerCode) {
+        this.workerCode = workerCode;
+    }
 
     @Override
     public boolean equals(Object o) {

@@ -40,6 +40,11 @@ public class WorkerServiceimpl implements WorkerService {
 
     }
 
+    @Override
+    public WorkerEntity getWorkerByWorkerCode(String code) {
+        return null;
+    }
+
     /**
      * Adds a new worker to the system.
      *

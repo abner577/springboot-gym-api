@@ -36,6 +36,6 @@ public class MemberMapperimpl implements MemberMapper {
 
     @Override
     public WorkerEntity convertMemberToWorkerEntity (MemberEntity memberEntity){
-        return new WorkerEntity(memberEntity.getName(), memberEntity.getDateOfBirth(), Roles.ROLE_COACH, memberEntity.getEmail());
+        return new WorkerEntity(memberEntity.getName(), memberEntity.getDateOfBirth(), Roles.ROLE_COACH, memberEntity.getEmail(), "Placerholder Code");
     }
 }

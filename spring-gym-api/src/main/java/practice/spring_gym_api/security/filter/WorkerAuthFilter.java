@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,10 +20,10 @@ import java.util.Collections;
 @Component
 public class WorkerAuthFilter extends OncePerRequestFilter {
 
-    private final AuthenticationManager authenticationManager;
+    private final AuthenticationConfiguration configuration;
 
-    public WorkerAuthFilter(AuthenticationManager authenticationManager){
-        this.authenticationManager = authenticationManager;
+    public WorkerAuthFilter(AuthenticationConfiguration configuration){
+        this.configuration = configuration;
     }
 
     @Override
@@ -48,16 +49,15 @@ public class WorkerAuthFilter extends OncePerRequestFilter {
         String workerCode = request.getHeader("x-worker-code");
         var unauthenticatedToken = new WorkerAuthToken(workerId, workerCode);
 
-
-        Authentication authTokenReturnedFromProvider = null;
         try {
-            authTokenReturnedFromProvider = authenticationManager.authenticate(unauthenticatedToken);
+            AuthenticationManager authenticationManager = configuration.getAuthenticationManager();
+            var authTokenReturnedFromProvider = authenticationManager.authenticate(unauthenticatedToken);
 
             var newContext = SecurityContextHolder.createEmptyContext();
             newContext.setAuthentication(authTokenReturnedFromProvider);
             SecurityContextHolder.setContext(newContext);
 
-        } catch (AuthenticationException e) {
+        } catch (Exception e) {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
             response.setCharacterEncoding("UTF-8");
             response.setHeader("Content-Type", "text/plain;charset=UTF-8");

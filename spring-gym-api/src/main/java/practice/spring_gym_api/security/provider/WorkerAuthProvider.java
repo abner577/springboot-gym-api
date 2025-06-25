@@ -24,13 +24,13 @@ public class WorkerAuthProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
         WorkerAuthToken workerAuthToken = (WorkerAuthToken) authentication;
-        Long workerId = (Long) workerAuthToken.getPrincipal();
-        String workerCode = (String) workerAuthToken.getCredentials();
+        Long workerId = workerAuthToken.getWorkerId();
+        String workerCode = workerAuthToken.getWorkerCode();
 
         WorkerEntity workerEntity = workerRepository.findById(workerId)
                 .orElseThrow(() -> new IllegalStateException("Worker with an id of: " + authentication.getPrincipal() + " doesnt exist"));
 
-        /* 4. Check code matches
+        /* 4. Check code matches *not implemneted yet*
         if (!worker.getCode().equals(workerCode)) {
             throw new BadCredentialsException("Invalid worker code");
         }

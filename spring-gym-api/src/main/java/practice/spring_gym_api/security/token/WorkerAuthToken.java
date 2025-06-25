@@ -2,7 +2,6 @@ package practice.spring_gym_api.security.token;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 
 import java.util.Collection;
 
@@ -28,11 +27,19 @@ public class WorkerAuthToken extends AbstractAuthenticationToken {
 
     @Override
     public Object getCredentials() {
-        return this.workerCode;
+        return workerCode;
     }
 
     @Override
     public Object getPrincipal() {
-        return this.workerId;
+        return workerId;
+    }
+
+    public Long getWorkerId() {
+        return workerId;
+    }
+
+    public String getWorkerCode() {
+        return workerCode;
     }
 }
