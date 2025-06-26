@@ -4,6 +4,7 @@ import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import practice.spring_gym_api.entity.WorkerEntity;
 
 import java.util.List;
 import java.util.Set;
@@ -16,6 +17,7 @@ public interface CoachService {
     List<String> getWorkoutPlansByCoachName(String name);
     Set<MemberEntity> getAllClientsByCoachId(Long id);
     List<CoachEntity> getAllCoachesThatAreAvaliable();
+    CoachEntity getCoachByCoachCode(Long id, String coachCode);
 
 
     // --- POST methods ---

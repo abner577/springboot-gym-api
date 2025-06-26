@@ -17,4 +17,5 @@ public interface CoachRepository extends JpaRepository<CoachEntity, Long> {
     Optional<CoachEntity> findCoachByName(String name);
     boolean existsByEmail(String email);
     CoachEntity findByEmail(String email);
+    CoachEntity findByCoachCode(String coachCode);
 }

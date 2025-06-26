@@ -117,6 +117,18 @@ public class CoachServiceimpl implements CoachService {
         return coachEntitiesToReturn;
     }
 
+    @Override
+    public CoachEntity getCoachByCoachCode(Long id, String coachCode) {
+        CoachEntity coachEntity = coachRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
+
+        if(coachRepository.findByCoachCode(coachCode) == null) throw new IllegalStateException("Coach with a code of: " + coachCode + " doesnt exist");
+        if(!coachEntity.equals(coachRepository.findByCoachCode(coachCode))) {
+            throw new IllegalStateException("Coach with an id of: " + id + " isnt the same coach with a coach code of: " + coachCode);
+        }
+        return coachEntity;
+    }
+
     /**
      * Registers a new coach, ensuring email uniqueness.
      *

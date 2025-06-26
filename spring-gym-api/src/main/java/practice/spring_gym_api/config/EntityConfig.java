@@ -31,7 +31,8 @@ public class EntityConfig {
                     LocalDate.of(1980, 4, 12),
                     Roles.ROLE_COACH,
                     "alexSmith@gmail.com",
-                    List.of("FBEOD" , "Upper/Lower")
+                    List.of("FBEOD" , "Upper/Lower"),
+                    "EMP-990X-YTR8"
             );
 
             CoachEntity coach2 = new CoachEntity(
@@ -39,7 +40,8 @@ public class EntityConfig {
                     LocalDate.of(1985, 11, 3),
                     Roles.ROLE_COACH,
                     "mariaGonzalez@gmail.com",
-                    List.of("PPL/Upper Lower", "PPL/Arnold")
+                    List.of("PPL/Upper Lower", "PPL/Arnold"),
+                    "WKRCODE-4583"
             );
 
             MemberEntity member1 = new MemberEntity(

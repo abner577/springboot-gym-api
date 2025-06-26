@@ -35,6 +35,9 @@ public class CoachEntity {
     @Email(message = "Invalid email format")
     private String email;
 
+    @NotBlank(message = "Coach code is Required")
+    private String coachCode;
+
     @NotNull
     @Past
     private LocalDate dateOfBirth;
@@ -72,12 +75,13 @@ public class CoachEntity {
      * Constructor used for creating new coaches with essential fields.
      * Does not include the client list, which can be added later.
      */
-    public CoachEntity(String name, LocalDate dateOfBirth, Roles role, String email, List<String> workoutPlans) {
+    public CoachEntity(String name, LocalDate dateOfBirth, Roles role, String email, List<String> workoutPlans, String coachCode) {
         this.name = name;
         this.dateOfBirth = dateOfBirth;
         this.role = role;
         this.email = email;
         this.workoutPlans = workoutPlans;
+        this.coachCode = coachCode;
     }
 
     public CoachEntity(String name, LocalDate dateOfBirth, Roles role, String email) {

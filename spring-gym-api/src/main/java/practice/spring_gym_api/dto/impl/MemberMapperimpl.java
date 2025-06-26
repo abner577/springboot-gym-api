@@ -31,11 +31,11 @@ public class MemberMapperimpl implements MemberMapper {
 
     @Override
     public CoachEntity convertMemberToCoachEntity (MemberEntity memberEntity){
-        return new CoachEntity(memberEntity.getName(), memberEntity.getDateOfBirth(), Roles.ROLE_COACH, memberEntity.getEmail(), List.of("Temporary Placeholder"));
+        return new CoachEntity(memberEntity.getName(), memberEntity.getDateOfBirth(), Roles.ROLE_COACH, memberEntity.getEmail(), List.of("Placeholder workouts"), "Placeholder coach code");
     }
 
     @Override
     public WorkerEntity convertMemberToWorkerEntity (MemberEntity memberEntity){
-        return new WorkerEntity(memberEntity.getName(), memberEntity.getDateOfBirth(), Roles.ROLE_COACH, memberEntity.getEmail(), "Placerholder Code");
+        return new WorkerEntity(memberEntity.getName(), memberEntity.getDateOfBirth(), Roles.ROLE_COACH, memberEntity.getEmail(), "Placeholder worker code");
     }
 }

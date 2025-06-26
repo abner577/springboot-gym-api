@@ -6,7 +6,7 @@ import practice.spring_gym_api.entity.WorkerEntity;
 public interface WorkerService {
     // --- GET methods ---
     WorkerEntity getWorkerById(Long id);
-    WorkerEntity getWorkerByWorkerCode(String code);
+    WorkerEntity getWorkerByWorkerCode(Long id, String code);
 
     // --- POST methods ---
     void registerNewWorker(WorkerEntity workerEntity);
@@ -14,6 +14,7 @@ public interface WorkerService {
     // --- PUT/PATCH methods ---
     void updateRoleOfAWorker(Long id, String email, String role);
     void updateWorkerById(Long id, String email, WorkerEntity updatedWorkerEntity);
+    void updateWorkerCodeById(Long id, String email, String newCode);
 
     // --- DELETE methods --- *All Delete methods need to have authentication implemented, we are looking for a heading that has a ROLE-WORKER*
     void deleteWorkerbyId(Long id);

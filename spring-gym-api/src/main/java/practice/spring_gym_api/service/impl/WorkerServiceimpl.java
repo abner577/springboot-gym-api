@@ -40,9 +40,25 @@ public class WorkerServiceimpl implements WorkerService {
 
     }
 
+    /**
+     * Retrieves a worker by their ID and worker code.
+     *
+     * @param id    ID of the worker
+     * @param code  Worker code to verify
+     * @return      Matching WorkerEntity
+     */
     @Override
-    public WorkerEntity getWorkerByWorkerCode(String code) {
-        return null;
+    public WorkerEntity getWorkerByWorkerCode(Long id, String code) {
+        WorkerEntity workerEntity = workerRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Worker with an id of: " + id + " doesnt exist"));
+
+        WorkerEntity workerEntity1 = workerRepository.findByWorkerCode(code);
+        if(workerEntity1 == null) throw new IllegalStateException("Worker with a worker code of: " + code + " doesnt exist");
+
+        if(!workerEntity.getWorkerCode().equals(workerEntity1.getWorkerCode())){
+            throw new IllegalStateException("Worker with an id of: " + id + " is not the same worker with a worker code of: " + code);
+        }
+        return workerEntity1;
     }
 
     /**
@@ -114,10 +130,39 @@ public class WorkerServiceimpl implements WorkerService {
             if(workerEntity2 != null) throw new IllegalStateException("The updated email that you are trying to give to " + workerEntity.getName() + " is already registered under another worker");
         }
 
+       if(workerRepository.findByWorkerCode(updatedWorkerEntity.getWorkerCode()) != null) {
+           throw new IllegalStateException("The updated worker code that you are trying to give to " + workerEntity.getName() + " is already registered under another worker");
+       }
+
         workerEntity.setDateOfBirth(updatedWorkerEntity.getDateOfBirth());
         workerEntity.setEmail(updatedWorkerEntity.getEmail());
         workerEntity.setName(updatedWorkerEntity.getName());
         workerEntity.setRole(updatedWorkerEntity.getRole());
+        workerEntity.setWorkerCode(updatedWorkerEntity.getWorkerCode());
+        workerRepository.save(workerEntity);
+    }
+
+    /**
+     * Updates the worker code of a specific worker.
+     *
+     * @param id       ID of the worker
+     * @param email    Email of the worker
+     * @param newCode  New worker code to assign
+     */
+    @Override
+    public void updateWorkerCodeById(Long id, String email, String newCode) {
+        WorkerEntity workerEntity = workerRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Worker with an id of: " + id + " doesnt exist"));
+        WorkerEntity workerEntity1 = workerRepository.findByEmail(email);
+
+        if(workerEntity1 == null) throw new IllegalStateException("Worker with an email of: " + workerEntity.getEmail() + " doesnt exist");
+        if(!workerEntity.equals(workerEntity1)) throw new IllegalStateException("Worker with an email of: " + workerEntity.getEmail() + " is not the same worker with an id of: " + workerEntity.getId());
+
+        if(workerRepository.findByWorkerCode(newCode) != null) {
+            throw new IllegalStateException("The updated worker code that you are trying to give to " + workerEntity.getName() + " is already registered under another worker");
+        }
+
+        workerEntity.setWorkerCode(newCode);
         workerRepository.save(workerEntity);
     }
 

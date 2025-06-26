@@ -20,6 +20,7 @@ public class WorkerAuthProvider implements AuthenticationProvider {
         this.workerRepository = workerRepository;
     }
 
+
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
 
@@ -30,11 +31,9 @@ public class WorkerAuthProvider implements AuthenticationProvider {
         WorkerEntity workerEntity = workerRepository.findById(workerId)
                 .orElseThrow(() -> new IllegalStateException("Worker with an id of: " + authentication.getPrincipal() + " doesnt exist"));
 
-        /* 4. Check code matches *not implemneted yet*
-        if (!worker.getCode().equals(workerCode)) {
-            throw new BadCredentialsException("Invalid worker code");
-        }
-         */
+        WorkerEntity workerEntity1 = workerRepository.findByWorkerCode(workerEntity.getWorkerCode());
+        if(workerEntity1 == null) throw new IllegalStateException("Worker with a worker code of: " + workerCode + " doesnt exist");
+        if(!workerEntity.equals(workerEntity1)) throw new IllegalStateException("Worker with an id of: " + workerEntity.getId() + " is not the same worker with a worker code of: " + workerCode);
 
         return new WorkerAuthToken(workerId, workerCode, List.of(new SimpleGrantedAuthority("ROLE_WORKER")));
     }

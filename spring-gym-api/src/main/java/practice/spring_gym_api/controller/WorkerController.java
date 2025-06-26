@@ -31,6 +31,15 @@ public class WorkerController {
         return workerMapper.convertToWorkerDTO(workerEntity);
     }
 
+    @GetMapping(path = "worker/{worker_id}/")
+    public WorkerDTO getWorkerByCode(
+            @PathVariable("worker_id") Long id,
+            @RequestParam String code
+    ) {
+        WorkerEntity workerEntity = workerService.getWorkerByWorkerCode(id, code);
+        return workerMapper.convertToWorkerDTO(workerEntity);
+    }
+
     /**
      * Registers a new worker in the system.
      *
@@ -55,6 +64,38 @@ public class WorkerController {
             @RequestParam String role
     ){
         workerService.updateRoleOfAWorker(id, email, role);
+    }
+
+    /**
+     * Updates the worker code of a specific worker by ID.
+     *
+     * @param id    ID of the worker
+     * @param email Email of the worker for verification
+     * @param code  New worker code to assign
+     */
+    @PatchMapping (path = "update/worker/code/{worker_id}")
+    public void updateWorkerCodeById(
+            @PathVariable("worker_id") Long id,
+            @RequestParam String email,
+            @RequestParam String code
+    ){
+        workerService.updateWorkerCodeById(id, email, code);
+    }
+
+    /**
+     * Updates a worker's details by ID.
+     *
+     * @param id            ID of the worker to update
+     * @param email         Email of the worker for verification
+     * @param workerEntity  Updated worker data
+     */
+    @PutMapping (path = "update/worker/{worker_id}")
+    public void updatedWorkerById(
+            @PathVariable("worker_id") Long id,
+            @RequestParam String email,
+            @Valid @RequestBody WorkerEntity workerEntity
+    ) {
+        workerService.updateWorkerById(id, email, workerEntity);
     }
 
     /**

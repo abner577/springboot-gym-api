@@ -10,4 +10,5 @@ public interface WorkerRepository extends JpaRepository<WorkerEntity, Long>{
 
     boolean existsByEmail(String email);
     WorkerEntity findByEmail(String email);
+    WorkerEntity findByWorkerCode(String workerCode);
 }

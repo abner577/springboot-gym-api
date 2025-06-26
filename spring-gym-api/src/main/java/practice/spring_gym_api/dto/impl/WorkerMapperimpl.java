@@ -31,7 +31,7 @@ public class WorkerMapperimpl implements WorkerMapper {
 
     @Override
     public CoachEntity covertWorkerToCoachEntity(WorkerEntity workerEntity) {
-        return new CoachEntity(workerEntity.getName(), workerEntity.getDateOfBirth(), Roles.ROLE_COACH, workerEntity.getEmail(), List.of("Temporary Placeholder"));
+        return new CoachEntity(workerEntity.getName(), workerEntity.getDateOfBirth(), Roles.ROLE_COACH, workerEntity.getEmail(), List.of("Placeholder workouts"), "Placeholder coach code");
     }
 
     @Override

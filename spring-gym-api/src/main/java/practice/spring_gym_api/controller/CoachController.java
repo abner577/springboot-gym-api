@@ -157,6 +157,14 @@ public class CoachController {
                 .toList();
     }
 
+    @GetMapping (path = "/coach/by/{coach_id}")
+    public CoachDTO getCoachByCode(
+            @PathVariable("coach_id") Long id,
+            @RequestParam String code
+    ) {
+        return coachMapper.convertToCoachDto(coachService.getCoachByCoachCode(id, code));
+    }
+
     /**
      * Registers a new coach in the system.
      *

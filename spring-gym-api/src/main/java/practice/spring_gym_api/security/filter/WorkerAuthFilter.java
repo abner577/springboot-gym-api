@@ -28,6 +28,12 @@ public class WorkerAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        if(request.getMethod().equalsIgnoreCase("GET") ||
+        request.getMethod().equalsIgnoreCase("PATCH")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         // 1. Check for necessary headings
         if(!Collections.list(request.getHeaderNames()).contains("x-worker-id")){
             response.setStatus(HttpStatus.FORBIDDEN.value());
@@ -44,7 +50,6 @@ public class WorkerAuthFilter extends OncePerRequestFilter {
         }
 
         // 2. Set the authenticated token returned from the Provider in the context.
-
         Long workerId = Long.valueOf(request.getHeader("x-worker-id"));
         String workerCode = request.getHeader("x-worker-code");
         var unauthenticatedToken = new WorkerAuthToken(workerId, workerCode);
