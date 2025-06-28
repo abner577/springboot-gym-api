@@ -10,6 +10,7 @@ public class WorkerAuthToken extends AbstractAuthenticationToken {
     private final Long workerId;
     private final String workerCode;
 
+    // Constructor for un-aunthenticated token
     public WorkerAuthToken(Long workerId, String workerCode){
         super(null);
         this.workerId = workerId;

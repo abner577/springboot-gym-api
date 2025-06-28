@@ -319,6 +319,28 @@ public class CoachServiceimpl implements CoachService {
     }
 
     /**
+     * Updates the coach code of a specific coach.
+     *
+     * @param id       ID of the coach
+     * @param email    Email of the coach
+     * @param coachCode  New coach code to assign
+     */
+    @Override
+    public void updateCodeOfACoach(Long id, String email, String coachCode) {
+        CoachEntity coachEntityById = coachRepository.findById(id)
+                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
+        CoachEntity coachEntityByEmail = coachRepository.findByEmail(email);
+
+        if(coachEntityByEmail == null) throw new IllegalStateException("Coach with an email of: " + email + " doesnt exist");
+        if(!coachEntityById.equals(coachEntityByEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
+
+        CoachEntity coachEntity = coachRepository.findByCoachCode(coachCode);
+        if(coachEntity != null) throw new IllegalStateException("Coach with a code of: " +  coachCode + " already exists");
+        coachEntityById.setCoachCode(coachCode);
+        coachRepository.save(coachEntityById);
+    }
+
+    /**
      * Deletes a coach by their ID.
      *
      * @param id Coach ID

@@ -157,6 +157,14 @@ public class CoachEntity {
 
     public void setEmail(String email) {this.email = email;}
 
+    public String getCoachCode() {
+        return coachCode;
+    }
+
+    public void setCoachCode(String coachCode) {
+        this.coachCode = coachCode;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

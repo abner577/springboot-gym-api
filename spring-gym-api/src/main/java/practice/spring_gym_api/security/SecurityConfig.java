@@ -9,6 +9,7 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.intercept.AuthorizationFilter;
+import practice.spring_gym_api.security.filter.CoachAuthFilter;
 import practice.spring_gym_api.security.filter.ValidRequestFilter;
 import practice.spring_gym_api.security.filter.WorkerAuthFilter;
 
@@ -18,10 +19,12 @@ public class SecurityConfig {
 
     private final ValidRequestFilter validRequestFilter;
     private final WorkerAuthFilter workerAuthFilter;
+    private final CoachAuthFilter coachAuthFilter;
 
-    public SecurityConfig(ValidRequestFilter validRequestFilter, WorkerAuthFilter workerAuthFilter) {
+    public SecurityConfig(ValidRequestFilter validRequestFilter, WorkerAuthFilter workerAuthFilter, CoachAuthFilter coachAuthFilter) {
         this.validRequestFilter = validRequestFilter;
         this.workerAuthFilter = workerAuthFilter;
+        this.coachAuthFilter = coachAuthFilter;
     }
 
     @Bean
@@ -39,6 +42,7 @@ public class SecurityConfig {
                 )
                 .addFilterBefore(validRequestFilter, AuthorizationFilter.class)
                 .addFilterBefore(workerAuthFilter, AuthorizationFilter.class)
+                .addFilterBefore(coachAuthFilter, AuthorizationFilter.class)
                 .build();
     }
 }

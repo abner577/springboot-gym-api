@@ -157,6 +157,13 @@ public class CoachController {
                 .toList();
     }
 
+    /**
+     * Retrieves a coach by their ID and worker code.
+     *
+     * @param id    ID of the coach
+     * @param code  Coach code to verify
+     * @return      Matching CoachDTO
+     */
     @GetMapping (path = "/coach/by/{coach_id}")
     public CoachDTO getCoachByCode(
             @PathVariable("coach_id") Long id,
@@ -281,6 +288,22 @@ public class CoachController {
             @Valid @RequestBody List<String> workoutPlans
     ) {
         coachService.updateWorkoutPlans(id, email, workoutPlans);
+    }
+
+    /**
+     * Updates the coach code of a specific coach by ID.
+     *
+     * @param id    ID of the coach
+     * @param email Email of the coach for verification
+     * @param coachCode  New coach code to assign
+     */
+    @PatchMapping (path = "update/coach/code/{coach_id}")
+    public void updateCodeOfACoach(
+            @PathVariable("coach_id") Long id,
+            @RequestParam String email,
+            @RequestParam String coachCode
+            ) {
+        coachService.updateCodeOfACoach(id, email, coachCode);
     }
 
     /**

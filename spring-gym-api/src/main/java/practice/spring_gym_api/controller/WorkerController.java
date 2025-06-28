@@ -31,6 +31,13 @@ public class WorkerController {
         return workerMapper.convertToWorkerDTO(workerEntity);
     }
 
+    /**
+     * Retrieves a worker by their ID and worker code.
+     *
+     * @param id    ID of the worker
+     * @param code  Worker code to verify
+     * @return      Matching WorkerDTO
+     */
     @GetMapping(path = "worker/{worker_id}/")
     public WorkerDTO getWorkerByCode(
             @PathVariable("worker_id") Long id,

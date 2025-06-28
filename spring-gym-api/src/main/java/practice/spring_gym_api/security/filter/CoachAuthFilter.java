@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.repository.CoachRepository;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+@Component
 public class CoachAuthFilter extends OncePerRequestFilter {
 
     private final CoachRepository coachRepository;
@@ -40,13 +42,13 @@ public class CoachAuthFilter extends OncePerRequestFilter {
             response.setStatus(HttpStatus.FORBIDDEN.value());
             response.setCharacterEncoding("UTF-8");
             response.setHeader("Content-Type", "text/plain;charset=UTF-8");
-            response.getWriter().write("Must include header 'x-worker-id'");
+            response.getWriter().write("Must include header 'x-coach-code'");
             return;
         } else if (!Collections.list(request.getHeaderNames()).contains("x-coach-id")) {
             response.setStatus(HttpStatus.FORBIDDEN.value());
             response.setCharacterEncoding("UTF-8");
             response.setHeader("Content-Type", "text/plain;charset=UTF-8");
-            response.getWriter().write("Must include header 'x-worker-id'");
+            response.getWriter().write("Must include header 'x-coach-id'");
             return;
         }
 
@@ -66,5 +68,6 @@ public class CoachAuthFilter extends OncePerRequestFilter {
         newSecurityContext.setAuthentication(authorizedCoachAuthToken);
         SecurityContextHolder.setContext(newSecurityContext);
 
+        filterChain.doFilter(request, response);
     }
 }
