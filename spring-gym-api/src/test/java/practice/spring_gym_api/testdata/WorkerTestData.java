@@ -11,7 +11,9 @@ public class WorkerTestData {
         WorkerEntity worker1 = new WorkerEntity(
                 "Rachel Thomas",
                 LocalDate.of(1985, 2, 14),
-                Roles.ROLE_WORKER
+                Roles.ROLE_WORKER,
+                "rachelThomas@gmail.com",
+                "WKR-8372-LKJD"
         );
         return worker1;
     }
@@ -20,7 +22,9 @@ public class WorkerTestData {
        WorkerEntity worker2 = new WorkerEntity(
                "James Wu",
                LocalDate.of(1990, 10, 30),
-               Roles.ROLE_WORKER
+               Roles.ROLE_WORKER,
+               "jamesWu@gmail.com",
+               "WRK2024-AZ19"
        );
        return worker2;
     }
