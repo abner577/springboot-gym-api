@@ -1,4 +1,4 @@
-package practice.spring_gym_api.controller;
+package practice.spring_gym_api.coach;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class CoachControllerTest {
+public class CoachIntegrationTest {
 
     @Autowired
     private MockMvc mvc;
@@ -38,7 +38,12 @@ public class CoachControllerTest {
     void testGetCoachByIdReturnsExpectedCoach() throws Exception {
         mvc.perform(get("/api/v1/gym-api/coach/id/" + seedCoachId))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Alex Smith"));
+                .andExpect(jsonPath("$.name").value("Alex Smith"))
+                .andExpect(jsonPath("$.age").value(45))
+                .andExpect(jsonPath("$.dateOfBirth").value("1980-04-12"))
+
+                .andExpect(jsonPath("$.email").doesNotHaveJsonPath())
+                .andExpect(jsonPath("$.id").doesNotHaveJsonPath());
     }
 }
 
