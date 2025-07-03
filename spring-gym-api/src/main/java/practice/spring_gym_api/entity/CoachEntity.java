@@ -84,6 +84,16 @@ public class CoachEntity {
         this.coachCode = coachCode;
     }
 
+    public CoachEntity(Long id, String name, LocalDate dateOfBirth, Roles role, String email, List<String> workoutPlans, String coachCode) {
+        this.id = id;
+        this.name = name;
+        this.dateOfBirth = dateOfBirth;
+        this.role = role;
+        this.email = email;
+        this.workoutPlans = workoutPlans;
+        this.coachCode = coachCode;
+    }
+
     public CoachEntity(String name, LocalDate dateOfBirth, Roles role, String email) {
         this.name = name;
         this.dateOfBirth = dateOfBirth;

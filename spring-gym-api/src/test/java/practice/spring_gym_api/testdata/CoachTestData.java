@@ -13,6 +13,7 @@ public class CoachTestData {
 
     public static CoachEntity createSeedCoach1() {
         CoachEntity coach1 = new CoachEntity(
+                1L,
                 "Alex Smith",
                 LocalDate.of(1980, 4, 12),
                 Roles.ROLE_COACH,
@@ -60,6 +61,7 @@ public class CoachTestData {
 
     public static CoachEntity createSeedCoach2() {
         CoachEntity coach2 = new CoachEntity(
+                2L,
                 "Maria Gonzalez",
                 LocalDate.of(1985, 11, 3),
                 Roles.ROLE_COACH,
