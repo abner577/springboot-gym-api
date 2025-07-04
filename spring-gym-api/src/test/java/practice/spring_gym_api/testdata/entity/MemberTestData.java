@@ -1,11 +1,10 @@
-package practice.spring_gym_api.testdata;
+package practice.spring_gym_api.testdata.entity;
 
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import practice.spring_gym_api.entity.enums.Roles;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.List;
 
 public class MemberTestData {

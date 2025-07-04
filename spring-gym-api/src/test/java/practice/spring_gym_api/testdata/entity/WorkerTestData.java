@@ -1,4 +1,4 @@
-package practice.spring_gym_api.testdata;
+package practice.spring_gym_api.testdata.entity;
 
 import practice.spring_gym_api.entity.WorkerEntity;
 import practice.spring_gym_api.entity.enums.Roles;
