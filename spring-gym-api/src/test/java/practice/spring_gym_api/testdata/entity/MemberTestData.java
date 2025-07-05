@@ -9,24 +9,16 @@ import java.util.List;
 
 public class MemberTestData {
 
-        CoachEntity coach1 = new CoachEntity(
-                "Alex Smith",
-                LocalDate.of(1980, 4, 12),
-                Roles.ROLE_COACH,
-                "alexSmith@gmail.com",
-                List.of("FBEOD" , "Upper/Lower"),
-                "EMP-990X-YTR8"
-        );
-        CoachEntity coach2 = new CoachEntity(
-                "Maria Gonzalez",
-                LocalDate.of(1985, 11, 3),
-                Roles.ROLE_COACH,
-                "mariaGonzalez@gmail.com",
-                List.of("PPL/Upper Lower", "PPL/Arnold"),
-                "WKRCODE-4583"
-        );
+        public static MemberEntity createSeedMember1(){
+            CoachEntity coach1 = new CoachEntity(
+                    "Alex Smith",
+                    LocalDate.of(1980, 4, 12),
+                    Roles.ROLE_COACH,
+                    "alexSmith@gmail.com",
+                    List.of("FBEOD" , "Upper/Lower"),
+                    "EMP-990X-YTR8"
+            );
 
-        public MemberEntity createSeedMember1(){
             MemberEntity member1 = new MemberEntity(
                     "John Doe",
                     LocalDate.of(1995, 3, 15),
@@ -42,7 +34,16 @@ public class MemberTestData {
             return member1;
         }
 
-        public MemberEntity createSeedMember2() {
+        public static MemberEntity createSeedMember2() {
+            CoachEntity coach2 = new CoachEntity(
+                    "Maria Gonzalez",
+                    LocalDate.of(1985, 11, 3),
+                    Roles.ROLE_COACH,
+                    "mariaGonzalez@gmail.com",
+                    List.of("PPL/Upper Lower", "PPL/Arnold"),
+                    "WKRCODE-4583"
+            );
+
             MemberEntity member2 = new MemberEntity(
                     "Jane Smith",
                     LocalDate.of(1990, 7, 22),
@@ -59,6 +60,15 @@ public class MemberTestData {
         }
 
         public MemberEntity createSeedMember3 () {
+            CoachEntity coach1 = new CoachEntity(
+                    "Alex Smith",
+                    LocalDate.of(1980, 4, 12),
+                    Roles.ROLE_COACH,
+                    "alexSmith@gmail.com",
+                    List.of("FBEOD" , "Upper/Lower"),
+                    "EMP-990X-YTR8"
+            );
+
             MemberEntity member3 = new MemberEntity(
                     "David Lee",
                     LocalDate.of(1988, 6, 10),
@@ -75,6 +85,15 @@ public class MemberTestData {
         }
 
         public MemberEntity createSeedMember4 () {
+            CoachEntity coach2 = new CoachEntity(
+                    "Maria Gonzalez",
+                    LocalDate.of(1985, 11, 3),
+                    Roles.ROLE_COACH,
+                    "mariaGonzalez@gmail.com",
+                    List.of("PPL/Upper Lower", "PPL/Arnold"),
+                    "WKRCODE-4583"
+            );
+
             MemberEntity member4 = new MemberEntity(
                     "Emily Chen",
                     LocalDate.of(1997, 9, 1),
@@ -91,6 +110,15 @@ public class MemberTestData {
         }
 
         public MemberEntity createSeedMember5 () {
+            CoachEntity coach1 = new CoachEntity(
+                    "Alex Smith",
+                    LocalDate.of(1980, 4, 12),
+                    Roles.ROLE_COACH,
+                    "alexSmith@gmail.com",
+                    List.of("FBEOD" , "Upper/Lower"),
+                    "EMP-990X-YTR8"
+            );
+
             MemberEntity member5 = new MemberEntity(
                     "Carlos Rivera",
                     LocalDate.of(1992, 12, 5),

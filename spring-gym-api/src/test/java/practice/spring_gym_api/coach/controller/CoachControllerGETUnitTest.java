@@ -1,7 +1,6 @@
-package practice.spring_gym_api.coach;
+package practice.spring_gym_api.coach.controller;
 
 
-import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -24,6 +23,8 @@ import practice.spring_gym_api.testdata.entity.CoachTestData;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 
+import java.util.List;
+
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -39,7 +40,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 })
 @AutoConfigureMockMvc
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class CoachControllerUnitTest {
+public class CoachControllerGETUnitTest {
 
     @Autowired
     private MockMvc mvc;
@@ -55,18 +56,14 @@ public class CoachControllerUnitTest {
 
     private CoachDTO coachDTO;
 
-    @BeforeAll
-    void setup() {
-        CoachEntity coachEntity = CoachTestData.createSeedCoach1();
-        CoachDTO coachDTO = CoachDTOTestData.createSeedDTOCoach1();
-        when(coachService.getCoachById(1L)).thenReturn(coachEntity);
-        when(coachMapper.convertToCoachDto(coachEntity)).thenReturn(coachDTO);
-    }
-
     @Test
     @WithMockUser(username = "testUser", roles = {"COACH"})
     void controllerReturnsDTOAndResponseOK() throws Exception {
         // Arrange
+        CoachEntity coachEntity = CoachTestData.createSeedCoach1();
+        CoachDTO coachDTO = CoachDTOTestData.createSeedDTOCoach1();
+        when(coachService.getCoachById(1L)).thenReturn(coachEntity);
+        when(coachMapper.convertToCoachDto(coachEntity)).thenReturn(coachDTO);
 
         // Act
         mvc.perform(get("/api/v1/gym-api/coach/id/" + 1L))
@@ -82,6 +79,60 @@ public class CoachControllerUnitTest {
 
         // Assert
         verify(coachService, times(1)).getCoachById(1L);
+        verifyNoMoreInteractions(coachService);
+    }
+
+    @Test
+    @WithMockUser(username = "testUser", roles = {"COACH"})
+    void controllerReturnsWorkoutPlansByName() throws Exception{
+        // Arrange
+        CoachDTO coachDTO = CoachDTOTestData.createSeedDTOCoach1();
+        when(coachService.getWorkoutPlansByCoachName(coachDTO.getName()))
+                .thenReturn(List.of("FBEOD", "Upper/Lower"));
+
+        // Act
+        mvc.perform(get("/api/v1/gym-api/coach/name/" + coachDTO.getName()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").value("FBEOD"))
+                .andExpect(jsonPath("$[1]").value("Upper/Lower"));
+
+        // Assert
+        verify(coachService, times(1)).getWorkoutPlansByCoachName("Alex Smith");
+        verifyNoMoreInteractions(coachService);
+    }
+
+    @Test
+    @WithMockUser(username = "testUser", roles = {"COACH"})
+    void controllerReturnsListOfAvaliableCoachDTOs() throws Exception {
+        // Arrange
+        CoachEntity coachEntity1 = CoachTestData.createSeedCoach1();
+        CoachEntity coachEntity2 = CoachTestData.createSeedCoach2();
+        CoachDTO coachDTO1 = CoachDTOTestData.createSeedDTOCoach1();
+        CoachDTO coachDTO2 = CoachDTOTestData.createSeedDTOCoach2();
+
+        when(coachService.getAllCoachesThatAreAvaliable())
+                .thenReturn(List.of(coachEntity1, coachEntity2));
+        when(coachMapper.convertToCoachDto(coachEntity1))
+                .thenReturn(coachDTO1);
+        when(coachMapper.convertToCoachDto(coachEntity2))
+                .thenReturn(coachDTO2);
+
+        // Act
+        mvc.perform(get("/api/v1/gym-api/avaliable/coaches"))
+                .andDo(print())
+                .andExpect(jsonPath("$[0]").isNotEmpty())
+                .andExpect(jsonPath("$[1]").isNotEmpty())
+                .andExpect(jsonPath("$[0].name").value("Alex Smith"))
+                .andExpect(jsonPath("$[1].name").value("Maria Gonzalez"))
+
+                .andExpect(jsonPath("$[0].id").doesNotHaveJsonPath())
+                .andExpect(jsonPath("$[0].role").doesNotHaveJsonPath())
+                .andExpect(jsonPath("$[1].id").doesNotHaveJsonPath())
+                .andExpect(jsonPath("$[1].role").doesNotHaveJsonPath());
+
+        // Aseert
+        verify(coachService, times(1)).getAllCoachesThatAreAvaliable();
         verifyNoMoreInteractions(coachService);
     }
 }

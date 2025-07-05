@@ -7,7 +7,7 @@ import java.time.LocalDate;
 
 public class WorkerTestData {
 
-    public WorkerEntity createSeedWorker1(){
+    public static WorkerEntity createSeedWorker1(){
         WorkerEntity worker1 = new WorkerEntity(
                 "Rachel Thomas",
                 LocalDate.of(1985, 2, 14),
@@ -18,7 +18,7 @@ public class WorkerTestData {
         return worker1;
     }
 
-    public WorkerEntity createSeedWorker2(){
+    public static WorkerEntity createSeedWorker2(){
        WorkerEntity worker2 = new WorkerEntity(
                "James Wu",
                LocalDate.of(1990, 10, 30),

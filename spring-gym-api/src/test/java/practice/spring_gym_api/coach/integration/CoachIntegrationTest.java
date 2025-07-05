@@ -1,4 +1,4 @@
-package practice.spring_gym_api.coach;
+package practice.spring_gym_api.coach.integration;
 
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;

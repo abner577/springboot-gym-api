@@ -80,7 +80,7 @@ public class CoachController {
      * @return the coach as a DTO
      */
     @GetMapping (path = "/best/coach")
-    public CoachDTO getCoachWithTheHighestAmountOfClients(){
+    public ResponseEntity<CoachDTO> getCoachWithTheHighestAmountOfClients(){
         List<CoachEntity> entityList = coachService.getAllCoaches();
         int max = entityList.get(0).getClients().size();
         CoachEntity entityToReturn = entityList.get(0);
@@ -92,7 +92,7 @@ public class CoachController {
             }
         }
         CoachDTO coachDTO = coachMapper.convertToCoachDto(entityToReturn);
-        return coachDTO;
+        return ResponseEntity.ok(coachDTO);
     }
 
     /**
@@ -138,9 +138,9 @@ public class CoachController {
      * @return list of workout plans
      */
     @GetMapping (path = "/coach/name/{coach_name}")
-    public List<String> getWorkoutPlansByCoachName(@PathVariable(name = "coach_name") String name){
+    public ResponseEntity<List<String>> getWorkoutPlansByCoachName(@PathVariable(name = "coach_name") String name){
         List<String> workoutPlans = coachService.getWorkoutPlansByCoachName(name);
-        return workoutPlans;
+        return ResponseEntity.ok(workoutPlans);
     }
 
     /**
