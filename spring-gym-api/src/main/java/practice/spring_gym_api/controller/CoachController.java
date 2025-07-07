@@ -64,7 +64,7 @@ public class CoachController {
     @GetMapping(path = "/coaches")
     public List<CoachDTO> getAllCoaches(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size
+            @RequestParam(defaultValue = "1") int size
     ) {
         Pageable pageable = PageRequest.of(page, size);
         Page<CoachEntity> coachEntities = coachService.getAllCoachesPageable(pageable);
@@ -81,17 +81,8 @@ public class CoachController {
      */
     @GetMapping (path = "/best/coach")
     public ResponseEntity<CoachDTO> getCoachWithTheHighestAmountOfClients(){
-        List<CoachEntity> entityList = coachService.getAllCoaches();
-        int max = entityList.get(0).getClients().size();
-        CoachEntity entityToReturn = entityList.get(0);
-
-        for(CoachEntity coachEntity : entityList){
-            if(coachEntity.getClients().size() > max) {
-                entityToReturn = coachEntity;
-                max = coachEntity.getClients().size();
-            }
-        }
-        CoachDTO coachDTO = coachMapper.convertToCoachDto(entityToReturn);
+        CoachEntity coachEntity = coachService.getCoachWithHighestClients();
+        CoachDTO coachDTO = coachMapper.convertToCoachDto(coachEntity);
         return ResponseEntity.ok(coachDTO);
     }
 
@@ -101,19 +92,10 @@ public class CoachController {
      * @return the coach as a DTO
      */
     @GetMapping (path = "/worst/coach")
-    public CoachDTO getCoachWithTheLowestAmountOfClients(){
-        List<CoachEntity> entityList = coachService.getAllCoaches();
-        int min = entityList.get(0).getClients().size();
-        CoachEntity entityToReturn = entityList.get(0);
-
-        for(CoachEntity coachEntity : entityList){
-            if(coachEntity.getClients().size() < min) {
-                entityToReturn = coachEntity;
-                min = coachEntity.getClients().size();
-            }
-        }
-        CoachDTO coachDTO = coachMapper.convertToCoachDto(entityToReturn);
-        return coachDTO;
+    public ResponseEntity<CoachDTO> getCoachWithTheLowestAmountOfClients(){
+        CoachEntity coachEntity = coachService.getCoachWithLowestClients();
+        CoachDTO coachDTO = coachMapper.convertToCoachDto(coachEntity);
+        return ResponseEntity.ok(coachDTO);
     }
 
     /**

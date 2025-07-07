@@ -14,6 +14,8 @@ public interface CoachService {
     CoachEntity getCoachById(Long id);
     Page<CoachEntity> getAllCoachesPageable(Pageable pageable);
     List<CoachEntity> getAllCoaches();
+    CoachEntity getCoachWithHighestClients();
+    CoachEntity getCoachWithLowestClients();
     List<String> getWorkoutPlansByCoachName(String name);
     Set<MemberEntity> getAllClientsByCoachId(Long id);
     List<CoachEntity> getAllCoachesThatAreAvaliable();

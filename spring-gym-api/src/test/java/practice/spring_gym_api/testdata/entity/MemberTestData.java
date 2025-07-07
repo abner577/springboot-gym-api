@@ -59,7 +59,7 @@ public class MemberTestData {
             return member2;
         }
 
-        public MemberEntity createSeedMember3 () {
+        public static MemberEntity createSeedMember3 () {
             CoachEntity coach1 = new CoachEntity(
                     "Alex Smith",
                     LocalDate.of(1980, 4, 12),
@@ -84,7 +84,7 @@ public class MemberTestData {
             return member3;
         }
 
-        public MemberEntity createSeedMember4 () {
+        public static MemberEntity createSeedMember4 () {
             CoachEntity coach2 = new CoachEntity(
                     "Maria Gonzalez",
                     LocalDate.of(1985, 11, 3),
@@ -109,7 +109,7 @@ public class MemberTestData {
             return member4;
         }
 
-        public MemberEntity createSeedMember5 () {
+        public static MemberEntity createSeedMember5 () {
             CoachEntity coach1 = new CoachEntity(
                     "Alex Smith",
                     LocalDate.of(1980, 4, 12),

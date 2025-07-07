@@ -21,41 +21,6 @@ public class CoachTestData {
                 List.of("FBEOD" , "Upper/Lower"),
                 "EMP-990X-YTR8"
         );
-        MemberEntity member1 = new MemberEntity(
-                "John Doe",
-                LocalDate.of(1995, 3, 15),
-                "2024-01-10",
-                "johnDoe@gmail.com",
-                Roles.ROLE_MEMBER,
-                225,
-                275,
-                315,
-                225 + 275 +315
-        );
-        MemberEntity member3 = new MemberEntity(
-                "David Lee",
-                LocalDate.of(1988, 6, 10),
-                "2023-05-20",
-                "davidLee@gmail.com",
-                Roles.ROLE_MEMBER,
-                225,
-                315,
-                405,
-                225 + 315 + 405
-        );
-        MemberEntity member5 = new MemberEntity(
-                "Carlos Rivera",
-                LocalDate.of(1992, 12, 5),
-                "2023-08-15",
-                "carlosRivera@gmail.com",
-                Roles.ROLE_MEMBER,
-                200,
-                250,
-                275,
-                200 + 250 + 275
-        );
-        Set<MemberEntity> clientsForCoach1 = Set.of(member1, member3, member5);
-        coach1.setClients(new HashSet<>(clientsForCoach1));
         return coach1;
     }
 

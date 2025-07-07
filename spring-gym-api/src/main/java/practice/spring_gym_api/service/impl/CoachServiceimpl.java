@@ -1,6 +1,8 @@
 package practice.spring_gym_api.service.impl;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import practice.spring_gym_api.dto.CoachMapper;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
@@ -71,6 +73,38 @@ public class CoachServiceimpl implements CoachService {
         return list;
     }
 
+    @Override
+    public CoachEntity getCoachWithHighestClients(){
+        List<CoachEntity> list = coachRepository.findAll();
+        if(list.isEmpty()) throw new IllegalStateException("No coaches currently registered");
+
+        int max = list.get(0).getClients().size();
+        CoachEntity coachEntityToReturn = list.get(0);
+
+        for(CoachEntity coachEntity : list){
+            if(coachEntity.getClients().size() > max){
+                max = coachEntity.getClients().size();
+                coachEntityToReturn = coachEntity;
+            }
+        }
+        return coachEntityToReturn;
+    }
+
+    @Override
+    public CoachEntity getCoachWithLowestClients() {
+       List<CoachEntity> coachEntityList = coachRepository.findAll();
+       int min = coachEntityList.get(0).getClients().size();
+       CoachEntity entityToReturn = coachEntityList.get(0);
+
+       for(CoachEntity coach : coachEntityList){
+           if(coach.getClients().size() < min) {
+               min = coach.getClients().size();
+               entityToReturn = coach;
+           }
+       }
+       return entityToReturn;
+    }
+
     /**
      * Retrieves workout plans for a specific coach by name.
      *
@@ -98,7 +132,7 @@ public class CoachServiceimpl implements CoachService {
                 .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
 
        if(coachEntityToUpdate.getClients().size() > 0) return coachEntityToUpdate.getClients();
-       else return new HashSet<>();
+       else throw new IllegalStateException("Coach does not have any clients to access");
     }
 
     /**
