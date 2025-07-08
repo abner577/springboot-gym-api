@@ -10,13 +10,9 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
-import org.springframework.web.server.ResponseStatusException;
 import practice.spring_gym_api.controller.CoachController;
 import practice.spring_gym_api.dto.CoachDTO;
 import practice.spring_gym_api.dto.CoachMapper;
@@ -35,12 +31,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import practice.spring_gym_api.testdata.entity.MemberTestData;
 
-import java.util.HashSet;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.content;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -206,8 +200,7 @@ public class CoachControllerGETUnitTest {
         PageRequest pageRequest = PageRequest.of(0, 1);
         Page<CoachEntity> page = new PageImpl<>(List.of(coachEntity1), pageRequest, 2);
 
-        when(coachService.getAllCoachesPageable(pageRequest)).thenReturn(page)
-                .thenReturn(page);
+        when(coachService.getAllCoachesPageable(pageRequest)).thenReturn(page);
         when(coachMapper.convertToCoachDto(coachEntity1)).thenReturn(coachDTO1);
 
         // Act
@@ -227,18 +220,63 @@ public class CoachControllerGETUnitTest {
     @WithMockUser(username = "testUser", roles = {"COACH"})
     void controllerReturnsAllClientsOfACoach() throws Exception {
         // Arrange
+        MemberEntity memberEntity1 = MemberTestData.createSeedMember1();
+        MemberEntity memberEntity3 = MemberTestData.createSeedMember3();
+        MemberEntity memberEntity5 = MemberTestData.createSeedMember5();
+
+
+        MemberDTO memberDTO1 = MemberDTOTestData.createdSeedMemberDTO1();
+        MemberDTO memberDTO3 = MemberDTOTestData.createdSeedMemberDTO3();
+        MemberDTO memberDTO5 = MemberDTOTestData.createdSeedMemberDTO5();
+
         when(coachService.getAllClientsByCoachId(1L))
-                .thenThrow(new IllegalStateException("Coach does not have any clients to access"));
+                .thenReturn(coachEntity1.getClients());
+        when(memberMapper.convertToMemberDTO(memberEntity1))
+                .thenReturn(memberDTO1);
+        when(memberMapper.convertToMemberDTO(memberEntity3))
+                .thenReturn(memberDTO3);
+        when(memberMapper.convertToMemberDTO(memberEntity5))
+                .thenReturn(memberDTO5);
 
         // Act
         mvc.perform(get("/api/v1/gym-api/clients/of/" + 1L))
                 .andDo(print())
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.message").value("Coach does not have any clients to access"))
-                .andExpect(jsonPath("$.error").value("Bad Request"));
+                .andExpect(jsonPath("$", hasSize(3)))
+                .andExpect(jsonPath("$[*]name", containsInAnyOrder(
+                        memberDTO1.getName(), memberDTO3.getName(), memberDTO5.getName())))
+
+
+                .andExpect(jsonPath("$[0].id").doesNotHaveJsonPath())
+                .andExpect(jsonPath("$[1].id").doesNotHaveJsonPath())
+                .andExpect(jsonPath("$[2].id").doesNotHaveJsonPath());
+
 
         // Assert
         verify(coachService, times(1)).getAllClientsByCoachId(1L);
         verifyNoMoreInteractions(coachService);
+
     }
+
+    @Test
+    @WithMockUser(username = "testUser", roles = {"COACH"})
+    void controllerReturnsACoachByTheirCoachCode() throws Exception {
+        // Arrange
+        when(coachService.getCoachByCoachCode(1L, coachEntity1.getCoachCode()))
+                .thenReturn(coachEntity1);
+        when(coachMapper.convertToCoachDto(coachEntity1)).thenReturn(coachDTO1);
+
+        // Act
+        mvc.perform(get("/api/v1/gym-api/coach/by/" + 1L)
+                        .param("code", coachEntity1.getCoachCode()))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value(coachEntity1.getName()))
+                .andExpect(jsonPath("$.id").doesNotHaveJsonPath());
+
+        // Assert
+        verify(coachService, times(1)).getCoachByCoachCode(1L, coachEntity1.getCoachCode());
+        verifyNoMoreInteractions(coachService);
+    }
+
+
 }

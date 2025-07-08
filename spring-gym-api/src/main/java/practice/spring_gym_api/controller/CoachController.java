@@ -147,11 +147,12 @@ public class CoachController {
      * @return      Matching CoachDTO
      */
     @GetMapping (path = "/coach/by/{coach_id}")
-    public CoachDTO getCoachByCode(
+    public ResponseEntity<CoachDTO> getCoachByCode(
             @PathVariable("coach_id") Long id,
             @RequestParam String code
     ) {
-        return coachMapper.convertToCoachDto(coachService.getCoachByCoachCode(id, code));
+        CoachDTO coachDTO =  coachMapper.convertToCoachDto(coachService.getCoachByCoachCode(id, code));
+        return ResponseEntity.ok(coachDTO);
     }
 
     /**

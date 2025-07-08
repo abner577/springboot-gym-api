@@ -1,4 +1,4 @@
-package practice.spring_gym_api.config;
+package practice.spring_gym_api.config.exceptions;
 
 
 import org.springframework.http.HttpStatus;
@@ -13,19 +13,19 @@ import java.util.HashMap;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Handles IllegaalStateException
+    // Handles IllegalStateException
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<Object> handleIllegalStateException(
             IllegalStateException ex, WebRequest request
     ) {
-        HashMap<String, Object> body = new HashMap<>();
-        body.put("timestamp", LocalDateTime.now());
-        body.put("status", HttpStatus.BAD_REQUEST.value());
-        body.put("error", "Bad Request");
-        body.put("message", ex.getMessage());
-        body.put("path", request.getDescription(false).replace("uri=", ""));
-
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        CustomErrorResponse customErrorResponse = new CustomErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.BAD_REQUEST.value(),
+                "Bad Request",
+                ex.getMessage(),
+                request.getDescription(false).replace("uri=", "")
+        );
+        return new ResponseEntity<>(customErrorResponse, HttpStatus.BAD_REQUEST);
     }
 
 }

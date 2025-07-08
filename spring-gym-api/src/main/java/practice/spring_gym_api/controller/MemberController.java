@@ -7,11 +7,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import practice.spring_gym_api.dto.MemberDTO;
 import practice.spring_gym_api.dto.MemberMapper;
-import practice.spring_gym_api.dto.UpdateMultipleMembersRequest;
+import practice.spring_gym_api.config.UpdateMultipleMembersRequest;
 import practice.spring_gym_api.entity.MemberEntity;
 import practice.spring_gym_api.service.MemberService;
 
