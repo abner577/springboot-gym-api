@@ -6,41 +6,32 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import practice.spring_gym_api.controller.CoachController;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.enums.Roles;
 import practice.spring_gym_api.repository.CoachRepository;
-import practice.spring_gym_api.repository.MemberRepository;
-import practice.spring_gym_api.repository.WorkerRepository;
-import practice.spring_gym_api.service.CoachService;
+import practice.spring_gym_api.service.impl.CoachServiceimpl;
 import practice.spring_gym_api.testdata.entity.CoachTestData;
 import practice.spring_gym_api.testdata.invalidTestData.InvalidCoachEntity;
 
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class CoachServicePOSTUnitTest {
 
     @InjectMocks
-    CoachService coachService;
+    CoachServiceimpl coachService;
 
-    @MockitoBean
-    CoachController coachController;
-
-    @MockitoBean
+    @Mock
     CoachRepository coachRepository;
-
-    @MockitoBean
-    MemberRepository memberRepository;
-
-    @MockitoBean
-    WorkerRepository workerRepository;
 
     private CoachEntity coachEntity1;
     private CoachEntity coachEntity2;
@@ -74,6 +65,20 @@ public class CoachServicePOSTUnitTest {
 
         // Assert
         verify(coachRepository, times(1)).save(fakeCoachEntity);
+    }
+
+    @Test
+    void registerNewCoach_ThrowsException_WhenEmailAlreadyExists() {
+        // Arrange
+        when(coachRepository.findByEmail(fakeCoachEntity.getEmail())).thenReturn(fakeCoachEntity);
+
+        // Act
+       var exception = assertThrows(IllegalStateException.class, () -> coachService.registerNewCoach(fakeCoachEntity));
+       assertEquals("Coach with an email of: " + fakeCoachEntity.getEmail() + " already exists"
+       , exception.getMessage());
+
+        // Assert
+        verify(coachRepository, never()).save(any());
     }
 
 }

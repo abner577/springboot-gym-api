@@ -46,7 +46,7 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public CoachEntity getCoachById(Long id) {
         return coachRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
     }
 
     /**
@@ -69,14 +69,14 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public List<CoachEntity> getAllCoaches() {
         List<CoachEntity> list =  coachRepository.findAll();
-        if(list.isEmpty()) throw new IllegalStateException("No coaches currently registered");
+        if(list.isEmpty()) throw new NoSuchElementException("No coaches currently registered");
         return list;
     }
 
     @Override
     public CoachEntity getCoachWithHighestClients(){
         List<CoachEntity> list = coachRepository.findAll();
-        if(list.isEmpty()) throw new IllegalStateException("No coaches currently registered");
+        if(list.isEmpty()) throw new NoSuchElementException("No coaches currently registered");
 
         int max = list.get(0).getClients().size();
         CoachEntity coachEntityToReturn = list.get(0);
@@ -93,6 +93,8 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public CoachEntity getCoachWithLowestClients() {
        List<CoachEntity> coachEntityList = coachRepository.findAll();
+        if(coachEntityList.isEmpty()) throw new NoSuchElementException("No coaches currently registered");
+
        int min = coachEntityList.get(0).getClients().size();
        CoachEntity entityToReturn = coachEntityList.get(0);
 
@@ -115,7 +117,7 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public List<String> getWorkoutPlansByCoachName(String name) {
         CoachEntity coachEntity = coachRepository.findCoachByName(name)
-                .orElseThrow(() -> new IllegalStateException("Coach with a name of: " + name + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Coach with a name of: " + name + " doesn't exist"));
         return coachEntity.getWorkoutPlans();
     }
 
@@ -129,10 +131,10 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public Set<MemberEntity> getAllClientsByCoachId(Long id) {
        CoachEntity coachEntityToUpdate = coachRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
 
        if(coachEntityToUpdate.getClients().size() > 0) return coachEntityToUpdate.getClients();
-       else throw new IllegalStateException("Coach does not have any clients to access");
+       else throw new NoSuchElementException("Coach does not have any clients to access");
     }
 
     /**
@@ -143,6 +145,8 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public List<CoachEntity> getAllCoachesThatAreAvaliable() {
         List<CoachEntity> coachEntities = coachRepository.findAll();
+        if(coachEntities == null) throw new NoSuchElementException("No coaches currently registered");
+
         List<CoachEntity> coachEntitiesToReturn = new ArrayList<>();
 
         for(CoachEntity coachEntity : coachEntities){
@@ -154,9 +158,9 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public CoachEntity getCoachByCoachCode(Long id, String coachCode) {
         CoachEntity coachEntity = coachRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
 
-        if(coachRepository.findByCoachCode(coachCode) == null) throw new IllegalStateException("Coach with a code of: " + coachCode + " doesnt exist");
+        if(coachRepository.findByCoachCode(coachCode) == null) throw new NoSuchElementException("Coach with a code of: " + coachCode + " doesnt exist");
         if(!coachEntity.equals(coachRepository.findByCoachCode(coachCode))) {
             throw new IllegalStateException("Coach with an id of: " + id + " isnt the same coach with a coach code of: " + coachCode);
         }
@@ -172,7 +176,7 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public void registerNewCoach(CoachEntity coachEntity) {
         Optional<CoachEntity> coachEntity1 = Optional.ofNullable(coachRepository.findByEmail(coachEntity.getEmail()));
-        if(coachEntity1.isPresent()) throw new IllegalStateException("Coach with an email of: " + coachEntity.getEmail() + " already exists");
+        if(coachEntity1.isPresent()) throw new IllegalArgumentException("Coach with an email of: " + coachEntity.getEmail() + " already exists");
         coachRepository.save(coachEntity);
     }
 
@@ -185,7 +189,7 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public void registerNewCoaches(List<CoachEntity> coachEntities) {
         for(CoachEntity coachEntity : coachEntities){
-            if(coachRepository.existsByEmail(coachEntity.getEmail())) throw new IllegalStateException("Coach with an email of: " + coachEntity.getEmail() + " already exists");
+            if(coachRepository.existsByEmail(coachEntity.getEmail())) throw new IllegalArgumentException("Coach with an email of: " + coachEntity.getEmail() + " already exists");
         }
         coachRepository.saveAll(coachEntities);
     }
@@ -199,13 +203,13 @@ public class CoachServiceimpl implements CoachService {
      */
     @Override
     public void updateNameByIdAndEmail(Long id, String name, String email) {
-        if(name == null || name.isEmpty()) throw new IllegalStateException("Name cannot be null or an empty string");
+        if(name == null || name.isEmpty()) throw new IllegalArgumentException("Name cannot be null or an empty string");
 
         CoachEntity coachEntityToUpdateNameFromId = coachRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
 
         CoachEntity coachEntityToUpdateNameFromEmail = coachRepository.findByEmail(email);
-        if(coachEntityToUpdateNameFromEmail == null) throw new IllegalStateException("Coach with an email of: " + email + " doesnt exist");
+        if(coachEntityToUpdateNameFromEmail == null) throw new NoSuchElementException("Coach with an email of: " + email + " doesnt exist");
         if(!coachEntityToUpdateNameFromId.equals(coachEntityToUpdateNameFromEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
 
         coachEntityToUpdateNameFromId.setName(name);
@@ -223,10 +227,10 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public void addClientsByIdAndEmail(Long id, String email, Set<MemberEntity> memberEntities) {
         CoachEntity coachEntityToUpdateClientsID = coachRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
 
         CoachEntity coachEntityToUpdateClientsEmail = coachRepository.findByEmail(email);
-        if(coachEntityToUpdateClientsEmail == null) throw new IllegalStateException("Coach with an email of: " + email + " doesnt exist");
+        if(coachEntityToUpdateClientsEmail == null) throw new NoSuchElementException("Coach with an email of: " + email + " doesnt exist");
         if(!coachEntityToUpdateClientsID.equals(coachEntityToUpdateClientsEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
 
         for(MemberEntity memberEntity : memberEntities){
@@ -249,9 +253,9 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public void replaceClientListByIdAndEmail(Long id, String email, Set<MemberEntity> newClientList) {
         CoachEntity coachEntityById = coachRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
         CoachEntity coachEntityByEmail = coachRepository.findByEmail(email);
-        if(coachEntityByEmail == null) throw new IllegalStateException("Coach with an email of: " + email + " doesnt exist");
+        if(coachEntityByEmail == null) throw new NoSuchElementException("Coach with an email of: " + email + " doesnt exist");
         if(!coachEntityById.equals(coachEntityByEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
 
         for(MemberEntity memberEntity : coachEntityById.getClients()) memberEntity.setCoachedBy(null);
@@ -273,10 +277,10 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public void updateWorkoutPlans(Long id, String email, List<String> workoutPlans) {
         CoachEntity coachEntityById = coachRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
         CoachEntity coachEntityByEmail = coachRepository.findByEmail(email);
 
-        if(coachEntityByEmail == null) throw new IllegalStateException("Coach with an email of: " + email + " doesnt exist");
+        if(coachEntityByEmail == null) throw new NoSuchElementException("Coach with an email of: " + email + " doesnt exist");
         if(!coachEntityById.equals(coachEntityByEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
 
         coachEntityById.setWorkoutPlans(workoutPlans);
@@ -294,15 +298,15 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public void updateCoachByIdAndEmail(Long id, String email, CoachEntity coachEntity) {
         CoachEntity coachEntityToUpdate = coachRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
 
         CoachEntity coachEntityToUpdateEmail = coachRepository.findByEmail(email);
-        if(coachEntityToUpdateEmail == null) throw new IllegalStateException("Coach with an email of: " + email + " doesnt exist");
+        if(coachEntityToUpdateEmail == null) throw new NoSuchElementException("Coach with an email of: " + email + " doesnt exist");
         if(!coachEntityToUpdate.equals(coachEntityToUpdateEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
 
         if(!coachEntityToUpdate.getEmail().equals(coachEntity.getEmail())) {
             CoachEntity coachEntity1 = coachRepository.findByEmail(coachEntity.getEmail());
-            if(coachEntity1 != null) throw new IllegalStateException("The updated email that you are trying to give to " + coachEntityToUpdate.getName() + " is already registered under another coach");
+            if(coachEntity1 != null) throw new IllegalArgumentException("The updated email that you are trying to give to " + coachEntityToUpdate.getName() + " is already registered under another coach");
         }
 
         coachEntityToUpdate.setName(coachEntity.getName());
@@ -326,13 +330,13 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public void updateRoleOfACoach(Long id, String email, String role) {
         CoachEntity coachEntityById = coachRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
         CoachEntity coachEntityByEmail = coachRepository.findByEmail(email);
 
-        if(coachEntityByEmail == null) throw new IllegalStateException("Coach with an email of: " + email + " doesnt exist");
+        if(coachEntityByEmail == null) throw new NoSuchElementException("Coach with an email of: " + email + " doesnt exist");
         if(!coachEntityById.equals(coachEntityByEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
 
-        if(role.equalsIgnoreCase("ROLE_COACH")) throw new IllegalStateException("Coach: " + coachEntityById.getName() + " already has a role of ROLE_COACH");
+        if(role.equalsIgnoreCase("ROLE_COACH")) throw new IllegalArgumentException("Coach: " + coachEntityById.getName() + " already has a role of ROLE_COACH");
         else if (role.equalsIgnoreCase("ROLE_MEMBER")) {
             MemberEntity memberEntity = coachMapper.covertCoachToMemberEntity(coachEntityById);
 
@@ -362,14 +366,14 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public void updateCodeOfACoach(Long id, String email, String coachCode) {
         CoachEntity coachEntityById = coachRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
         CoachEntity coachEntityByEmail = coachRepository.findByEmail(email);
 
-        if(coachEntityByEmail == null) throw new IllegalStateException("Coach with an email of: " + email + " doesnt exist");
+        if(coachEntityByEmail == null) throw new NoSuchElementException("Coach with an email of: " + email + " doesnt exist");
         if(!coachEntityById.equals(coachEntityByEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
 
         CoachEntity coachEntity = coachRepository.findByCoachCode(coachCode);
-        if(coachEntity != null) throw new IllegalStateException("Coach with a code of: " +  coachCode + " already exists");
+        if(coachEntity != null) throw new IllegalArgumentException("Coach with a code of: " +  coachCode + " already exists");
         coachEntityById.setCoachCode(coachCode);
         coachRepository.save(coachEntityById);
     }
@@ -383,7 +387,7 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public void deleteCoachById(Long id) {
         CoachEntity coachEntity = coachRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
 
         Set<MemberEntity> memberEntities = coachEntity.getClients();
         for(MemberEntity memberEntity : memberEntities){
@@ -400,6 +404,7 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public void deleteAllCoaches() {
         List<MemberEntity> memberEntities = memberRepository.findAll();
+
         for(MemberEntity memberEntity : memberEntities){
             memberEntity.setCoachedBy(null);
         }

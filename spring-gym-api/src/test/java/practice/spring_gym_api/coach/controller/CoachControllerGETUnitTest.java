@@ -32,6 +32,7 @@ import org.junit.jupiter.api.TestInstance;
 import practice.spring_gym_api.testdata.entity.MemberTestData;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.*;
@@ -79,7 +80,7 @@ public class CoachControllerGETUnitTest {
 
     @Test
     @WithMockUser(username = "testUser", roles = {"COACH"})
-    void controllerReturnsDTOAndResponseOK() throws Exception {
+    void getCoachById_ReturnsCoachDTO_WhenCoachExists() throws Exception {
         // Arrange
         when(coachService.getCoachById(1L)).thenReturn(coachEntity1);
         when(coachMapper.convertToCoachDto(coachEntity1)).thenReturn(coachDTO1);
@@ -103,7 +104,27 @@ public class CoachControllerGETUnitTest {
 
     @Test
     @WithMockUser(username = "testUser", roles = {"COACH"})
-    void controllerReturnsWorkoutPlansByName() throws Exception{
+    void getCoachById_ReturnsNotFound_WhenCoachDoesNotExist() throws Exception {
+        // Arrange
+        Long fakeID = 999L;
+        when(coachService.getCoachById(fakeID))
+                .thenThrow(new NoSuchElementException("Coach with an id of: " + fakeID + " doesnt exist"));
+
+        // Act
+        mvc.perform(get("/api/v1/gym-api/coach/id/" + fakeID))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Coach with an id of: " + fakeID + " doesnt exist"));
+
+        // Assert
+        verify(coachService, times(1)).getCoachById(fakeID);
+        verifyNoMoreInteractions(coachService);
+        verify(coachMapper, never()).convertToCoachDto(any());
+    }
+
+    @Test
+    @WithMockUser(username = "testUser", roles = {"COACH"})
+    void getWorkoutPlansByCoachName_ReturnsList_WhenCoachExists() throws Exception{
         // Arrange
         when(coachService.getWorkoutPlansByCoachName(coachDTO1.getName()))
                 .thenReturn(List.of("FBEOD", "Upper/Lower"));
@@ -122,7 +143,7 @@ public class CoachControllerGETUnitTest {
 
     @Test
     @WithMockUser(username = "testUser", roles = {"COACH"})
-    void controllerReturnsListOfAvaliableCoachDTOs() throws Exception {
+    void getAllAvailableCoaches_ReturnsCoachDTOList_WhenCoachesAvailable() throws Exception {
         // Arrange
         when(coachService.getAllCoachesThatAreAvaliable())
                 .thenReturn(List.of(coachEntity1, coachEntity2));
@@ -151,7 +172,7 @@ public class CoachControllerGETUnitTest {
 
     @Test
     @WithMockUser(username = "testUser", roles = {"COACH"})
-    void controllerReturnsCoachWithHighestAmountOfClients() throws Exception{
+    void getCoachWithHighestClients_ReturnsCoachDTO_WhenCoachesExist() throws Exception{
         // Arrange
         when(coachService.getCoachWithHighestClients()).thenReturn(coachEntity1);
         when(coachMapper.convertToCoachDto(coachEntity1)).thenReturn(coachDTO1);
@@ -173,7 +194,7 @@ public class CoachControllerGETUnitTest {
 
     @Test
     @WithMockUser(username = "testUser", roles = {"COACH"})
-    void controllerReturnsCoachWithLowestAmountOfClients() throws Exception {
+    void getCoachWithLowestClients_ReturnsCoachDTO_WhenCoachesExist() throws Exception {
         // Arrange
         when(coachService.getCoachWithLowestClients()).thenReturn(coachEntity2);
         when(coachMapper.convertToCoachDto(coachEntity2)).thenReturn(coachDTO2);
@@ -195,7 +216,7 @@ public class CoachControllerGETUnitTest {
 
     @Test
     @WithMockUser(username = "testUser", roles = {"COACH"})
-    void controllerReturnsFirstPageWithOneCoach() throws Exception {
+    void getAllCoachesPageable_ReturnsPagedCoachDTOList_WhenPageRequested() throws Exception {
         // Arrange
         PageRequest pageRequest = PageRequest.of(0, 1);
         Page<CoachEntity> page = new PageImpl<>(List.of(coachEntity1), pageRequest, 2);
@@ -218,7 +239,7 @@ public class CoachControllerGETUnitTest {
 
     @Test
     @WithMockUser(username = "testUser", roles = {"COACH"})
-    void controllerReturnsAllClientsOfACoach() throws Exception {
+    void getAllClientsByCoachId_ReturnsMemberDTOList_WhenCoachHasClients() throws Exception {
         // Arrange
         MemberEntity memberEntity1 = MemberTestData.createSeedMember1();
         MemberEntity memberEntity3 = MemberTestData.createSeedMember3();
@@ -259,7 +280,7 @@ public class CoachControllerGETUnitTest {
 
     @Test
     @WithMockUser(username = "testUser", roles = {"COACH"})
-    void controllerReturnsACoachByTheirCoachCode() throws Exception {
+    void getCoachByCoachCode_ReturnsCoachDTO_WhenCoachCodeMatches() throws Exception {
         // Arrange
         when(coachService.getCoachByCoachCode(1L, coachEntity1.getCoachCode()))
                 .thenReturn(coachEntity1);
@@ -278,5 +299,25 @@ public class CoachControllerGETUnitTest {
         verifyNoMoreInteractions(coachService);
     }
 
+    @Test
+    @WithMockUser(username = "testUser", roles = {"COACH"})
+    void getCoachByCoachCode_ReturnsException_WhenIdAndCoachCodeDontBelongToSameCoach() throws Exception {
+        // Arrange
+        Long id = coachEntity1.getId();
+        String coachCode = coachEntity2.getCoachCode();
+        when(coachService.getCoachByCoachCode(id, coachEntity2.getCoachCode()))
+                .thenThrow(new IllegalStateException("Coach with an id of: " + id + " isnt the same coach with a coach code of: " + coachCode));
 
+        // Act
+        mvc.perform(get("/api/v1/gym-api/coach/by/" + 1L)
+                .param("code", coachCode))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message").value("Coach with an id of: " + id + " isnt the same coach with a coach code of: " + coachCode));
+
+        // Assert
+        verify(coachService, times(1)).getCoachByCoachCode(id, coachCode);
+        verifyNoMoreInteractions(coachService);
+        verify(coachMapper, never()).convertToCoachDto(any());
+    }
 }
