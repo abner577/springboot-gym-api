@@ -305,7 +305,7 @@ public class CoachControllerGETUnitTest {
         // Arrange
         Long id = coachEntity1.getId();
         String coachCode = coachEntity2.getCoachCode();
-        when(coachService.getCoachByCoachCode(id, coachEntity2.getCoachCode()))
+        when(coachService.getCoachByCoachCode(id, coachCode))
                 .thenThrow(new IllegalStateException("Coach with an id of: " + id + " isnt the same coach with a coach code of: " + coachCode));
 
         // Act

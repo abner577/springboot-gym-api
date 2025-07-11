@@ -3,12 +3,10 @@ package practice.spring_gym_api.coach.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.enums.Roles;
 import practice.spring_gym_api.repository.CoachRepository;
@@ -19,7 +17,6 @@ import practice.spring_gym_api.testdata.invalidTestData.InvalidCoachEntity;
 import java.time.LocalDate;
 import java.util.List;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
