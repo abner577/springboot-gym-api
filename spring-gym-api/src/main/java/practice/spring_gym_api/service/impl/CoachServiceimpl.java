@@ -145,7 +145,7 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public List<CoachEntity> getAllCoachesThatAreAvaliable() {
         List<CoachEntity> coachEntities = coachRepository.findAll();
-        if(coachEntities == null) throw new NoSuchElementException("No coaches currently registered");
+        if(coachEntities.isEmpty()) throw new NoSuchElementException("No coaches currently registered");
 
         List<CoachEntity> coachEntitiesToReturn = new ArrayList<>();
 
@@ -160,8 +160,9 @@ public class CoachServiceimpl implements CoachService {
         CoachEntity coachEntity = coachRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
 
-        if(coachRepository.findByCoachCode(coachCode) == null) throw new NoSuchElementException("Coach with a code of: " + coachCode + " doesnt exist");
-        if(!coachEntity.equals(coachRepository.findByCoachCode(coachCode))) {
+        CoachEntity coachByCode = coachRepository.findByCoachCode(coachCode);
+        if(coachByCode == null) throw new NoSuchElementException("Coach with a code of: " + coachCode + " doesnt exist");
+        if(!coachEntity.equals(coachByCode)) {
             throw new IllegalStateException("Coach with an id of: " + id + " isnt the same coach with a coach code of: " + coachCode);
         }
         return coachEntity;
