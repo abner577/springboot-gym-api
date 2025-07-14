@@ -34,12 +34,14 @@ public class CoachServicePOSTUnitTest {
     private CoachEntity coachEntity2;
     private CoachEntity invalidCoachEntity1;
     private CoachEntity fakeCoachEntity;
+    private List<CoachEntity> coachEntityList;
 
     @BeforeEach
     void setUp() {
         coachEntity1 = CoachTestData.createSeedCoach1();
         coachEntity2 = CoachTestData.createSeedCoach2();
         invalidCoachEntity1 = InvalidCoachEntity.createInvalidSeedCoach1();
+        coachEntityList = List.of(coachEntity1, coachEntity2);
 
         fakeCoachEntity = new CoachEntity(
                 3L,
@@ -77,5 +79,35 @@ public class CoachServicePOSTUnitTest {
         // Assert
         verify(coachRepository, never()).save(any());
     }
+
+    @Test
+    void registerNewCoaches_SavesCoaches_WhenEmailDoesntAlreadyExist() {
+        // Arrange
+        when(coachRepository.existsByEmail(coachEntity1.getEmail())).thenReturn(false);
+        when(coachRepository.existsByEmail(coachEntity2.getEmail())).thenReturn(false);
+
+        // Act
+        coachService.registerNewCoaches(coachEntityList);
+
+        // Assert
+        verify(coachRepository, times(1)).existsByEmail(coachEntity1.getEmail());
+        verify(coachRepository, times(1)).existsByEmail(coachEntity2.getEmail());
+        verify(coachRepository, times(1)).saveAll(coachEntityList);
+    }
+
+    @Test
+    void registerNewCoaches_ThrowsException_WhenAnEmailAlreadyExist() {
+        // Arrange
+        when(coachRepository.existsByEmail(coachEntity1.getEmail())).thenReturn(true);
+
+        // Act
+        var exception = assertThrows(IllegalArgumentException.class, () -> coachService.registerNewCoaches(coachEntityList));
+        assertEquals("Coach with an email of: " + coachEntity1.getEmail() + " already exists", exception.getMessage());
+
+        // Assert
+        verify(coachRepository, times(1)).existsByEmail(coachEntity1.getEmail());
+        verify(coachRepository, never()).save(any());
+    }
+
 
 }

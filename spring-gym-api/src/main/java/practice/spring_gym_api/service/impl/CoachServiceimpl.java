@@ -205,6 +205,7 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public void updateNameByIdAndEmail(Long id, String name, String email) {
         if(name == null || name.isEmpty()) throw new IllegalArgumentException("Name cannot be null or an empty string");
+        if(email == null || email.isEmpty()) throw new IllegalArgumentException("Email cannot be null or an empty string");
 
         CoachEntity coachEntityToUpdateNameFromId = coachRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
@@ -227,6 +228,8 @@ public class CoachServiceimpl implements CoachService {
      */
     @Override
     public void addClientsByIdAndEmail(Long id, String email, Set<MemberEntity> memberEntities) {
+        if(email == null || email.isEmpty()) throw new IllegalArgumentException("Email cannot be null or an empty string");
+
         CoachEntity coachEntityToUpdateClientsID = coachRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
 

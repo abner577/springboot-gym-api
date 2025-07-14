@@ -56,7 +56,7 @@ public class CoachTestData {
                 275,
                 200 + 250 + 275
         );
-        Set<MemberEntity> clientsForCoach1 = Set.of(member1, member3, member5);
+        Set<MemberEntity> clientsForCoach1 = new HashSet<>(List.of(member1, member3, member5));
         coach1.setClients(clientsForCoach1);
         return coach1;
     }
@@ -94,7 +94,7 @@ public class CoachTestData {
                 160,
                 115 + 145 + 160
         );
-        Set<MemberEntity> clientsForCoach2 = Set.of(member2, member4);
+        Set<MemberEntity> clientsForCoach2 = new HashSet<>(List.of(member2, member4));
         coach2.setClients(new HashSet<>(clientsForCoach2));
         return coach2;
     }

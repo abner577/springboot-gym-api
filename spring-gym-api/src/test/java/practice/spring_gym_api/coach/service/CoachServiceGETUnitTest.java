@@ -33,6 +33,7 @@ public class CoachServiceGETUnitTest {
 
     private CoachEntity coachEntity1;
     private CoachEntity coachEntity2;
+    private List<CoachEntity> coachEntities;
     private CoachEntity fakeCoachEntity;
 
 
@@ -40,6 +41,7 @@ public class CoachServiceGETUnitTest {
     void setup() {
         coachEntity1 = CoachTestData.createSeedCoach1();
         coachEntity2 = CoachTestData.createSeedCoach2();
+        coachEntities = List.of(coachEntity1, coachEntity2);
         fakeCoachEntity = InvalidCoachEntity.createInvalidSeedCoach1();
 
         fakeCoachEntity = new CoachEntity(
@@ -85,10 +87,9 @@ public class CoachServiceGETUnitTest {
     @Test
     void getAllCoaches_ReturnsAllCoaches_WhenCoachesExist() {
         // Arrange
-        List<CoachEntity> coaches = List.of(coachEntity1, coachEntity2);
         System.out.println("List of coaches returned from repo: " +
-                coaches.get(0).getName() + "," + coaches.get(1).getName());
-        when(coachRepository.findAll()).thenReturn(coaches);
+                coachEntities.get(0).getName() + "," + coachEntities.get(1).getName());
+        when(coachRepository.findAll()).thenReturn(coachEntities);
 
         // Act
         List<CoachEntity> actualCoaches = coachService.getAllCoaches();
@@ -123,8 +124,7 @@ public class CoachServiceGETUnitTest {
     @Test
     void getCoachWithHighestClients_ReturnsCoachWithMostClients_WhenCoachesExist() {
         // Arrange
-        List<CoachEntity> coaches = List.of(coachEntity1, coachEntity2);
-        when(coachRepository.findAll()).thenReturn(coaches);
+        when(coachRepository.findAll()).thenReturn(coachEntities);
 
         System.out.println("Coach 1 stats: " + "\n" + "name: " + coachEntity1.getName() + "\n" +
                 "clients : " + coachEntity1.getClients().size());
@@ -160,8 +160,7 @@ public class CoachServiceGETUnitTest {
     @Test
     void getCoachWithLowestClients_ReturnsCoachWithLeastClients_WhenCoachesExist() {
         // Arrange
-        List<CoachEntity> coaches = List.of(coachEntity1, coachEntity2);
-        when(coachRepository.findAll()).thenReturn(coaches);
+        when(coachRepository.findAll()).thenReturn(coachEntities);
 
         System.out.println("Coach 1 stats: " + "\n" + "name: " + coachEntity1.getName() + "\n" +
                 "clients : " + coachEntity1.getClients().size());
@@ -272,8 +271,7 @@ public class CoachServiceGETUnitTest {
     @Test
     void getAllCoachesThatAreAvaliable_ReturnsAllCoachesWithoutClients_WhenCoachExists() {
         List<CoachEntity> emptyList = new ArrayList<>();
-        List<CoachEntity> list = List.of(coachEntity1, coachEntity2);
-        when(coachRepository.findAll()).thenReturn(list);
+        when(coachRepository.findAll()).thenReturn(coachEntities);
 
         List<CoachEntity> listToReturn = coachService.getAllCoachesThatAreAvaliable();
         assertEquals(emptyList, listToReturn);
