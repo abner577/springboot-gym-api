@@ -256,6 +256,8 @@ public class CoachServiceimpl implements CoachService {
      */
     @Override
     public void replaceClientListByIdAndEmail(Long id, String email, Set<MemberEntity> newClientList) {
+        if(email == null || email.isEmpty()) throw new IllegalArgumentException("Email cannot be null or an empty string");
+
         CoachEntity coachEntityById = coachRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
         CoachEntity coachEntityByEmail = coachRepository.findByEmail(email);
@@ -280,6 +282,8 @@ public class CoachServiceimpl implements CoachService {
      */
     @Override
     public void updateWorkoutPlans(Long id, String email, List<String> workoutPlans) {
+        if(email == null || email.isEmpty()) throw new IllegalArgumentException("Email cannot be null or an empty string");
+
         CoachEntity coachEntityById = coachRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
         CoachEntity coachEntityByEmail = coachRepository.findByEmail(email);
@@ -301,6 +305,8 @@ public class CoachServiceimpl implements CoachService {
      */
     @Override
     public void updateCoachByIdAndEmail(Long id, String email, CoachEntity coachEntity) {
+        if(email == null || email.isEmpty()) throw new IllegalArgumentException("Email cannot be null or an empty string");
+
         CoachEntity coachEntityToUpdate = coachRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
 
@@ -308,6 +314,7 @@ public class CoachServiceimpl implements CoachService {
         if(coachEntityToUpdateEmail == null) throw new NoSuchElementException("Coach with an email of: " + email + " doesnt exist");
         if(!coachEntityToUpdate.equals(coachEntityToUpdateEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
 
+        // If you are trying to set a new email
         if(!coachEntityToUpdate.getEmail().equals(coachEntity.getEmail())) {
             CoachEntity coachEntity1 = coachRepository.findByEmail(coachEntity.getEmail());
             if(coachEntity1 != null) throw new IllegalArgumentException("The updated email that you are trying to give to " + coachEntityToUpdate.getName() + " is already registered under another coach");
@@ -333,6 +340,8 @@ public class CoachServiceimpl implements CoachService {
      */
     @Override
     public void updateRoleOfACoach(Long id, String email, String role) {
+        if(email == null || email.isEmpty()) throw new IllegalArgumentException("Email cannot be null or an empty string");
+
         CoachEntity coachEntityById = coachRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
         CoachEntity coachEntityByEmail = coachRepository.findByEmail(email);
@@ -369,6 +378,8 @@ public class CoachServiceimpl implements CoachService {
      */
     @Override
     public void updateCodeOfACoach(Long id, String email, String coachCode) {
+        if(email == null || email.isEmpty()) throw new IllegalArgumentException("Email cannot be null or an empty string");
+
         CoachEntity coachEntityById = coachRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
         CoachEntity coachEntityByEmail = coachRepository.findByEmail(email);
