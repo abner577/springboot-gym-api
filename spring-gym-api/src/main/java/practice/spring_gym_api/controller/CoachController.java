@@ -213,7 +213,7 @@ public class CoachController {
      * @param memberEntities New set of clients
      */
     @PatchMapping(path = "/replace/coach/clients/{coach_id}")
-    public void replaceCLientList(
+    public void replaceCLientListByIdAndEmail(
             @PathVariable("coach_id") Long id,
             @RequestParam String email,
            @Valid @RequestBody Set<MemberEntity> memberEntities

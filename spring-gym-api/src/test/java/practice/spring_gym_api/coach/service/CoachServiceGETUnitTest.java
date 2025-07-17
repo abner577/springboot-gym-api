@@ -36,6 +36,10 @@ public class CoachServiceGETUnitTest {
     private List<CoachEntity> coachEntities;
     private CoachEntity fakeCoachEntity;
 
+    private String code;
+    private List<CoachEntity> emptyList;
+    private String noCoachesMessage;
+
 
     @BeforeEach
     void setup() {
@@ -43,6 +47,10 @@ public class CoachServiceGETUnitTest {
         coachEntity2 = CoachTestData.createSeedCoach2();
         coachEntities = List.of(coachEntity1, coachEntity2);
         fakeCoachEntity = InvalidCoachEntity.createInvalidSeedCoach1();
+
+        code = coachEntity1.getCoachCode();
+        emptyList = new ArrayList<>();
+        noCoachesMessage = "No coaches currently registered";
 
         fakeCoachEntity = new CoachEntity(
                 3L,
@@ -107,14 +115,12 @@ public class CoachServiceGETUnitTest {
     @Test
     void getAllCoaches_ThrowsExceptions_WhenNoCoachesExist() {
         // Arrange
-        List<CoachEntity> emptyList = new ArrayList<>();
         when(coachRepository.findAll()).thenReturn(emptyList);
-
         System.out.println("List returned from coach repo: " + emptyList);
 
         // Act
         var exception = assertThrows(NoSuchElementException.class, () -> coachService.getAllCoaches());
-        assertEquals("No coaches currently registered", exception.getMessage());
+        assertEquals(noCoachesMessage, exception.getMessage());
 
         // Assert
         verify(coachRepository, times(1)).findAll();
@@ -143,14 +149,13 @@ public class CoachServiceGETUnitTest {
     @Test
     void getCoachWithHighestClients_ThrowsException_WhenNoCoachesExist() {
         // Arrange
-        List<CoachEntity> emptyList = new ArrayList<>();
         when(coachRepository.findAll()).thenReturn(emptyList);
 
         System.out.println("List contents retrieved from repo: " + emptyList);
 
         // Act
         var exception = assertThrows(NoSuchElementException.class, () -> coachService.getAllCoaches());
-        assertEquals("No coaches currently registered", exception.getMessage());
+        assertEquals(noCoachesMessage, exception.getMessage());
 
         // Assert
         verify(coachRepository, times(1)).findAll();
@@ -179,14 +184,13 @@ public class CoachServiceGETUnitTest {
     @Test
     void getCoachWithLowestClients_ThrowsException_WhenNoCoachesExist() {
         // Arrange
-        List<CoachEntity> emptyList = new ArrayList<>();
         when(coachRepository.findAll()).thenReturn(emptyList);
 
         System.out.println("List contents retrieved from repo: " + emptyList);
 
         // Act
         var exception = assertThrows(NoSuchElementException.class, () -> coachService.getAllCoaches());
-        assertEquals("No coaches currently registered", exception.getMessage());
+        assertEquals(noCoachesMessage, exception.getMessage());
 
         // Assert
         verify(coachRepository, times(1)).findAll();
@@ -270,7 +274,6 @@ public class CoachServiceGETUnitTest {
 
     @Test
     void getAllCoachesThatAreAvaliable_ReturnsAllCoachesWithoutClients_WhenCoachExists() {
-        List<CoachEntity> emptyList = new ArrayList<>();
         when(coachRepository.findAll()).thenReturn(coachEntities);
 
         List<CoachEntity> listToReturn = coachService.getAllCoachesThatAreAvaliable();
@@ -282,11 +285,10 @@ public class CoachServiceGETUnitTest {
 
     @Test
     void getAllCoachesThatAreAvaliable_ThrowsException_WhenNoCoachExist() {
-        List<CoachEntity> emptyList = new ArrayList<>();
         when(coachRepository.findAll()).thenReturn(emptyList);
 
         var exception = assertThrows(NoSuchElementException.class, () -> coachService.getAllCoachesThatAreAvaliable());
-        assertEquals("No coaches currently registered", exception.getMessage());
+        assertEquals(noCoachesMessage, exception.getMessage());
 
         verify(coachRepository, times(1)).findAll();
         verifyNoMoreInteractions(coachRepository);
@@ -294,7 +296,6 @@ public class CoachServiceGETUnitTest {
 
     @Test
     void getCoachByCoachCode_ReturnsCoach_WhenCoachCodeExists() {
-        String code = coachEntity1.getCoachCode();
         when(coachRepository.findById(1L)).thenReturn(Optional.ofNullable(coachEntity1));
         when(coachRepository.findByCoachCode(code)).thenReturn(coachEntity1);
 
@@ -308,7 +309,6 @@ public class CoachServiceGETUnitTest {
 
     @Test
     void getCoachByCoachCode_ThrowsException_WhenCoachIdDoesntExist() {
-        String code = coachEntity1.getCoachCode();
         when(coachRepository.findById(1L)).thenReturn(Optional.empty());
 
         var exception = assertThrows(NoSuchElementException.class, () -> coachService.getCoachByCoachCode(1L, code));
@@ -320,7 +320,6 @@ public class CoachServiceGETUnitTest {
 
     @Test
     void getCoachByCoachCode_ThrowsException_WhenCoachCodeDoesntExist() {
-        String code = coachEntity1.getCoachCode();
         when(coachRepository.findById(1L)).thenReturn(Optional.ofNullable(coachEntity1));
         when(coachRepository.findByCoachCode(code)).thenReturn(null);
 
@@ -334,15 +333,15 @@ public class CoachServiceGETUnitTest {
 
     @Test
     void getCoachByCoachCode_ThrowsException_WhenCoachCodeAndIdDontBelongToSameCoach() {
-        String code = coachEntity2.getCoachCode();
+        String code2 = coachEntity2.getCoachCode();
         when(coachRepository.findById(1L)).thenReturn(Optional.ofNullable(coachEntity1));
-        when(coachRepository.findByCoachCode(code)).thenReturn(coachEntity2);
+        when(coachRepository.findByCoachCode(code2)).thenReturn(coachEntity2);
 
-        var exception = assertThrows(IllegalStateException.class, () -> coachService.getCoachByCoachCode(1L, code));
-        assertEquals("Coach with an id of: " + 1L + " isnt the same coach with a coach code of: " + code, exception.getMessage());
+        var exception = assertThrows(IllegalStateException.class, () -> coachService.getCoachByCoachCode(1L, code2));
+        assertEquals("Coach with an id of: " + 1L + " isnt the same coach with a coach code of: " + code2, exception.getMessage());
 
         verify(coachRepository, times(1)).findById(1L);
-        verify(coachRepository, times(1)).findByCoachCode(code);
+        verify(coachRepository, times(1)).findByCoachCode(code2);
         verifyNoMoreInteractions(coachRepository);
     }
 }

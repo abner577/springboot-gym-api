@@ -404,12 +404,15 @@ public class CoachServiceimpl implements CoachService {
         CoachEntity coachEntity = coachRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
 
-        Set<MemberEntity> memberEntities = coachEntity.getClients();
-        for(MemberEntity memberEntity : memberEntities){
-            memberEntity.setCoachedBy(null);
+        if(coachEntity.getClients().size() > 0) {
+            Set<MemberEntity> memberEntities = coachEntity.getClients();
+            for(MemberEntity memberEntity : memberEntities){
+                memberEntity.setCoachedBy(null);
+            }
+
+            memberRepository.saveAll(memberEntities);
         }
 
-        memberRepository.saveAll(memberEntities);
         coachRepository.deleteById(id);
     }
 
@@ -419,11 +422,16 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public void deleteAllCoaches() {
         List<MemberEntity> memberEntities = memberRepository.findAll();
+        List<CoachEntity> coachEntities = coachRepository.findAll();
 
-        for(MemberEntity memberEntity : memberEntities){
-            memberEntity.setCoachedBy(null);
+        if(memberEntities.size() > 0) {
+            for(MemberEntity memberEntity : memberEntities){
+                memberEntity.setCoachedBy(null);
+            }
+            memberRepository.saveAll(memberEntities);
         }
-        memberRepository.saveAll(memberEntities);
-        coachRepository.deleteAll();
+        if(coachEntities.size() > 0) {
+            coachRepository.deleteAll();
+        } else throw new IllegalStateException("No coaches left to delete");
     }
 }
