@@ -260,15 +260,22 @@ public class CoachServiceimpl implements CoachService {
 
         CoachEntity coachEntityById = coachRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
+        Set<MemberEntity> oldClients = new HashSet<>(coachEntityById.getClients());
         CoachEntity coachEntityByEmail = coachRepository.findByEmail(email);
         if(coachEntityByEmail == null) throw new NoSuchElementException("Coach with an email of: " + email + " doesnt exist");
         if(!coachEntityById.equals(coachEntityByEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
 
-        for(MemberEntity memberEntity : coachEntityById.getClients()) memberEntity.setCoachedBy(null);
+        for(MemberEntity memberEntity : oldClients) {
+            memberEntity.setCoachedBy(null);
+        }
+        coachEntityById.getClients().clear();
 
         for(MemberEntity memberEntity : newClientList) {
             memberEntity.setCoachedBy(coachEntityById);
         }
+        coachEntityById.getClients().addAll(newClientList);
+        memberRepository.saveAll(oldClients);
+        coachRepository.save(coachEntityById);
         memberRepository.saveAll(newClientList);
     }
 
