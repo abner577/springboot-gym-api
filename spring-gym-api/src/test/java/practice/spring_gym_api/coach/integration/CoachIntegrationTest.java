@@ -1,11 +1,8 @@
 package practice.spring_gym_api.coach.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.EntityManager;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,15 +16,13 @@ import practice.spring_gym_api.repository.CoachRepository;
 import practice.spring_gym_api.repository.MemberRepository;
 
 import java.time.LocalDate;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -51,6 +46,7 @@ public class CoachIntegrationTest {
     private MemberEntity fakeMember1;
     private MemberEntity fakeMember2;
     private CoachEntity coachEntity;
+    private CoachEntity coachEntity2;
 
     private Long seedCoachId;
     private String seedCoachEmail;
@@ -61,6 +57,10 @@ public class CoachIntegrationTest {
         if(coachEntity == null) throw new RuntimeException("Seed coach not found");
         seedCoachId = coachEntity.getId();
         seedCoachEmail = coachEntity.getEmail();
+
+        coachEntity2 = coachRepository.findByCoachCode("WKRCODE-4583");
+        if(coachEntity2 == null) throw new RuntimeException("Seed coach not found");
+
 
         fakeMember1 = new MemberEntity(
                 "Alice Johnson",
@@ -101,27 +101,58 @@ public class CoachIntegrationTest {
     @Transactional
     @Test
     void replaceClientsByIdAndEmail_SuccessfullyReaplcesClientList_WhenIdAndEmailAreValid() throws Exception {
-       memberRepository.saveAll(Set.of(fakeMember1, fakeMember2));
+       // Ids of new clients
+       List<Long> idsOfUpdatedClients = new ArrayList<>();
+       Set<MemberEntity> updatedClients = new HashSet<>();
+
+       for(MemberEntity client : coachEntity2.getClients()) {
+           MemberEntity memberEntity = memberRepository.findMemberByEmail(client.getEmail());
+           idsOfUpdatedClients.add(memberEntity.getId());
+           updatedClients.add(memberEntity);
+       }
+
+       // Performing query
         mvc.perform(patch("/api/v1/gym-api/replace/coach/clients/" + seedCoachId)
                         .with(csrf())
                         .queryParam("email", seedCoachEmail)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(Set.of(fakeMember1, fakeMember2)))
+                        .content(objectMapper.writeValueAsString(idsOfUpdatedClients))
                         .header("x-coach-code", "EMP-990X-YTR8")
                         .header("x-coach-id", seedCoachId));
 
-        CoachEntity updatedCoach = coachRepository.findById(seedCoachId).orElseThrow(() ->
-                new NoSuchElementException ("Coach with an id of: " + seedCoachId + " doesnt exist"));
-        Set<MemberEntity> updatedClients = updatedCoach.getClients();
+      coachEntity.getClients().clear();
+      for(MemberEntity member : updatedClients) coachEntity.getClients().add(member);
 
-        assertTrue(updatedCoach.getClients().size() == 2);
+        assertTrue(coachEntity.getClients().size() == 2);
         assertThat(updatedClients).extracting(MemberEntity::getName)
-                .containsExactlyInAnyOrder("Alice Johnson", "Bob Smith");
+                .containsExactlyInAnyOrder("Emily Chen", "Jane Smith");
 
-        for(MemberEntity member : updatedCoach.getClients()){
+        for(MemberEntity member : coachEntity.getClients()){
             assertThat(member.getCoachedBy().getId()).isEqualTo(seedCoachId);
         }
     }
 
+    @Transactional
+    @Test
+    void replaceClientsByIdAndEmail_ThrowsException_WhenCoachIdDoesntExist() throws Exception {
+        List<Long> idsOfUpdatedClients = new ArrayList<>();
+
+        for(MemberEntity client : coachEntity2.getClients()) {
+            MemberEntity memberEntity = memberRepository.findMemberByEmail(client.getEmail());
+            idsOfUpdatedClients.add(memberEntity.getId());
+        }
+        var exception = mvc.perform(patch("/api/v1/gym-api/replace/coach/clients/" + 15L)
+                .with(csrf())
+                .queryParam("email", seedCoachEmail)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(idsOfUpdatedClients))
+                .header("x-coach-code", "EMP-990X-YTR8")
+                .header("x-coach-id", seedCoachId))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String responseBody = exception.getResponse().getContentAsString();
+        assertTrue(responseBody.contains("Coach with an id of: " + 15L + " doesnt exist"));
+    }
 }
 

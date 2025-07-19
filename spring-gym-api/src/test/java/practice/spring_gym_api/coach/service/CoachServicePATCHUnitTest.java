@@ -204,33 +204,37 @@ public class CoachServicePATCHUnitTest {
     }
 
     @Test
-    void replaceClientListByIdAndEmail_SuccessfullyReplacesClientList_WhenIdAndEmailAreValid() {
-        Set<MemberEntity> oldList = new HashSet<>(clients);
-        when(coachRepository.findById(1L)).thenReturn(Optional.ofNullable(coachEntity1));
-        when(coachRepository.findByEmail(email)).thenReturn(coachEntity1);
-
-        coachService.replaceClientListByIdAndEmail(1L, email, coachEntity2.getClients());
-        assertTrue(oldList != coachEntity1.getClients());
-
-        verify(coachRepository, times(1)).findById(1l);
-        verify(coachRepository, times(1)).findByEmail(email);
-        verify(memberRepository, times(1)).saveAll(any());
-    }
-
-    @Test
     void replaceClientListByIdAndEmail_ThrowsException_WhenEmailIsInvalid() {
+        List<Long> idsOfClients = new ArrayList<>();
+        for(MemberEntity member : clients) idsOfClients.add(member.getId());
+
         var exception = assertThrows(IllegalArgumentException.class, () ->
-                coachService.replaceClientListByIdAndEmail(1L, "", clients));
+                coachService.replaceClientListByIdAndEmail(1L, "", idsOfClients));
         assertEquals(invalidEmailMessage, exception.getMessage());
 
         verifyNoInteractions(coachRepository);
     }
 
     @Test
+    void replaceClientListByIdAndEmail_ThrowsException_WhenIdListIsInvalid() {
+        List<Long> idsOfClients = new ArrayList<>();
+        for(MemberEntity member : clients) idsOfClients.add(member.getId());
+
+        var exception = assertThrows(IllegalArgumentException.class, () ->
+                coachService.replaceClientListByIdAndEmail(1L, "example@example.com", new ArrayList<>()));
+        assertEquals("Id list cannot be empty", exception.getMessage());
+
+        verifyNoInteractions(coachRepository);
+    }
+
+    @Test
     void replaceClientListByIdAndEmail_ThrowsException_WhenIdDoesntExist() {
+        List<Long> idsOfClients = new ArrayList<>();
+        for(MemberEntity member : clients) idsOfClients.add(member.getId());
+
         when(coachRepository.findById(1L)).thenReturn(Optional.empty());
         var exception = assertThrows(NoSuchElementException.class, () ->
-                coachService.replaceClientListByIdAndEmail(1L, email, clients));
+                coachService.replaceClientListByIdAndEmail(1L, email, idsOfClients));
         assertEquals(idMessage, exception.getMessage());
 
         verify(coachRepository, times(1)).findById(1L);
@@ -239,11 +243,14 @@ public class CoachServicePATCHUnitTest {
 
     @Test
     void replaceClientListByIdAndEmail_ThrowsException_WhenEmailDoesntExist() {
+        List<Long> idsOfClients = new ArrayList<>();
+        for(MemberEntity member : clients) idsOfClients.add(member.getId());
+
         when(coachRepository.findById(1L)).thenReturn(Optional.ofNullable(coachEntity1));
         when(coachRepository.findByEmail(email)).thenReturn(null);
 
         var exception = assertThrows(NoSuchElementException.class, () ->
-                coachService.replaceClientListByIdAndEmail(1L, email, clients));
+                coachService.replaceClientListByIdAndEmail(1L, email, idsOfClients));
         assertEquals(emailMessage, exception.getMessage());
 
         verify(coachRepository, times(1)).findById(1L);
@@ -253,14 +260,32 @@ public class CoachServicePATCHUnitTest {
 
     @Test
     void replaceClientListByIdAndEmail_ThrowsException_WhenNameAndEmailDontBelongToSameCoach() {
+        List<Long> idsOfClients = new ArrayList<>();
+        for(MemberEntity member : clients) idsOfClients.add(member.getId());
+
         when(coachRepository.findById(1L)).thenReturn(Optional.ofNullable(coachEntity1));
         when(coachRepository.findByEmail(email)).thenReturn(coachEntity2);
 
-        var exception = assertThrows(IllegalStateException.class, () -> coachService.replaceClientListByIdAndEmail(1L, email, clients));
+        var exception = assertThrows(IllegalStateException.class, () -> coachService.replaceClientListByIdAndEmail(1L, email, idsOfClients));
         assertEquals(notSameCoachMessage, exception.getMessage());
 
         verify(coachRepository, times(1)).findById(1l);
         verify(coachRepository, times(1)).findByEmail(email);
+        verify(memberRepository, never()).saveAll(any());
+    }
+
+    @Test
+    void replaceClientListByIdAndEmail_ThrowsException_WhenUpdatedClientsDontExist() {
+        when(coachRepository.findById(1L)).thenReturn(Optional.ofNullable(coachEntity1));
+        when(coachRepository.findByEmail(email)).thenReturn(coachEntity1);
+        when(memberRepository.findById(15L)).thenReturn(Optional.empty());
+
+        var exception = assertThrows(NoSuchElementException.class, () -> coachService.replaceClientListByIdAndEmail(1L, email, List.of(15L)));
+        assertEquals("Member with an id of: " + 15L + " doesnt exist", exception.getMessage());
+
+        verify(coachRepository, times(1)).findById(1l);
+        verify(coachRepository, times(1)).findByEmail(email);
+        verify(memberRepository, times(1)).findById(15L);
         verify(memberRepository, never()).saveAll(any());
     }
 
@@ -471,5 +496,4 @@ public class CoachServicePATCHUnitTest {
         verify(coachRepository, times(1)).findByEmail(email);
         verify(coachRepository, never()).save(any());
     }
-
 }

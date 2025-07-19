@@ -210,15 +210,15 @@ public class CoachController {
      *
      * @param id             Coach ID
      * @param email          Coach email
-     * @param memberEntities New set of clients
+     * @param ids Id's of new clients
      */
     @PatchMapping(path = "/replace/coach/clients/{coach_id}")
     public void replaceCLientListByIdAndEmail(
             @PathVariable("coach_id") Long id,
             @RequestParam String email,
-           @Valid @RequestBody Set<MemberEntity> memberEntities
+            @RequestBody List<Long> ids
     )  {
-        coachService.replaceClientListByIdAndEmail(id, email, memberEntities);
+        coachService.replaceClientListByIdAndEmail(id, email, ids);
     }
 
     /**
