@@ -9,11 +9,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import practice.spring_gym_api.dto.CoachMapper;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
+import practice.spring_gym_api.entity.WorkerEntity;
 import practice.spring_gym_api.entity.enums.Roles;
 import practice.spring_gym_api.repository.CoachRepository;
 import practice.spring_gym_api.repository.MemberRepository;
+import practice.spring_gym_api.repository.WorkerRepository;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -42,6 +45,9 @@ public class CoachIntegrationTest {
 
     @Autowired
     private MemberRepository memberRepository;
+
+    @Autowired
+    private WorkerRepository workerRepository;
 
     private MemberEntity fakeMember1;
     private MemberEntity fakeMember2;
@@ -153,6 +159,69 @@ public class CoachIntegrationTest {
 
         String responseBody = exception.getResponse().getContentAsString();
         assertTrue(responseBody.contains("Coach with an id of: " + 15L + " doesnt exist"));
+    }
+
+    @Transactional
+    @Test
+    void updateRoleOfACoach_SuccessfullyUpdatesRoleToWorker_WhenIdAndEmailAreValid() throws Exception {
+        mvc.perform(patch("/api/v1/gym-api/update/coach/role/" + seedCoachId)
+                .with(csrf())
+                .queryParam("email", coachEntity.getEmail())
+                .queryParam("role", "ROLE_WORKER")
+                .header("x-coach-code", "EMP-990X-YTR8")
+                .header("x-coach-id", seedCoachId));
+
+        boolean existsAsCoach = coachRepository.existsById(seedCoachId);
+        boolean existsAsWorker = workerRepository.existsByEmail(coachEntity.getEmail());
+        WorkerEntity updatedWorker = workerRepository.findByEmail(coachEntity.getEmail());
+
+        assertFalse(existsAsCoach);
+        assertTrue(existsAsWorker);
+        assertThat(updatedWorker.getRole().equals("ROLE_WORKER"));
+        assertTrue(updatedWorker.getWorkerCode().equals("Placeholder worker code"));
+
+        for(MemberEntity member : coachEntity.getClients()) {
+            assertThat(member.getCoachedBy() == null);
+        }
+    }
+
+    @Transactional
+    @Test
+    void updateRoleOfACoach_SuccessfullyUpdatesRoleToMember_WhenIdAndEmailAreValid() throws Exception {
+        mvc.perform(patch("/api/v1/gym-api/update/coach/role/" + seedCoachId)
+                .with(csrf())
+                .queryParam("email", coachEntity.getEmail())
+                .queryParam("role", "ROLE_MEMBER")
+                .header("x-coach-code", "EMP-990X-YTR8")
+                .header("x-coach-id", seedCoachId));
+
+        boolean existsAsCoach = coachRepository.existsById(seedCoachId);
+        boolean existsAsMember = memberRepository.existsByEmail(coachEntity.getEmail());
+         MemberEntity updatedMember = memberRepository.findMemberByEmail(coachEntity.getEmail());
+
+        assertFalse(existsAsCoach);
+        assertTrue(existsAsMember);
+        assertThat(updatedMember.getRole().equals("ROLE_MEMBER"));
+
+        for(MemberEntity member : coachEntity.getClients()) {
+            assertThat(member.getCoachedBy() == null);
+        }
+    }
+
+    @Transactional
+    @Test
+    void updateRoleOfACoach_ThrowsException_WhenTryingToUpdateRoleToCoach() throws Exception {
+        var exception = mvc.perform(patch("/api/v1/gym-api/update/coach/role/" + seedCoachId)
+                .with(csrf())
+                .queryParam("email", coachEntity.getEmail())
+                .queryParam("role", "ROLE_COACH")
+                .header("x-coach-code", "EMP-990X-YTR8")
+                .header("x-coach-id", seedCoachId))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String responseBody = exception.getResponse().getContentAsString();
+        assertTrue(responseBody.contains("Coach: " + coachEntity.getName() + " already has a role of ROLE_COACH"));
     }
 }
 

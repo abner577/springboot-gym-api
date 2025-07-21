@@ -6,11 +6,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import practice.spring_gym_api.dto.impl.CoachMapperimpl;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import practice.spring_gym_api.entity.enums.Roles;
 import practice.spring_gym_api.repository.CoachRepository;
 import practice.spring_gym_api.repository.MemberRepository;
+import practice.spring_gym_api.repository.WorkerRepository;
 import practice.spring_gym_api.service.impl.CoachServiceimpl;
 import practice.spring_gym_api.testdata.entity.CoachTestData;
 
@@ -31,6 +33,12 @@ public class CoachServicePATCHUnitTest {
 
     @Mock
     MemberRepository memberRepository;
+
+    @Mock
+    WorkerRepository workerRepository;
+
+    @Mock(name = "coachMapperimpl")
+    CoachMapperimpl coachMapperimpl;
 
     private CoachEntity coachEntity1;
     private CoachEntity coachEntity2;
@@ -432,6 +440,88 @@ public class CoachServicePATCHUnitTest {
         verify(coachRepository, times(1)).findByEmail(email);
         verify(coachRepository, times(1)).findByEmail(coachEntity2.getEmail());
         verify(coachRepository, never()).save(any());
+    }
+
+    @Test
+    void updateRoleOfACoach_ThrowsException_WhenEmailIsInvalid() {
+        var exception = assertThrows(IllegalArgumentException.class,
+                () -> coachService.updateRoleOfACoach(1L, "", "ROLE_COACH"));
+        assertEquals(invalidEmailMessage, exception.getMessage());
+
+        verifyNoInteractions(coachRepository, memberRepository, workerRepository, coachMapperimpl);
+    }
+
+    @Test
+    void updateRoleOfACoach_ThrowsException_WhenIdDoesntExist() {
+        when(coachRepository.findById(1L)).thenReturn(Optional.empty());
+
+        var exception = assertThrows(NoSuchElementException.class,
+                () -> coachService.updateRoleOfACoach(1L, email, "ROLE_WORKER"));
+        assertEquals(idMessage, exception.getMessage());
+
+        verify(coachRepository, times(1)).findById(1L);
+        verifyNoMoreInteractions(coachRepository);
+        verifyNoInteractions(memberRepository, workerRepository, coachMapperimpl);
+    }
+
+    @Test
+    void updateRoleOfACoach_ThrowsException_WhenEmailDoesntExist() {
+        when(coachRepository.findById(1L)).thenReturn(Optional.ofNullable(coachEntity1));
+        when(coachRepository.findByEmail(email)).thenReturn(null);
+
+        var exception = assertThrows(NoSuchElementException.class,
+                () -> coachService.updateRoleOfACoach(1L, email, "ROLE_WORKER"));
+        assertEquals(emailMessage, exception.getMessage());
+
+        verify(coachRepository, times(1)).findById(1L);
+        verify(coachRepository, times(1)).findByEmail(email);
+        verifyNoMoreInteractions(coachRepository);
+        verifyNoInteractions(memberRepository, workerRepository, coachMapperimpl);
+    }
+
+    @Test
+    void updateRoleOfACoach_ThrowsException_WhenNameAndEmailDontBelongToSameCoach() {
+        when(coachRepository.findById(1L)).thenReturn(Optional.ofNullable(coachEntity1));
+        when(coachRepository.findByEmail(email)).thenReturn(coachEntity2);
+
+        var exception = assertThrows(IllegalStateException.class,
+                () -> coachService.updateRoleOfACoach(1L, email, "ROLE_WORKER"));
+        assertEquals(notSameCoachMessage, exception.getMessage());
+
+        verify(coachRepository, times(1)).findById(1L);
+        verify(coachRepository, times(1)).findByEmail(email);
+        verifyNoMoreInteractions(coachRepository);
+        verifyNoInteractions(memberRepository, workerRepository, coachMapperimpl);
+    }
+
+    @Test
+    void updateRoleOfACoach_ThrowsException_WhenNewRoleEqualToCoach() {
+        when(coachRepository.findById(1L)).thenReturn(Optional.ofNullable(coachEntity1));
+        when(coachRepository.findByEmail(email)).thenReturn(coachEntity1);
+
+        var exception = assertThrows(IllegalArgumentException.class,
+                () -> coachService.updateRoleOfACoach(1L, email, "ROLE_COACH"));
+        assertEquals("Coach: " + name + " already has a role of ROLE_COACH", exception.getMessage());
+
+        verify(coachRepository, times(1)).findById(1L);
+        verify(coachRepository, times(1)).findByEmail(email);
+        verifyNoMoreInteractions(coachRepository);
+        verifyNoInteractions(memberRepository, workerRepository, coachMapperimpl);
+    }
+
+    @Test
+    void updateRoleOfACoach_ThrowsException_WhenNewRoleIsInvalid() {
+        when(coachRepository.findById(1L)).thenReturn(Optional.ofNullable(coachEntity1));
+        when(coachRepository.findByEmail(email)).thenReturn(coachEntity1);
+
+        var exception = assertThrows(IllegalStateException.class,
+                () -> coachService.updateRoleOfACoach(1L, email, "ROLE_FAKE"));
+        assertEquals("Role must be either ROLE_COACH, ROLE_WORKER, or ROLE_MEMBER", exception.getMessage());
+
+        verify(coachRepository, times(1)).findById(1L);
+        verify(coachRepository, times(1)).findByEmail(email);
+        verifyNoMoreInteractions(coachRepository);
+        verifyNoInteractions(memberRepository, workerRepository, coachMapperimpl);
     }
 
     @Test

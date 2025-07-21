@@ -1,11 +1,14 @@
 package practice.spring_gym_api.dto;
 
+import practice.spring_gym_api.entity.enums.Roles;
+
 import java.time.LocalDate;
 
 public class MemberDTO {
     private String name;
     private int age;
     private LocalDate dateOfBirth;
+    private Roles role;
 
     public MemberDTO(){}
 

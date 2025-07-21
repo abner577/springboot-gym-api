@@ -65,13 +65,13 @@ public class MemberEntity {
    @Transient
    private int age;
 
-    @Min(value = 1, message = "Bench must be greater than 0")
+    @Min(value = 0, message = "Bench cannot be negative")
    private int bench;
-    @Min(value = 1, message = "Squat must be greater than 0")
+    @Min(value = 0, message = "Squat cannot be negative")
    private int squat;
-    @Min(value = 1, message = "Deadlift must be greater than 0")
+    @Min(value = 0, message = "Deadlift cannot be negative")
    private int deadlift;
-    @Min(value = 1, message = "Total must be greater than 0")
+    @Min(value = 0, message = "Total cannot be negative")
    private int total;
 
     /**

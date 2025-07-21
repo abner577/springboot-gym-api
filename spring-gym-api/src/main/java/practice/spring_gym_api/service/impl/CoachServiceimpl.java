@@ -292,6 +292,7 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public void updateWorkoutPlans(Long id, String email, List<String> workoutPlans) {
         if(email == null || email.isEmpty()) throw new IllegalArgumentException("Email cannot be null or an empty string");
+        if(workoutPlans.isEmpty()) throw new IllegalArgumentException("Workout list cannot be empty");
 
         CoachEntity coachEntityById = coachRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));
@@ -362,16 +363,10 @@ public class CoachServiceimpl implements CoachService {
         else if (role.equalsIgnoreCase("ROLE_MEMBER")) {
             MemberEntity memberEntity = coachMapper.covertCoachToMemberEntity(coachEntityById);
 
-            for(MemberEntity client : coachEntityById.getClients()) client.setCoachedBy(null);
-            memberRepository.saveAll(coachEntityById.getClients());
-
             deleteCoachById(id);
             memberRepository.save(memberEntity);
         } else if (role.equalsIgnoreCase("ROLE_WORKER")) {
             WorkerEntity workerEntity = coachMapper.covertCoachToWorkerEntity(coachEntityById);
-
-            for(MemberEntity client : coachEntityById.getClients()) client.setCoachedBy(null);
-            memberRepository.saveAll(coachEntityById.getClients());
 
             deleteCoachById(id);
             workerRepository.save(workerEntity);

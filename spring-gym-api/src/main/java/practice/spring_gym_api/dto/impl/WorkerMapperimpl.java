@@ -9,6 +9,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 import practice.spring_gym_api.entity.enums.Roles;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -36,6 +37,11 @@ public class WorkerMapperimpl implements WorkerMapper {
 
     @Override
     public MemberEntity covertWorkerToMemberEntity(WorkerEntity workerEntity) {
-        return new MemberEntity(workerEntity.getName(), workerEntity.getDateOfBirth(), Roles.ROLE_MEMBER, workerEntity.getEmail());
+        return new MemberEntity(
+                workerEntity.getName(), workerEntity.getDateOfBirth(),
+                LocalDate.now().toString(),
+                workerEntity.getEmail(), Roles.ROLE_MEMBER,
+                0, 0, 0, 0
+        );
     }
 }
