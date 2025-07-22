@@ -17,8 +17,8 @@ public class MemberDTOTestData {
     public static MemberDTO createdSeedMemberDTO2(){
         MemberDTO member2 = new MemberDTO(
                 "Jane Smith",
-                34,
-                LocalDate.of(1990, 7, 22)
+                35,
+                LocalDate.of(1990, 7, 20)
         );
         return member2;
     }

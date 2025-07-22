@@ -28,6 +28,7 @@ public class WorkerAuthFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        // Only for POST and DELETE
         if(request.getMethod().equalsIgnoreCase("GET") ||
         request.getMethod().equalsIgnoreCase("PATCH") ||
         request.getMethod().equalsIgnoreCase("PUT")) {

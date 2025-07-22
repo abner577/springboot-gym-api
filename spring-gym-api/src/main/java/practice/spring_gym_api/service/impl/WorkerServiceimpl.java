@@ -10,6 +10,8 @@ import practice.spring_gym_api.repository.MemberRepository;
 import practice.spring_gym_api.repository.WorkerRepository;
 import practice.spring_gym_api.service.WorkerService;
 
+import java.util.NoSuchElementException;
+
 @Service
 public class WorkerServiceimpl implements WorkerService {
 
@@ -36,7 +38,7 @@ public class WorkerServiceimpl implements WorkerService {
     @Override
     public WorkerEntity getWorkerById(Long id) {
         return workerRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Worker with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Worker with an id of: " + id + " doesnt exist"));
 
     }
 
@@ -50,10 +52,12 @@ public class WorkerServiceimpl implements WorkerService {
     @Override
     public WorkerEntity getWorkerByWorkerCode(Long id, String code) {
         WorkerEntity workerEntity = workerRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Worker with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Worker with an id of: " + id + " doesnt exist"));
+
+        if(code == null || code.isEmpty()) throw new IllegalArgumentException("Coach cannot be null or empty");
 
         WorkerEntity workerEntity1 = workerRepository.findByWorkerCode(code);
-        if(workerEntity1 == null) throw new IllegalStateException("Worker with a worker code of: " + code + " doesnt exist");
+        if(workerEntity1 == null) throw new NoSuchElementException("Worker with a worker code of: " + code + " doesnt exist");
 
         if(!workerEntity.getWorkerCode().equals(workerEntity1.getWorkerCode())){
             throw new IllegalStateException("Worker with an id of: " + id + " is not the same worker with a worker code of: " + code);
@@ -86,10 +90,13 @@ public class WorkerServiceimpl implements WorkerService {
     @Override
     public void updateRoleOfAWorker(Long id, String email, String role) {
         WorkerEntity workerEntityById = workerRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Worker with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Worker with an id of: " + id + " doesnt exist"));
         WorkerEntity workerEntityByEmail = workerRepository.findByEmail(email);
 
-        if(workerEntityByEmail == null) throw new IllegalStateException("Worker with an email of: " + workerEntityById.getEmail() + " doesnt exist");
+        if(email == null || email.isEmpty()) throw new IllegalArgumentException("Email cannot be null or empty");
+        if(role == null || role.isEmpty()) throw new IllegalArgumentException("Role cannot be null or empty");
+
+        if(workerEntityByEmail == null) throw new NoSuchElementException("Worker with an email of: " + workerEntityById.getEmail() + " doesnt exist");
         if(!workerEntityById.equals(workerEntityByEmail)) throw new IllegalStateException("Worker with an email of: " + workerEntityById.getEmail() + " is not the same worker with an id of: " + workerEntityById.getId());
 
 
@@ -104,7 +111,7 @@ public class WorkerServiceimpl implements WorkerService {
 
             deleteWorkerbyId(id);
             coachRepository.save(coachEntity);
-        }  else throw new IllegalStateException("Role must be either ROLE_COACH, ROLE_WORKER, or ROLE_MEMBER");
+        }  else throw new IllegalArgumentException("Role must be either ROLE_COACH, ROLE_WORKER, or ROLE_MEMBER");
     }
 
     /**
@@ -119,10 +126,12 @@ public class WorkerServiceimpl implements WorkerService {
     @Override
     public void updateWorkerById(Long id, String email, WorkerEntity updatedWorkerEntity) {
         WorkerEntity workerEntity = workerRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Worker with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Worker with an id of: " + id + " doesnt exist"));
+        if(email == null || email.isEmpty()) throw new IllegalArgumentException("Email cannot be null or empty");
+
         WorkerEntity workerEntity1 = workerRepository.findByEmail(email);
 
-        if(workerEntity1 == null) throw new IllegalStateException("Worker with an email of: " + workerEntity.getEmail() + " doesnt exist");
+        if(workerEntity1 == null) throw new NoSuchElementException("Worker with an email of: " + workerEntity.getEmail() + " doesnt exist");
         if(!workerEntity.equals(workerEntity1)) throw new IllegalStateException("Worker with an email of: " + workerEntity.getEmail() + " is not the same worker with an id of: " + workerEntity.getId());
 
         if(!workerEntity.getEmail().equals(updatedWorkerEntity.getEmail())) {
@@ -152,10 +161,13 @@ public class WorkerServiceimpl implements WorkerService {
     @Override
     public void updateWorkerCodeById(Long id, String email, String newCode) {
         WorkerEntity workerEntity = workerRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Worker with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Worker with an id of: " + id + " doesnt exist"));
         WorkerEntity workerEntity1 = workerRepository.findByEmail(email);
 
-        if(workerEntity1 == null) throw new IllegalStateException("Worker with an email of: " + workerEntity.getEmail() + " doesnt exist");
+        if(email == null || email.isEmpty()) throw new IllegalArgumentException("Email cannot be null or empty");
+        if(newCode == null || newCode.isEmpty()) throw new IllegalArgumentException("Worker code cannot be null or empty");
+
+        if(workerEntity1 == null) throw new NoSuchElementException("Worker with an email of: " + workerEntity.getEmail() + " doesnt exist");
         if(!workerEntity.equals(workerEntity1)) throw new IllegalStateException("Worker with an email of: " + workerEntity.getEmail() + " is not the same worker with an id of: " + workerEntity.getId());
 
         if(workerRepository.findByWorkerCode(newCode) != null) {
@@ -170,12 +182,12 @@ public class WorkerServiceimpl implements WorkerService {
      * Deletes a worker by their ID.
      *
      * @param id Worker ID
-     * @throws IllegalStateException if worker is not found
+     * @throws IllegalStateException if the worker is not found
      */
     @Override
     public void deleteWorkerbyId(Long id) {
         WorkerEntity workerEntity = workerRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Worker with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Worker with an id of: " + id + " doesnt exist"));
         workerRepository.delete(workerEntity);
     }
 }

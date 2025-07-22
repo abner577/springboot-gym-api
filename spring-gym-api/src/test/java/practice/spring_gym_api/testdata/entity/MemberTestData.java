@@ -46,7 +46,7 @@ public class MemberTestData {
 
         MemberEntity member2 = new MemberEntity(
                 "Jane Smith",
-                LocalDate.of(1990, 7, 22),
+                LocalDate.of(1990, 7, 20),
                 "2023-11-02",
                 "janeSmith@gmail.com",
                 Roles.ROLE_MEMBER,

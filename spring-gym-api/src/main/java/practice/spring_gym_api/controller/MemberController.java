@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import practice.spring_gym_api.dto.MemberDTO;
 import practice.spring_gym_api.dto.MemberMapper;
@@ -38,10 +39,10 @@ public class MemberController {
      * @return MemberDTO representation of the member
      */
     @GetMapping(path = "/member/{member_id}")
-    public MemberDTO getMemberById(@PathVariable("member_id") Long id){
+    public ResponseEntity<MemberDTO> getMemberById(@PathVariable("member_id") Long id){
         MemberEntity memberEntity = memberService.getMemberById(id);
         MemberDTO memberDTO = memberMapper.convertToMemberDTO(memberEntity);
-        return memberDTO;
+        return ResponseEntity.ok(memberDTO);
     }
 
     /**
@@ -69,10 +70,10 @@ public class MemberController {
      * @return MemberDTO with the highest bench stat
      */
     @GetMapping(path = "/member/highest/bench")
-    public MemberDTO getMemberWithHighestBench() {
+    public ResponseEntity<MemberDTO> getMemberWithHighestBench() {
         MemberEntity memberEntity = memberService.getMemberByHighestBench();
         MemberDTO memberDTO = memberMapper.convertToMemberDTO(memberEntity);
-        return memberDTO;
+        return ResponseEntity.ok(memberDTO);
     }
 
 
@@ -126,7 +127,7 @@ public class MemberController {
      * @return a list of {@link MemberDTO} objects representing avaliable members (members without coaches).
      * @throws IllegalStateException if no available members are found (thrown from the service layer).
      */
-    @GetMapping(path = "/avaliable/members")
+    @GetMapping(path = "/available/members")
     public List<MemberDTO> getAllAvaliableMembers(){
         List<MemberEntity> memberEntities = memberService.getAllAvaliableMembers();
         return memberEntities.stream()

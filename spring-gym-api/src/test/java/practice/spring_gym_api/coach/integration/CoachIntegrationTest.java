@@ -24,8 +24,7 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
@@ -50,12 +49,15 @@ public class CoachIntegrationTest {
     private WorkerRepository workerRepository;
 
     private MemberEntity fakeMember1;
-    private MemberEntity fakeMember2;
+    private CoachEntity fakeCoach1;
     private CoachEntity coachEntity;
     private CoachEntity coachEntity2;
+    private WorkerEntity workerEntity;
 
     private Long seedCoachId;
     private String seedCoachEmail;
+    private Long workerId;
+    private String workerCode;
 
     @BeforeEach
     void setup() {
@@ -66,6 +68,10 @@ public class CoachIntegrationTest {
 
         coachEntity2 = coachRepository.findByCoachCode("WKRCODE-4583");
         if(coachEntity2 == null) throw new RuntimeException("Seed coach not found");
+
+        workerEntity = workerRepository.findByWorkerCode("WKR-8372-LKJD");
+        workerId = workerEntity.getId();
+        workerCode = workerEntity.getWorkerCode();
 
 
         fakeMember1 = new MemberEntity(
@@ -79,16 +85,14 @@ public class CoachIntegrationTest {
                 250,
                 600
         );
-        fakeMember2 = new MemberEntity(
-                "Bob Smith",
-                LocalDate.of(1990, 11, 23),
-                "2022-09-05",
-                "bob.smith@example.com",
-                Roles.ROLE_MEMBER,
-                180,
-                220,
-                270,
-                670
+
+        fakeCoach1 = new CoachEntity(
+                "Billy Bob",
+                LocalDate.of(1970, 6, 15),
+                Roles.ROLE_COACH,
+                "bob@example.com",
+                List.of("UL6X", "FBEOD"),
+                "999-XXX-000"
         );
     }
 
@@ -222,6 +226,72 @@ public class CoachIntegrationTest {
 
         String responseBody = exception.getResponse().getContentAsString();
         assertTrue(responseBody.contains("Coach: " + coachEntity.getName() + " already has a role of ROLE_COACH"));
+    }
+
+    @Transactional
+    @Test
+    void registerNewCoach_SuccessfullyRegistersANewCoach_WhenCredentialsAreValid() throws Exception {
+        mvc.perform(post("/api/v1/gym-api/coach")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(fakeCoach1))
+                .header("x-worker-id", workerId)
+                .header("x-worker-code", workerCode));
+
+        assertTrue(coachRepository.existsByEmail(fakeCoach1.getEmail()));
+        assertTrue(fakeCoach1.getRole().equals(Roles.ROLE_COACH));
+    }
+
+    @Transactional
+    @Test
+    void registerNewCoach_ThrowsException_WhenEmailIsInvalid() throws Exception {
+        fakeCoach1.setEmail(coachEntity.getEmail());
+
+        var exception = mvc.perform(post("/api/v1/gym-api/coach")
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(fakeCoach1))
+                .header("x-worker-id", workerId)
+                .header("x-worker-code", workerCode))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String responseBody = exception.getResponse().getContentAsString();
+        assertTrue(responseBody.contains("Coach with an email of: " + fakeCoach1.getEmail() + " already exists"));
+
+        CoachEntity coach = coachRepository.findByCoachCode(fakeCoach1.getCoachCode());
+        assertThat(coach == null);
+    }
+
+    @Transactional
+    @Test
+    void deleteCoachById_SuccessfullyDeletesCoachAndFreesAllClients_WhenIdIsValid() throws Exception {
+        mvc.perform(delete("/api/v1/gym-api/coach/" + seedCoachId)
+                .header("x-worker-id", workerId)
+                .header("x-worker-code", workerCode));
+
+        assertFalse(coachRepository.existsByEmail(coachEntity.getEmail()));
+        for(MemberEntity member : coachEntity.getClients()) {
+            assertTrue(member.getCoachedBy() == null);
+        }
+    }
+
+    @Transactional
+    @Test
+    void deleteCoachById_ThrowsException_WhenIdIsntValid() throws Exception {
+       var exception =  mvc.perform(delete("/api/v1/gym-api/coach/" + 15L)
+                .header("x-worker-id", workerId)
+                .header("x-worker-code", workerCode))
+                .andExpect(status().isBadRequest())
+                .andReturn();
+
+        String responseBody = exception.getResponse().getContentAsString();
+        assertTrue(responseBody.contains("Coach with an id of: " + 15L + " doesnt exist"));
+        assertTrue(coachRepository.existsByEmail(coachEntity.getEmail()));
+
+        for(MemberEntity member : coachEntity.getClients()) {
+            assertTrue(member.getCoachedBy().equals(coachEntity));
+        }
     }
 }
 

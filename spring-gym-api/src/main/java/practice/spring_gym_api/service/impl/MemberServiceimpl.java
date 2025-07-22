@@ -14,10 +14,7 @@ import practice.spring_gym_api.repository.MemberRepository;
 import practice.spring_gym_api.repository.WorkerRepository;
 import practice.spring_gym_api.service.MemberService;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Service implementation for managing Member-related operations.
@@ -48,7 +45,7 @@ public class MemberServiceimpl implements MemberService {
     @Override
     public MemberEntity getMemberById(Long id) {
         return memberRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Member with an id of: " + id + " doesnt exist"));
     }
 
     /**
@@ -70,6 +67,8 @@ public class MemberServiceimpl implements MemberService {
     @Override
     public MemberEntity getMemberByHighestBench() {
         List<MemberEntity> listOfAllEntities = memberRepository.findAll();
+        if(listOfAllEntities.isEmpty()) throw new NoSuchElementException("There are currently no members registered");
+
         double maxBench = 0;
         MemberEntity entityWithMax = listOfAllEntities.getFirst();
 
@@ -90,6 +89,8 @@ public class MemberServiceimpl implements MemberService {
     @Override
     public MemberEntity getMemberByHighestSquat() {
         List<MemberEntity> listOfAllEntities = memberRepository.findAll();
+        if(listOfAllEntities.isEmpty()) throw new NoSuchElementException("There are currently no members registered");
+
         double maxSquat = 0;
         MemberEntity entityWithMax = listOfAllEntities.getFirst();
 
@@ -110,6 +111,8 @@ public class MemberServiceimpl implements MemberService {
     @Override
     public MemberEntity getMemberByHighestDeadlift() {
         List<MemberEntity> listOfAllEntities = memberRepository.findAll();
+        if(listOfAllEntities.isEmpty()) throw new NoSuchElementException("There are currently no members registered");
+
         double maxDeadlift = 0;
         MemberEntity entityWithMax = listOfAllEntities.getFirst();
 
@@ -130,6 +133,8 @@ public class MemberServiceimpl implements MemberService {
     @Override
     public MemberEntity getMemberByHighestTotal() {
         List<MemberEntity> listOfAllEntities = memberRepository.findAll();
+        if(listOfAllEntities.isEmpty()) throw new NoSuchElementException("There are currently no members registered");
+
         double maxTotal = 0;
         MemberEntity entityWithMax = listOfAllEntities.getFirst();
 
@@ -151,6 +156,7 @@ public class MemberServiceimpl implements MemberService {
     @Override
     public List<MemberEntity> getAllMembersAboveATotal(int total) {
         List<MemberEntity> listOfAllEntities = memberRepository.findAll();
+        if(listOfAllEntities.isEmpty()) throw new NoSuchElementException("There are currently no members registered");
         List<MemberEntity> listOfEntitiesToReturn = new ArrayList<>();
 
         for(MemberEntity memberEntity : listOfAllEntities){
@@ -170,6 +176,7 @@ public class MemberServiceimpl implements MemberService {
     @Override
     public List<MemberEntity> getAllAvaliableMembers() {
         List<MemberEntity> memberEntities = memberRepository.findAll();
+        if(memberEntities.isEmpty()) throw new NoSuchElementException("There are currently no members registered");
         List<MemberEntity> memberEntitiesToReturn = new ArrayList<>();
 
         for(MemberEntity memberEntity : memberEntities){
@@ -215,13 +222,13 @@ public class MemberServiceimpl implements MemberService {
     @Override
     public void replaceCoach(Long id, Long oldCoachesID, Long newCoachesID) {
         MemberEntity memberEntityToUpdate = memberRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Member with an id of: " + id + " doesnt exist"));
 
         CoachEntity oldCoachEntity = coachRepository.findById(oldCoachesID)
-                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + oldCoachesID + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + oldCoachesID + " doesnt exist"));
 
         CoachEntity newCoachEntity = coachRepository.findById(newCoachesID)
-                .orElseThrow(() -> new IllegalStateException("Coach with an id of: " + newCoachesID + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + newCoachesID + " doesnt exist"));
 
         memberEntityToUpdate.setCoachedBy(newCoachEntity);
         memberRepository.save(memberEntityToUpdate);
@@ -236,7 +243,7 @@ public class MemberServiceimpl implements MemberService {
     @Override
     public void removeCoachedBy(Long id) {
         MemberEntity memberEntityToUpdate = memberRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Member with an id of: " + id + " doesnt exist"));
         memberEntityToUpdate.setCoachedBy(null);
         memberRepository.save(memberEntityToUpdate);
     }
@@ -251,11 +258,14 @@ public class MemberServiceimpl implements MemberService {
      */
     @Override
     public void updateNameByIdAndEmail(Long id, String name, String email) {
+        if(name.isEmpty() || name == null) throw new IllegalArgumentException("Name cannot be null or empty");
+        if(email.isEmpty() || email == null) throw new IllegalArgumentException("Email cannot be null or empty");
+
         MemberEntity memberEntityToUpdateById = memberRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Member with an id of: " + id + " doesnt exist"));
 
         MemberEntity memberEntityToUpdateByEmail = memberRepository.findMemberByEmail(email);
-        if(memberEntityToUpdateByEmail == null)  throw new IllegalStateException("Member with an email of: " + email + " doesnt exist");
+        if(memberEntityToUpdateByEmail == null)  throw new NoSuchElementException("Member with an email of: " + email + " doesnt exist");
         if(!memberEntityToUpdateById.equals(memberEntityToUpdateByEmail)) throw new IllegalStateException("Member with an id of: " + id + " is not the same member that has an email of: " + email);
 
         if(name != null && name.length() > 0) {
@@ -282,12 +292,12 @@ public class MemberServiceimpl implements MemberService {
         for(Long id : ids){
             idsCopy.add(id);
             memberRepository.findById(id)
-                    .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
+                    .orElseThrow(() -> new NoSuchElementException("Member with an id of: " + id + " doesnt exist"));
         }
         Set<String> emailsCopy = new HashSet<>();
         for(String email : emails){
             emailsCopy.add(email);
-            if(!memberRepository.existsByEmail(email)) throw new IllegalStateException("Member with an email of: " + email + " doesnt exist");
+            if(!memberRepository.existsByEmail(email)) throw new NoSuchElementException("Member with an email of: " + email + " doesnt exist");
         }
 
         if(idsCopy.size() != ids.size()) throw new IllegalStateException("Duplicates detected inside of id list, each id must be unique");
@@ -297,10 +307,10 @@ public class MemberServiceimpl implements MemberService {
 
         for(int i =0; i < memberEntitiesToUpdate.size(); i++){
             if(names.get(i) == null || names.get(i).isEmpty() || names.get(i).length() < 0) {
-                throw new IllegalStateException("Name provided must be not-null and must not be an empty string");
+                throw new IllegalArgumentException("Name provided must be not-null and must not be an empty string");
             }
             if (!memberEntitiesToUpdate.get(i).equals(memberRepository.findMemberByEmail(emails.get(i)))) {
-                throw new IllegalStateException("Provided ID and email do not belong to the same member");
+                throw new IllegalArgumentException("Provided ID and email do not belong to the same member");
             }
             memberEntitiesToUpdate.get(i).setName(names.get(i));
         }
@@ -318,15 +328,17 @@ public class MemberServiceimpl implements MemberService {
      */
     @Override
     public void updateSBDStatus(Long id, String email, int bench, int squat, int deadlift) {
+        if(email.isEmpty() || email == null) throw new IllegalArgumentException("Email cannot be null or empty");
+
         MemberEntity entityToUpdateID = memberRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Member with an id of: " + id + " doesnt exist"));
 
         MemberEntity entityToUpdateEmail = memberRepository.findMemberByEmail(email);
-        if(entityToUpdateEmail == null) throw new IllegalStateException("Member with an email of: " + email + " doesnt exist");
+        if(entityToUpdateEmail == null) throw new NoSuchElementException("Member with an email of: " + email + " doesnt exist");
         if(!entityToUpdateID.equals(entityToUpdateEmail)) throw new IllegalStateException("Member with an id of: " + id + " is not the same member that has an email of: " + email);
 
         if(bench < 1 || squat < 1 || deadlift < 1){
-            throw new IllegalStateException("Lifts cannot be negative or 0");
+            throw new IllegalArgumentException("Lifts cannot be negative or 0");
         } else {
             int total = bench + squat + deadlift;
             entityToUpdateID.setBench(bench);
@@ -347,10 +359,12 @@ public class MemberServiceimpl implements MemberService {
     @Override
     public void updateCompleteMember(Long id, String email, MemberEntity memberEntity) {
         MemberEntity entityToUpdate = memberRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Member with an id of: " + id + " doesnt exist"));
+
+        if(email.isEmpty() || email == null) throw new IllegalArgumentException("Email cannot be null or empty");
 
         MemberEntity entityToUpdateEmail = memberRepository.findMemberByEmail(email);
-        if(entityToUpdateEmail == null) throw new IllegalStateException("Member with an email of: " + email + " doesnt exist");
+        if(entityToUpdateEmail == null) throw new NoSuchElementException("Member with an email of: " + email + " doesnt exist");
         if(!entityToUpdate.equals(entityToUpdateEmail)) throw new IllegalStateException("Member with an id of: " + id + " is not the same member that has an email of: " + email);
 
         if(!entityToUpdate.getEmail().equals(memberEntity.getEmail())) {
@@ -384,11 +398,13 @@ public class MemberServiceimpl implements MemberService {
     @Override
     public void updatedRoleOfAMemberByIdAndEmail(Long id, String email, String role) {
         MemberEntity memberEntityById = memberRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Member with an id of: " + id + " doesnt exist"));
+
+        if(email.isEmpty() || email == null) throw new IllegalArgumentException("Email cannot be null or empty");
         MemberEntity memberEntityByEmail = memberRepository.findMemberByEmail(email);
 
         // Validation of credentials
-        if(memberEntityByEmail == null) throw new IllegalStateException("Member with an email of: " + email + " doesnt exist");
+        if(memberEntityByEmail == null) throw new NoSuchElementException("Member with an email of: " + email + " doesnt exist");
         if(!memberEntityById.equals(memberEntityByEmail)) throw new IllegalStateException("Member with an id of: " + id + " is not the same member that has an email of: " + email);
 
         // Checking which role to update member to
@@ -405,7 +421,7 @@ public class MemberServiceimpl implements MemberService {
             deleteMemberById(id);
             workerRepository.save(workerEntityFromMember);
         }
-        else throw new IllegalStateException("Role must be either ROLE_COACH, ROLE_WORKER, or ROLE_MEMBER");
+        else throw new IllegalArgumentException("Role must be either ROLE_COACH, ROLE_WORKER, or ROLE_MEMBER");
     }
 
     /**
@@ -417,7 +433,7 @@ public class MemberServiceimpl implements MemberService {
     @Override
     public void deleteMemberById(Long id) {
        MemberEntity memberEntity = memberRepository.findById(id)
-                .orElseThrow(() -> new IllegalStateException("Member with an id of: " + id + " doesnt exist"));
+                .orElseThrow(() -> new NoSuchElementException("Member with an id of: " + id + " doesnt exist"));
 
        memberEntity.setCoachedBy(null);
 
