@@ -44,6 +44,12 @@ public class MemberServiceGETUnitTest {
     private String name;
     private String email;
 
+    private String idMessage;
+    private String invalidEmail;
+    private String emailExistsMessage;
+    private String wrongEmail;
+    private String noMembers;
+
 
     @BeforeEach
     void setup() {
@@ -51,38 +57,158 @@ public class MemberServiceGETUnitTest {
         memberEntity2 = MemberTestData.createSeedMember2();
         memberDTO1 = MemberDTOTestData.createdSeedMemberDTO1();
         memberDTO2 = MemberDTOTestData.createdSeedMemberDTO2();
-
         coachEntity1 = CoachTestData.createSeedCoach1();
 
         name = memberEntity1.getName();
         email = memberEntity1.getEmail();
+
+        idMessage = "Member with an id of: " + 1L + " doesnt exist";
+        emailExistsMessage = "Member with an email of: " + memberEntity1.getEmail() + " already exists";
+        invalidEmail = "Email cannot be null or empty";
+        wrongEmail = "Member with an email of: " + email + " doesnt exist";
+        noMembers = "There are currently no members registered";
     }
 
     @Test
-    void getMemberById_SuccessfullyReturnsMemberEntity_WhenIdIsValid() throws Exception {
+    void getMemberById_SuccessfullyReturnsMemberEntity_WhenIdIsValid() {
         when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(memberEntity1));
 
-        MemberEntity fromService = memberService.getMemberById(1L);
+        MemberEntity member = memberService.getMemberById(1L);
+        assertTrue(member.equals(memberEntity1));
 
-        MemberEntity copy = new MemberEntity(
-                fromService.getName(), fromService.getDateOfBirth(),
-                fromService.getMembershipDate(), fromService.getEmail(),
-                fromService.getRole(), fromService.getBench(),
-                fromService.getSquat(), fromService.getDeadlift(),
-                fromService.getTotal()
-        );
-
-        System.out.println("Original: " + fromService);
-        System.out.println("Copy: " + copy);
-
-        System.out.println("== comparison: " + (fromService == copy));
-        System.out.println(".equals() comparison: " + fromService.equals(copy));
+        verify(memberRepository, times(1)).findById(1L);
     }
 
     @Test
-    void getMemberById_ThrowsException_WhenIdIsNotValid() throws Exception {
+    void getMemberById_ThrowsException_WhenIdIsNotValid() {
+        when(memberRepository.findById(1L)).thenReturn(Optional.empty());
 
+        var exception = assertThrows(NoSuchElementException.class, () -> memberService.getMemberById(1L));
+        assertEquals(idMessage, exception.getMessage());
+
+        verify(memberRepository, times(1)).findById(1L);
     }
 
+    @Test
+    void getMemberByHighestBench_SuccessfullyReturnsMember_WhenMembersAreAvalaible() {
+        when(memberRepository.findAll()).thenReturn(List.of(memberEntity1, memberEntity2));
 
+        MemberEntity memberReturned = memberService.getMemberByHighestBench();
+        assertTrue(memberReturned.equals(memberEntity1));
+
+        verify(memberRepository, times(1)).findAll();
+    }
+
+    @Test
+    void getMemberByHighestBench_ThrowsException_WhenNoMembersAreAvaliable() {
+        when(memberRepository.findAll()).thenReturn(new ArrayList<>());
+
+        var exception = assertThrows(NoSuchElementException.class, () -> memberService.getMemberByHighestBench());
+        assertEquals(noMembers, exception.getMessage());
+
+        verify(memberRepository, times(1)).findAll();
+    }
+
+    @Test
+    void getMemberByHighestSquat_SuccessfullyReturnsMember_WhenMembersAreAvalaible() {
+        when(memberRepository.findAll()).thenReturn(List.of(memberEntity1, memberEntity2));
+
+        MemberEntity memberReturned = memberService.getMemberByHighestSquat();
+        assertTrue(memberReturned.equals(memberEntity1));
+
+        verify(memberRepository, times(1)).findAll();
+    }
+
+    @Test
+    void getMemberByHighestSquat_ThrowsException_WhenNoMembersAreAvaliable() {
+        when(memberRepository.findAll()).thenReturn(new ArrayList<>());
+
+        var exception = assertThrows(NoSuchElementException.class, () -> memberService.getMemberByHighestSquat());
+        assertEquals(noMembers, exception.getMessage());
+
+        verify(memberRepository, times(1)).findAll();
+    }
+
+    @Test
+    void getMemberByHighestDeadlift_SuccessfullyReturnsMember_WhenMembersAreAvalaible() {
+        when(memberRepository.findAll()).thenReturn(List.of(memberEntity1, memberEntity2));
+
+        MemberEntity memberReturned = memberService.getMemberByHighestDeadlift();
+        assertTrue(memberReturned.equals(memberEntity1));
+
+        verify(memberRepository, times(1)).findAll();
+    }
+
+    @Test
+    void getMemberByHighestDeadlift_ThrowsException_WhenNoMembersAreAvaliable(){
+        when(memberRepository.findAll()).thenReturn(new ArrayList<>());
+
+        var exception = assertThrows(NoSuchElementException.class, () -> memberService.getMemberByHighestDeadlift());
+        assertEquals(noMembers, exception.getMessage());
+
+        verify(memberRepository, times(1)).findAll();
+    }
+
+    @Test
+    void getMemberByHighestTotal_SuccessfullyReturnsMember_WhenMembersAreAvalaible() {
+        when(memberRepository.findAll()).thenReturn(List.of(memberEntity1, memberEntity2));
+
+        MemberEntity memberReturned = memberService.getMemberByHighestTotal();
+        assertTrue(memberReturned.equals(memberEntity1));
+
+        verify(memberRepository, times(1)).findAll();
+    }
+
+    @Test
+    void getMemberByHighestTotal_ThrowsException_WhenNoMembersAreAvaliable() {
+        when(memberRepository.findAll()).thenReturn(new ArrayList<>());
+
+        var exception = assertThrows(NoSuchElementException.class, () -> memberService.getMemberByHighestTotal());
+        assertEquals(noMembers, exception.getMessage());
+
+        verify(memberRepository, times(1)).findAll();
+    }
+
+    @Test
+    void getAllMembersAboveATotal_SucessfullyReturnsMembers_WhenMembersAreAvaliable() {
+        when(memberRepository.findAll()).thenReturn(List.of(memberEntity1, memberEntity2));
+
+        List<MemberEntity> membersReturned = memberService.getAllMembersAboveATotal(200);
+        assertThat(membersReturned).hasSize(2);
+
+        for(MemberEntity member : membersReturned) {
+            assertTrue(member.getTotal() > 200);
+        }
+        verify(memberRepository, times(1)).findAll();
+    }
+
+    @Test
+    void getAllMembersAboveATotal_ThrowsException_WhenMembersArentAvaliable() {
+        when(memberRepository.findAll()).thenReturn(new ArrayList<>());
+
+        var exception = assertThrows(NoSuchElementException.class, () -> memberService.getMemberByHighestTotal());
+        assertEquals(noMembers, exception.getMessage());
+
+        verify(memberRepository, times(1)).findAll();
+    }
+
+    @Test
+    void getAllAvaliableMembers_SuccessfullyGetsAllAvaliableMembers_WhenMembersAreAvaliable() {
+        when(memberRepository.findAll()).thenReturn(List.of(memberEntity1, memberEntity2));
+
+        List<MemberEntity> membersReturned = memberService.getAllAvaliableMembers();
+        assertThat(membersReturned).hasSize(0);
+
+        verify(memberRepository, times(1)).findAll();
+    }
+
+    @Test
+    void getAllAvaliableMembers_ThrowsException_WhenMembersArentAvaliable() {
+        when(memberRepository.findAll()).thenReturn(new ArrayList<>());
+
+        var exception = assertThrows(NoSuchElementException.class, () -> memberService.getAllAvaliableMembers());
+        assertEquals(noMembers, exception.getMessage());
+
+        verify(memberRepository, times(1)).findAll();
+    }
 }

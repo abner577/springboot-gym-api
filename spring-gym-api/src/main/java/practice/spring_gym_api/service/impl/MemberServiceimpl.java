@@ -268,10 +268,8 @@ public class MemberServiceimpl implements MemberService {
         if(memberEntityToUpdateByEmail == null)  throw new NoSuchElementException("Member with an email of: " + email + " doesnt exist");
         if(!memberEntityToUpdateById.equals(memberEntityToUpdateByEmail)) throw new IllegalStateException("Member with an id of: " + id + " is not the same member that has an email of: " + email);
 
-        if(name != null && name.length() > 0) {
             memberEntityToUpdateById.setName(name);
             memberRepository.save(memberEntityToUpdateById);
-        } else throw new IllegalStateException("Name provided must be not-null and must not be an empty string");
     }
 
     /**
