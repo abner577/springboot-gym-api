@@ -304,7 +304,7 @@ public class MemberServiceimpl implements MemberService {
         List<MemberEntity> memberEntitiesToUpdate = memberRepository.findAllById(ids);
 
         for(int i =0; i < memberEntitiesToUpdate.size(); i++){
-            if(names.get(i) == null || names.get(i).isEmpty() || names.get(i).length() < 0) {
+            if(names.get(i) == null || names.get(i).isEmpty() || names.get(i).length() == 0) {
                 throw new IllegalArgumentException("Name provided must be not-null and must not be an empty string");
             }
             if (!memberEntitiesToUpdate.get(i).equals(memberRepository.findMemberByEmail(emails.get(i)))) {
@@ -335,8 +335,8 @@ public class MemberServiceimpl implements MemberService {
         if(entityToUpdateEmail == null) throw new NoSuchElementException("Member with an email of: " + email + " doesnt exist");
         if(!entityToUpdateID.equals(entityToUpdateEmail)) throw new IllegalStateException("Member with an id of: " + id + " is not the same member that has an email of: " + email);
 
-        if(bench < 1 || squat < 1 || deadlift < 1){
-            throw new IllegalArgumentException("Lifts cannot be negative or 0");
+        if(bench < 0 || squat < 0 || deadlift < 0){
+            throw new IllegalArgumentException("Lifts cannot be negative");
         } else {
             int total = bench + squat + deadlift;
             entityToUpdateID.setBench(bench);
@@ -366,7 +366,7 @@ public class MemberServiceimpl implements MemberService {
         if(!entityToUpdate.equals(entityToUpdateEmail)) throw new IllegalStateException("Member with an id of: " + id + " is not the same member that has an email of: " + email);
 
         if(!entityToUpdate.getEmail().equals(memberEntity.getEmail())) {
-            MemberEntity memberEntity1 = memberRepository.findMemberByEmail(email);
+            MemberEntity memberEntity1 = memberRepository.findMemberByEmail(memberEntity.getEmail());
             if(memberEntity1 != null) throw new IllegalStateException("The updated email that you are trying to give to " + memberEntity.getName() + " is already registered under another member");
         }
 

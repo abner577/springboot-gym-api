@@ -9,17 +9,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import practice.spring_gym_api.dto.MemberDTO;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
-import practice.spring_gym_api.entity.enums.Roles;
 import practice.spring_gym_api.repository.CoachRepository;
 import practice.spring_gym_api.repository.MemberRepository;
-import practice.spring_gym_api.service.impl.CoachServiceimpl;
 import practice.spring_gym_api.service.impl.MemberServiceimpl;
 import practice.spring_gym_api.testdata.dto.MemberDTOTestData;
 import practice.spring_gym_api.testdata.entity.CoachTestData;
 import practice.spring_gym_api.testdata.entity.MemberTestData;
-import practice.spring_gym_api.testdata.invalidTestData.InvalidCoachEntity;
 
-import java.time.LocalDate;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -49,9 +45,13 @@ public class MemberServicePATCHUnitTest {
 
     private String idMessage;
     private String invalidEmail;
-    private String emailExistsMessage;
-    private String wrongEmail;
+    private String emailAlreadyExistsMessage;
+    private String emailDoesntExistMessage;
     private String differentMembers;
+
+    private List<Long> ids;
+    private List<String> names;
+    private List<String> emails;
 
 
     @BeforeEach
@@ -66,10 +66,17 @@ public class MemberServicePATCHUnitTest {
         email = memberEntity1.getEmail();
 
         idMessage = "Member with an id of: " + 1L + " doesnt exist";
-        emailExistsMessage = "Member with an email of: " + memberEntity1.getEmail() + " already exists";
+        emailAlreadyExistsMessage = "Member with an email of: " + memberEntity1.getEmail() + " already exists";
         invalidEmail = "Email cannot be null or empty";
-        wrongEmail = "Member with an email of: " + email + " doesnt exist";
+        emailDoesntExistMessage = "Member with an email of: " + email + " doesnt exist";
         differentMembers = "Member with an id of: " + 1L + " is not the same member that has an email of: " + email;
+
+        ids = new ArrayList<>();
+        ids.add(1L);
+        names = new ArrayList<>();
+        names.add("a");
+        emails = new ArrayList<>();
+        emails.add("@.com");
     }
 
     @Test
@@ -193,7 +200,7 @@ public class MemberServicePATCHUnitTest {
 
         var exception = assertThrows(NoSuchElementException.class, () ->
                 memberService.updateNameByIdAndEmail(1L, name, email));
-        assertEquals(wrongEmail, exception.getMessage());
+        assertEquals(emailDoesntExistMessage, exception.getMessage());
 
         verify(memberRepository, times(1)).findById(1L);
         verify(memberRepository, times(1)).findMemberByEmail(email);
@@ -216,37 +223,263 @@ public class MemberServicePATCHUnitTest {
 
     @Test
     void updateMultipleMembersNameByIdAndEmail_ThrowsException_WhenSizeOfListsArentEqual() {
+        names.add("b");
+        var exception = assertThrows(IllegalStateException.class, () ->
+                memberService.updateMultipleMembersNameByIdAndEmail(ids, names, emails));
+        assertEquals("Size of names, id's, and emails lists must be equal", exception.getMessage());
 
+        verifyNoInteractions(memberRepository);
     }
 
     @Test
     void updateMultipleMembersNameByIdAndEmail_ThrowsException_WhenIdIsInvalid() {
+        when(memberRepository.findById(1L)).thenReturn(Optional.empty());
 
+        var exception = assertThrows(NoSuchElementException.class, () ->
+                memberService.updateMultipleMembersNameByIdAndEmail(ids, names, emails));
+        assertEquals(idMessage, exception.getMessage());
+
+        verify(memberRepository, times(1)).findById(1L);
+        verifyNoMoreInteractions(memberRepository);
     }
 
     @Test
     void updateMultipleMembersNameByIdAndEmail_ThrowsException_WhenEmailIsInvalid() {
+        when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(memberEntity1));
+        when(memberRepository.existsByEmail(email)).thenReturn(false);
 
+        var exception = assertThrows(NoSuchElementException.class, () ->
+                memberService.updateMultipleMembersNameByIdAndEmail(ids, names, List.of(email)));
+        assertEquals(emailDoesntExistMessage, exception.getMessage());
+
+        verify(memberRepository, times(1)).findById(1L);
+        verify(memberRepository, times(1)).existsByEmail(email);
+        verifyNoMoreInteractions(memberRepository);
     }
 
     @Test
     void updateMultipleMembersNameByIdAndEmail_ThrowsException_WhenDuplicateIdsInIdList() {
+        ids.add(1L);
+        emails.add("123@.com");
+        names.add("bob");
 
+        when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(memberEntity1));
+        when(memberRepository.existsByEmail(emails.get(0))).thenReturn(true);
+        when(memberRepository.existsByEmail(emails.get(1))).thenReturn(true);
+
+        var exception = assertThrows(IllegalStateException.class, () ->
+                memberService.updateMultipleMembersNameByIdAndEmail(ids, names, emails));
+        assertEquals("Duplicates detected inside of id list, each id must be unique",
+                exception.getMessage());
+
+        verify(memberRepository, times(2)).findById(1L);
+        verify(memberRepository, times(1)).existsByEmail(emails.get(0));
+        verify(memberRepository, times(1)).existsByEmail(emails.get(1));
+        verifyNoMoreInteractions(memberRepository);
     }
 
     @Test
     void updateMultipleMembersNameByIdAndEmail_ThrowsException_WhenDuplicateEmailsInEmailList() {
+        ids.add(2L);
+        emails.add("@.com");
+        names.add("bob");
 
+        when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(memberEntity1));
+        when(memberRepository.findById(2L)).thenReturn(Optional.ofNullable(memberEntity2));
+        when(memberRepository.existsByEmail(emails.get(0))).thenReturn(true);
+        when(memberRepository.existsByEmail(emails.get(1))).thenReturn(true);
+
+        var exception = assertThrows(IllegalStateException.class, () ->
+                memberService.updateMultipleMembersNameByIdAndEmail(ids, names, emails));
+        assertEquals("Duplicates detected inside of email list, each email must be unique",
+                exception.getMessage());
+
+        verify(memberRepository, times(1)).findById(1L);
+        verify(memberRepository, times(1)).findById(2L);
+        verify(memberRepository, times(2)).existsByEmail(emails.get(0));
+        verifyNoMoreInteractions(memberRepository);
     }
 
     @Test
     void updateMultipleMembersNameByIdAndEmail_ThrowsException_WhenNameIsInvalid() {
+        ids.add(2L);
+        emails.add("@123.com");
+        names.removeFirst();
+        names.add("");
+        names.add("");
 
+        when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(memberEntity1));
+        when(memberRepository.findById(2L)).thenReturn(Optional.ofNullable(memberEntity2));
+        when(memberRepository.existsByEmail(emails.get(0))).thenReturn(true);
+        when(memberRepository.existsByEmail(emails.get(1))).thenReturn(true);
+        when(memberRepository.findAllById(ids)).thenReturn(List.of(memberEntity1, memberEntity2));
+
+        System.out.println(names);
+        var exception = assertThrows(IllegalArgumentException.class, () ->
+                memberService.updateMultipleMembersNameByIdAndEmail(ids, names, emails));
+        assertEquals("Name provided must be not-null and must not be an empty string",
+                exception.getMessage());
+
+        verify(memberRepository, times(1)).findById(1L);
+        verify(memberRepository, times(1)).findById(2L);
+        verify(memberRepository, times(1)).existsByEmail(emails.get(0));
+        verify(memberRepository, times(1)).existsByEmail(emails.get(1));
+        verify(memberRepository, times(1)).findAllById(ids);
+        verifyNoMoreInteractions(memberRepository);
     }
 
     @Test
-    void updateMultipleMembersNameByIdAndEmail_SuccessfullyUpdatesNames_WhenIdAndEmailDontBelongToSameMember() {
+    void updateSBDStatus_SuccessfullyUpdatesStats_WhenCredentialsAreValid() {
+        when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(memberEntity1));
+        when(memberRepository.findMemberByEmail(email)).thenReturn(memberEntity1);
 
+        memberService.updateSBDStatus(1L, email, 325, 425, 550);
+        assertThat(memberEntity1.getBench() == 325 && memberEntity1.getSquat() == 425
+        && memberEntity1.getDeadlift() == 550 && memberEntity1.getTotal() == 325 + 425 + 550);
+
+        verify(memberRepository, times(1)).findById(1L);
+        verify(memberRepository, times(1)).findMemberByEmail(email);
+        verify(memberRepository, times(1)).save(memberEntity1);
     }
+
+    @Test
+    void updateSBDStatus_ThrowsException_WhenEmailIsInvalid() {
+        var exception = assertThrows(IllegalArgumentException.class, () -> memberService.updateSBDStatus(
+                1L, "", 1,1,1
+        ));
+        assertEquals(invalidEmail, exception.getMessage());
+        verifyNoInteractions(memberRepository);
+    }
+
+    @Test
+    void updateSBDStatus_ThrowsException_WhenIdIsInvalid() {
+        when(memberRepository.findById(1L)).thenReturn(Optional.empty());
+
+        var exception = assertThrows(NoSuchElementException.class, () -> memberService.updateSBDStatus(
+                1L, "asd", 1,1,1
+        ));
+        assertEquals(idMessage, exception.getMessage());
+
+        verify(memberRepository, times(1)).findById(1L);
+        verifyNoMoreInteractions(memberRepository);
+    }
+
+    @Test
+    void updateSBDStatus_ThrowsException_WhenEmailDoesntExist() {
+        when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(memberEntity1));
+        when(memberRepository.findMemberByEmail(email)).thenReturn(null);
+
+        var exception = assertThrows(NoSuchElementException.class, () -> memberService.updateSBDStatus(
+                1L, email, 1,1,1
+        ));
+        assertEquals(emailDoesntExistMessage, exception.getMessage());
+
+        verify(memberRepository, times(1)).findById(1L);
+        verify(memberRepository, times(1)).findMemberByEmail(email);
+        verifyNoMoreInteractions(memberRepository);
+    }
+
+    @Test
+    void updateSBDStatus_ThrowsException_WhenEmailAndIdDontBelongToSameMember() {
+        when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(memberEntity1));
+        when(memberRepository.findMemberByEmail(email)).thenReturn(memberEntity2);
+
+        var exception = assertThrows(IllegalStateException.class, () -> memberService.updateSBDStatus(
+                1L, email, 1,1,1
+        ));
+        assertEquals(differentMembers, exception.getMessage());
+        verify(memberRepository, times(1)).findById(1L);
+        verify(memberRepository, times(1)).findMemberByEmail(email);
+        verifyNoMoreInteractions(memberRepository);
+    }
+
+    @Test
+    void updateCompleteMember_SuccessfullyUpdatesMember_WhenCredentialsAreValid() {
+        when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(memberEntity1));
+        when(memberRepository.findMemberByEmail(email)).thenReturn(memberEntity1);
+        when(memberRepository.findMemberByEmail(memberEntity2.getEmail())).thenReturn(null);
+
+        memberService.updateCompleteMember(1L, email, memberEntity2);
+
+        assertThat(memberEntity1.equals(memberEntity2));
+
+        verify(memberRepository, times(1)).findById(1L);
+        verify(memberRepository, times(1)).findMemberByEmail(email);
+        verify(memberRepository, times(1)).findMemberByEmail(memberEntity2.getEmail());
+        verify(memberRepository, times(1)).save(memberEntity1);
+    }
+
+    @Test
+    void updateCompleteMember_ThrowsException_WhenIdIsInvalid() {
+        when(memberRepository.findById(1L)).thenReturn(Optional.empty());
+
+        var exception = assertThrows(NoSuchElementException.class, () ->
+                memberService.updateCompleteMember(1L, email, memberEntity2));
+        assertEquals(idMessage, exception.getMessage());
+
+        verify(memberRepository, times(1)).findById(1L);
+        verifyNoMoreInteractions(memberRepository);
+    }
+
+    @Test
+    void updateCompleteMember_ThrowsException_WhenEmailIsInvalid() {
+        when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(memberEntity1));
+
+        var exception = assertThrows(IllegalArgumentException.class, () ->
+                memberService.updateCompleteMember(1L, "", memberEntity2));
+        assertEquals(invalidEmail, exception.getMessage());
+
+        verify(memberRepository, times(1)).findById(1L);
+        verifyNoMoreInteractions(memberRepository);
+    }
+
+    @Test
+    void updateCompleteMember_ThrowsException_WhenEmailDoesntExist() {
+        when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(memberEntity1));
+        when(memberRepository.findMemberByEmail(email)).thenReturn(null);
+
+        var exception = assertThrows(NoSuchElementException.class, () ->
+                memberService.updateCompleteMember(1L, email, memberEntity2));
+        assertEquals(emailDoesntExistMessage, exception.getMessage());
+
+        verify(memberRepository, times(1)).findById(1L);
+        verify(memberRepository, times(1)).findMemberByEmail(email);
+        verifyNoMoreInteractions(memberRepository);
+    }
+
+    @Test
+    void updateCompleteMember_ThrowsException_WhenEmailAndIdDontBelongToSameMember() {
+        when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(memberEntity1));
+        when(memberRepository.findMemberByEmail(email)).thenReturn(memberEntity2);
+
+        var exception = assertThrows(IllegalStateException.class, () ->
+                memberService.updateCompleteMember(1L, email, memberEntity2));
+        assertEquals(differentMembers, exception.getMessage());
+
+        verify(memberRepository, times(1)).findById(1L);
+        verify(memberRepository, times(1)).findMemberByEmail(email);
+        verifyNoMoreInteractions(memberRepository);
+    }
+
+    @Test
+    void updateCompleteMember_ThrowsException_WhenNewEmailAlreadyTaken() {
+       MemberEntity memberEntity3 = memberEntity2;
+
+        when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(memberEntity1));
+        when(memberRepository.findMemberByEmail(email)).thenReturn(memberEntity1);
+        when(memberRepository.findMemberByEmail(memberEntity3.getEmail())).thenReturn(memberEntity1);
+
+        var exception = assertThrows(IllegalStateException.class, () ->
+                memberService.updateCompleteMember(1L, email, memberEntity3));
+        assertEquals("The updated email that you are trying to give to " + memberEntity3.getName()
+                + " is already registered under another member", exception.getMessage());
+
+        verify(memberRepository, times(1)).findById(1L);
+        verify(memberRepository, times(1)).findMemberByEmail(email);
+        verify(memberRepository, times(1)).findMemberByEmail(memberEntity3.getEmail());
+        verifyNoMoreInteractions(memberRepository);
+    }
+
+    //Error tests for update Role
 
 }
