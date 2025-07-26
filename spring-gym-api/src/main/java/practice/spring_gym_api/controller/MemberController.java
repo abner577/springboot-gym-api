@@ -268,8 +268,8 @@ public class MemberController {
      * Deletes all members whose total (bench + squat + deadlift) is below the specified value.
      * @param total The minimum total threshold
      */
-    @DeleteMapping(path = "delete/all/below")
-    public void deleteAllMembersBelowATotal(@RequestParam int total){
+    @DeleteMapping(path = "delete/all/below/{total}")
+    public void deleteAllMembersBelowATotal(@PathVariable("total") int total){
         memberService.deleteMembersBelowATotal(total);
     }
 }

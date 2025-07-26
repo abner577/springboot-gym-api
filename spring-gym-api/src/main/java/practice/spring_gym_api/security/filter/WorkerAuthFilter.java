@@ -47,7 +47,7 @@ public class WorkerAuthFilter extends OncePerRequestFilter {
             response.setStatus(HttpStatus.FORBIDDEN.value());
             response.setCharacterEncoding("UTF-8");
             response.setHeader("Content-Type", "text/plain;charset=UTF-8");
-            response.getWriter().write("IMust include header 'x-worker-code'");
+            response.getWriter().write("Must include header 'x-worker-code'");
             return;
         }
 

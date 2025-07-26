@@ -32,11 +32,13 @@ public class MemberServiceDELETEUnitTest {
 
     private MemberEntity memberEntity1;
     private MemberEntity memberEntity2;
+    private CoachEntity coachEntity1;
 
     @BeforeEach
     void setUp() {
         memberEntity1 = MemberTestData.createSeedMember1();
         memberEntity2 = MemberTestData.createSeedMember2();
+        coachEntity1 = CoachTestData.createSeedCoach1();
     }
 
     @Test
@@ -70,17 +72,24 @@ public class MemberServiceDELETEUnitTest {
         when(memberRepository.findAll()).thenReturn(list);
 
         System.out.println(memberEntity1.getCoachedBy().getName());
-        memberService.deleteMembersBelowATotal(100);
-        System.out.println(memberEntity1.getCoachedBy().getName());
+        memberService.deleteMembersBelowATotal(10000);
 
-        assertTrue(memberEntity1.getCoachedBy() == null && memberEntity2.getCoachedBy() == null);
+        assertTrue(memberEntity1.getCoachedBy() == null);
         assertFalse(memberRepository.existsByEmail(memberEntity1.getEmail()));
         assertFalse(memberRepository.existsByEmail(memberEntity2.getEmail()));
 
 
         verify(memberRepository, times(1)).findAll();
-        verify(memberRepository, times(1)).saveAll(any());
-        verify(memberRepository, times(1)).deleteAll(any());
+        verify(memberRepository, times(1)).saveAll(list);
+        verify(memberRepository, times(1)).deleteAll(list);
+    }
+
+    @Test
+    void deleteMembersBelowATotal_ThrowsException_WHenTotalIsNegative() {
+        var exception = assertThrows(IllegalArgumentException.class, () -> memberService.deleteMembersBelowATotal(-100));
+        assertEquals("Total cannot be negative", exception.getMessage());
+
+        verifyNoInteractions(memberRepository);
     }
 
 }

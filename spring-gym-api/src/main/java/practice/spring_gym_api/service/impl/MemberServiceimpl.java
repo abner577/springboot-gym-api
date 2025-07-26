@@ -446,11 +446,13 @@ public class MemberServiceimpl implements MemberService {
      */
     @Override
     public void deleteMembersBelowATotal(int total) {
+        if(total < 0) throw new IllegalArgumentException("Total cannot be negative");
+
         List<MemberEntity> memberEntities = memberRepository.findAll();
         List<MemberEntity> memberEntitiesToDelete = new ArrayList<>();
 
         for(MemberEntity memberEntity : memberEntities){
-            if(memberEntity.getTotal() < total) {
+            if(memberEntity.getTotal() <= total) {
                 memberEntitiesToDelete.add(memberEntity);
                 memberEntity.setCoachedBy(null);
             }
