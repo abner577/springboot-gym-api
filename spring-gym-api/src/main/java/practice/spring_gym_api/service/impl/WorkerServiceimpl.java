@@ -54,7 +54,7 @@ public class WorkerServiceimpl implements WorkerService {
         WorkerEntity workerEntity = workerRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Worker with an id of: " + id + " doesnt exist"));
 
-        if(code == null || code.isEmpty()) throw new IllegalArgumentException("Coach cannot be null or empty");
+        if(code == null || code.isEmpty()) throw new IllegalArgumentException("Code cannot be null or empty");
 
         WorkerEntity workerEntity1 = workerRepository.findByWorkerCode(code);
         if(workerEntity1 == null) throw new NoSuchElementException("Worker with a worker code of: " + code + " doesnt exist");
@@ -100,7 +100,7 @@ public class WorkerServiceimpl implements WorkerService {
         if(!workerEntityById.equals(workerEntityByEmail)) throw new IllegalStateException("Worker with an email of: " + workerEntityById.getEmail() + " is not the same worker with an id of: " + workerEntityById.getId());
 
 
-        if(role.equalsIgnoreCase("ROLE_WORKER ")) throw new IllegalStateException("Coach: " + workerEntityById.getName() + " already has a role of ROLE_WORKER");
+        if(role.equalsIgnoreCase("ROLE_WORKER")) throw new IllegalStateException("Coach: " + workerEntityById.getName() + " already has a role of ROLE_WORKER");
         else if (role.equalsIgnoreCase("ROLE_MEMBER")) {
             MemberEntity memberEntity = workerMapper.covertWorkerToMemberEntity(workerEntityById);
 
@@ -162,16 +162,16 @@ public class WorkerServiceimpl implements WorkerService {
     public void updateWorkerCodeById(Long id, String email, String newCode) {
         WorkerEntity workerEntity = workerRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Worker with an id of: " + id + " doesnt exist"));
-        WorkerEntity workerEntity1 = workerRepository.findByEmail(email);
 
         if(email == null || email.isEmpty()) throw new IllegalArgumentException("Email cannot be null or empty");
         if(newCode == null || newCode.isEmpty()) throw new IllegalArgumentException("Worker code cannot be null or empty");
 
+        WorkerEntity workerEntity1 = workerRepository.findByEmail(email);
         if(workerEntity1 == null) throw new NoSuchElementException("Worker with an email of: " + workerEntity.getEmail() + " doesnt exist");
         if(!workerEntity.equals(workerEntity1)) throw new IllegalStateException("Worker with an email of: " + workerEntity.getEmail() + " is not the same worker with an id of: " + workerEntity.getId());
 
         if(workerRepository.findByWorkerCode(newCode) != null) {
-            throw new IllegalStateException("The updated worker code that you are trying to give to " + workerEntity.getName() + " is already registered under another worker");
+            throw new IllegalStateException("The updated worker code that you are trying to give to: " + workerEntity.getName() + " is already registered under another worker");
         }
 
         workerEntity.setWorkerCode(newCode);

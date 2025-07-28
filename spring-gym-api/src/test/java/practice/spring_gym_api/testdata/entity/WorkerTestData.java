@@ -9,6 +9,7 @@ public class WorkerTestData {
 
     public static WorkerEntity createSeedWorker1(){
         WorkerEntity worker1 = new WorkerEntity(
+                1L,
                 "Rachel Thomas",
                 LocalDate.of(1985, 2, 14),
                 Roles.ROLE_WORKER,
@@ -20,6 +21,7 @@ public class WorkerTestData {
 
     public static WorkerEntity createSeedWorker2(){
        WorkerEntity worker2 = new WorkerEntity(
+               2L,
                "James Wu",
                LocalDate.of(1990, 10, 30),
                Roles.ROLE_WORKER,

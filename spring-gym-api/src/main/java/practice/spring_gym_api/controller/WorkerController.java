@@ -1,6 +1,7 @@
 package practice.spring_gym_api.controller;
 
 import jakarta.validation.Valid;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import practice.spring_gym_api.dto.WorkerDTO;
 import practice.spring_gym_api.dto.WorkerMapper;

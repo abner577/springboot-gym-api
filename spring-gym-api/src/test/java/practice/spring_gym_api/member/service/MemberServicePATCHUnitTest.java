@@ -9,6 +9,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import practice.spring_gym_api.dto.MemberDTO;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
+import practice.spring_gym_api.entity.enums.Roles;
 import practice.spring_gym_api.repository.CoachRepository;
 import practice.spring_gym_api.repository.MemberRepository;
 import practice.spring_gym_api.service.impl.MemberServiceimpl;
@@ -480,6 +481,90 @@ public class MemberServicePATCHUnitTest {
         verifyNoMoreInteractions(memberRepository);
     }
 
-    //Error tests for update Role
+    @Test
+    void updatedRoleOfAMemberByIdAndEmail_ThrowsException_WhenIdDoesntExist() {
+        when(memberRepository.findById(1L)).thenReturn(Optional.empty());
+
+        var exception = assertThrows(NoSuchElementException.class, () ->
+                memberService.updatedRoleOfAMemberByIdAndEmail(1L, email, "ROLE_COACH"));
+        assertEquals(idMessage, exception.getMessage());
+
+        verify(memberRepository, times(1)).findById(1L);
+        verifyNoMoreInteractions(memberRepository);
+        verifyNoInteractions(coachRepository);
+    }
+
+    @Test
+    void updatedRoleOfAMemberByIdAndEmail_ThrowsException_WhenEmailIsInvalid() {
+        when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(memberEntity1));
+
+        var exception = assertThrows(IllegalArgumentException.class, () ->
+                memberService.updatedRoleOfAMemberByIdAndEmail(1L, "", "ROLE_COACH"));
+        assertEquals(invalidEmail, exception.getMessage());
+
+        verify(memberRepository, times(1)).findById(1L);
+        verifyNoMoreInteractions(memberRepository);
+        verifyNoInteractions(coachRepository);
+    }
+
+    @Test
+    void updatedRoleOfAMemberByIdAndEmail_ThrowsException_WhenEmailDoesntExist() {
+        when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(memberEntity1));
+        when(memberRepository.findMemberByEmail(email)).thenReturn(null);
+
+        var exception = assertThrows(NoSuchElementException.class, () ->
+                memberService.updatedRoleOfAMemberByIdAndEmail(1L, email, "ROLE_COACH"));
+        assertEquals(emailDoesntExistMessage, exception.getMessage());
+
+        verify(memberRepository, times(1)).findById(1L);
+        verify(memberRepository, times(1)).findMemberByEmail(email);
+        verifyNoMoreInteractions(memberRepository);
+        verifyNoInteractions(coachRepository);
+    }
+
+    @Test
+    void updatedRoleOfAMemberByIdAndEmail_ThrowsException_WhenEmailAndIdDontBelongToSameMembeer() {
+        when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(memberEntity1));
+        when(memberRepository.findMemberByEmail(email)).thenReturn(memberEntity2);
+
+        var exception = assertThrows(IllegalStateException.class, () ->
+                memberService.updatedRoleOfAMemberByIdAndEmail(1L, email, "ROLE_COACH"));
+        assertEquals(differentMembers, exception.getMessage());
+
+        verify(memberRepository, times(1)).findById(1L);
+        verify(memberRepository, times(1)).findMemberByEmail(email);
+        verifyNoMoreInteractions(memberRepository);
+        verifyNoInteractions(coachRepository);
+    }
+
+    @Test
+    void updatedRoleOfAMemberByIdAndEmail_ThrowsException_WhenRoleEqualsMember() {
+        when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(memberEntity1));
+        when(memberRepository.findMemberByEmail(email)).thenReturn(memberEntity1);
+
+        var exception = assertThrows(IllegalStateException.class, () ->
+                memberService.updatedRoleOfAMemberByIdAndEmail(1L, email, "ROLE_MEMBER"));
+        assertEquals("Member: " + name + " already has a role of ROLE_MEMBER", exception.getMessage());
+
+        verify(memberRepository, times(1)).findById(1L);
+        verify(memberRepository, times(1)).findMemberByEmail(email);
+        verifyNoMoreInteractions(memberRepository);
+        verifyNoInteractions(coachRepository);
+    }
+
+    @Test
+    void updatedRoleOfAMemberByIdAndEmail_ThrowsException_WhenRoleIsInvalid() {
+        when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(memberEntity1));
+        when(memberRepository.findMemberByEmail(email)).thenReturn(memberEntity1);
+
+        var exception = assertThrows(IllegalArgumentException.class, () ->
+                memberService.updatedRoleOfAMemberByIdAndEmail(1L, email, "ROLE_BLAH"));
+        assertEquals("Role must be either ROLE_COACH, ROLE_WORKER, or ROLE_MEMBER", exception.getMessage());
+
+        verify(memberRepository, times(1)).findById(1L);
+        verify(memberRepository, times(1)).findMemberByEmail(email);
+        verifyNoMoreInteractions(memberRepository);
+        verifyNoInteractions(coachRepository);
+    }
 
 }

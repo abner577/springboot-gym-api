@@ -6,18 +6,13 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import practice.spring_gym_api.dto.MemberDTO;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import practice.spring_gym_api.entity.enums.Roles;
-import practice.spring_gym_api.repository.CoachRepository;
 import practice.spring_gym_api.repository.MemberRepository;
-import practice.spring_gym_api.service.impl.CoachServiceimpl;
 import practice.spring_gym_api.service.impl.MemberServiceimpl;
-import practice.spring_gym_api.testdata.dto.MemberDTOTestData;
 import practice.spring_gym_api.testdata.entity.CoachTestData;
 import practice.spring_gym_api.testdata.entity.MemberTestData;
-import practice.spring_gym_api.testdata.invalidTestData.InvalidCoachEntity;
 
 import java.time.LocalDate;
 import java.util.*;

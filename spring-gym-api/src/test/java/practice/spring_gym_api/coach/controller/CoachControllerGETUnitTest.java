@@ -28,7 +28,6 @@ import practice.spring_gym_api.testdata.dto.CoachDTOTestData;
 import practice.spring_gym_api.testdata.dto.MemberDTOTestData;
 import practice.spring_gym_api.testdata.entity.CoachTestData;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import practice.spring_gym_api.testdata.entity.MemberTestData;
 
 import java.util.List;
@@ -49,7 +48,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
         })
 })
 @AutoConfigureMockMvc
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class CoachControllerGETUnitTest {
 
     @Autowired

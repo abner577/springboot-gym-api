@@ -56,6 +56,15 @@ public class WorkerEntity {
     @Transient
     private int age;
 
+    public WorkerEntity(Long id, String name, LocalDate dateOfBirth, Roles role, String email, String workerCode) {
+        this.id = id;
+        this.name = name;
+        this.dateOfBirth = dateOfBirth;
+        this.role = role;
+        this.email = email;
+        this.workerCode = workerCode;
+    }
+
     public WorkerEntity(String name, LocalDate dateOfBirth, Roles role, String email, String workerCode) {
         this.name = name;
         this.dateOfBirth = dateOfBirth;
