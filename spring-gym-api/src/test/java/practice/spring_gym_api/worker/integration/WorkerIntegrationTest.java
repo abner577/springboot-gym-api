@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import practice.spring_gym_api.dto.WorkerMapper;
@@ -34,7 +35,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest
@@ -57,6 +58,7 @@ public class WorkerIntegrationTest {
     private WorkerRepository workerRepository;
 
     private WorkerEntity workerEntity1;
+    private WorkerEntity workerEntity2;
     private CoachEntity coachEntity1;
     private MemberEntity memberEntity1;
 
@@ -86,6 +88,8 @@ public class WorkerIntegrationTest {
                 "Andrew Matthew", LocalDate.of(1950, 05, 18),
                 Roles.ROLE_MEMBER, "andrew123@gmail.com", "000-999-111"
         );
+
+        workerEntity2 = workerRepository.findByWorkerCode("WRK2024-AZ19");
     }
 
     @Test
@@ -124,7 +128,7 @@ public class WorkerIntegrationTest {
 
     @Test
     @Transactional
-    void updateWorkerCodeById_SuccessfullyUpdatesMember_WhenCredentialsAreValid() throws Exception {
+    void updateWorkerCodeById_SuccessfullyUpdatesWorkerCode_WhenCredentialsAreValid() throws Exception {
         mvc.perform(patch("/api/v1/gym-api/update/worker/code/" + seedWorkerID)
                         .with(csrf())
                         .param("email", seedWorkerEmail)
@@ -135,7 +139,77 @@ public class WorkerIntegrationTest {
 
         WorkerEntity updatedWorker = workerRepository.findByEmail(seedWorkerEmail);
         assertEquals(fakeWorker.getWorkerCode(), updatedWorker.getWorkerCode());
+    }
 
+    @Test
+    @Transactional
+    void updateWorkerById_SuccessfullyUpdatesWorker_WhenCredentialsAreValid() throws Exception {
+        mvc.perform(put("/api/v1/gym-api/update/worker/" + seedWorkerID)
+                        .with(csrf())
+                        .param("email", seedWorkerEmail)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(fakeWorker))
+                        .header("x-coach-id", coachId)
+                        .header("x-coach-code", coachCode))
+                .andDo(print());
+
+        assertEquals(fakeWorker, workerEntity1);
+        assertEquals(fakeWorker.getName(), workerEntity1.getName());
+    }
+
+    @Test
+    @Transactional
+    void updateWorkerById_ThrowsException_WhenCredentialsArentValid() throws Exception {
+        fakeWorker.setEmail(workerEntity2.getEmail());
+        var exception = mvc.perform(put("/api/v1/gym-api/update/worker/" + seedWorkerID)
+                        .with(csrf())
+                        .param("email", seedWorkerEmail)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(fakeWorker))
+                        .header("x-coach-id", coachId)
+                        .header("x-coach-code", coachCode))
+                .andDo(print())
+                .andReturn();
+
+        String responseBody = exception.getResponse().getContentAsString();
+        assertTrue(responseBody.contains("The updated email that you are trying to give to " + workerEntity1.getName() +
+                " is already registered under another worker"));
+        assertTrue(workerEntity1.getEmail() != fakeWorker.getEmail());
+    }
+
+    @Test
+    @Transactional
+    void registerNewWorker_SuccessfullySavesNewWorker_WHenCredentialsAreValid() throws Exception {
+        mvc.perform(post("/api/v1/gym-api/worker")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(fakeWorker))
+                        .header("x-worker-id", seedWorkerID)
+                        .header("x-worker-code", seedWorkerCode))
+                .andDo(print());
+
+        WorkerEntity newWorker = workerRepository.findByEmail(fakeWorker.getEmail());
+        assertTrue(newWorker != null);
+    }
+
+    @Test
+    @Transactional
+    void registerNewWorker_ThrowsException_WHenCredentialsArentValid() throws Exception {
+        fakeWorker.setEmail(workerEntity1.getEmail());
+        var exception = mvc.perform(post("/api/v1/gym-api/worker")
+                        .with(csrf())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(fakeWorker))
+                        .header("x-worker-id", seedWorkerID)
+                        .header("x-worker-code", seedWorkerCode))
+                .andDo(print())
+                .andReturn();
+
+        String responseBody = exception.getResponse().getContentAsString();
+        assertTrue(responseBody.contains("Worker with an email of: " + seedWorkerEmail + " already exists"));
+
+        WorkerEntity newWorker = workerRepository.findByWorkerCode(fakeWorker.getWorkerCode());
+        assertTrue(newWorker == null);
     }
 
 }

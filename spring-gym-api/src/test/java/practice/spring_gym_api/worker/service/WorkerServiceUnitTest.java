@@ -297,6 +297,118 @@ public class WorkerServiceUnitTest {
     }
 
     // error unit tests for updateRole
+    @Test
+    void updateRoleOfAWorker_ThrowsException_WhenEmailDoesntExist() {
+        when(workerRepository.findById(1L)).thenReturn(Optional.ofNullable(workerEntity1));
+        when(workerRepository.findByEmail(email)).thenReturn(null);
 
-    //error unit tests for updateWorker
+        var exception = assertThrows(NoSuchElementException.class, () ->
+                workerService.updateRoleOfAWorker(1L, email, "ROLE_COACH"));
+        assertEquals(emailDoesntExist, exception.getMessage());
+
+        verify(workerRepository, times(1)).findById(1L);
+        verify(workerRepository, times(1)).findByEmail(email);
+    }
+
+    @Test
+    void updateRoleOfAWorker_ThrowsException_WhenEmailAndIdDontBelongToSameWorker() {
+        when(workerRepository.findById(1L)).thenReturn(Optional.ofNullable(workerEntity1));
+        when(workerRepository.findByEmail(email)).thenReturn(workerEntity2);
+
+        var exception = assertThrows(IllegalStateException.class, () -> workerService.updateRoleOfAWorker(1L, email, "ROLE_COACH"));
+        assertEquals(differentMembers, exception.getMessage());
+
+        verify(workerRepository, times(1)).findById(1L);
+        verify(workerRepository, times(1)).findByEmail(email);
+        verifyNoMoreInteractions(workerRepository);
+    }
+
+    @Test
+    void updateRoleOfAWorker_ThrowsException_WhenRoleIsWorker() {
+        when(workerRepository.findById(1L)).thenReturn(Optional.ofNullable(workerEntity1));
+        when(workerRepository.findByEmail(email)).thenReturn(workerEntity1);
+
+        var exception = assertThrows(IllegalStateException.class, () -> workerService.updateRoleOfAWorker(1L, email, "ROLE_WORKER"));
+        assertEquals("Coach: " + name + " already has a role of ROLE_WORKER", exception.getMessage());
+
+        verify(workerRepository, times(1)).findById(1L);
+        verify(workerRepository, times(1)).findByEmail(email);
+        verifyNoMoreInteractions(workerRepository);
+    }
+
+    @Test
+    void updateRoleOfAWorker_ThrowsException_WhenRoleIsInvalid() {
+        when(workerRepository.findById(1L)).thenReturn(Optional.ofNullable(workerEntity1));
+        when(workerRepository.findByEmail(email)).thenReturn(workerEntity1);
+
+        var exception = assertThrows(IllegalArgumentException.class, () -> workerService.updateRoleOfAWorker(1L, email, "ROLE_ADMIN"));
+        assertEquals("Role must be either ROLE_COACH, ROLE_WORKER, or ROLE_MEMBER", exception.getMessage());
+
+        verify(workerRepository, times(1)).findById(1L);
+        verify(workerRepository, times(1)).findByEmail(email);
+        verifyNoMoreInteractions(workerRepository);
+    }
+
+    // error unit tests for updateWorker
+
+    @Test
+    void updateWorkerById_ThrowsException_WhenEmailDoesntExist() {
+        when(workerRepository.findById(1L)).thenReturn(Optional.ofNullable(workerEntity1));
+        when(workerRepository.findByEmail(email)).thenReturn(null);
+
+        var exception = assertThrows(NoSuchElementException.class, () ->
+                workerService.updateWorkerById(1L, email, fakeWorker));
+        assertEquals(emailDoesntExist, exception.getMessage());
+
+        verify(workerRepository, times(1)).findById(1L);
+        verify(workerRepository, times(1)).findByEmail(email);
+    }
+
+    @Test
+    void updateWorkerById_ThrowsException_WhenEmailAndIdDontBelongSameMember() {
+        when(workerRepository.findById(1L)).thenReturn(Optional.ofNullable(workerEntity1));
+        when(workerRepository.findByEmail(email)).thenReturn(workerEntity2);
+
+        var exception = assertThrows(IllegalStateException.class, () -> workerService.updateWorkerById(1L, email, fakeWorker));
+        assertEquals(differentMembers, exception.getMessage());
+
+        verify(workerRepository, times(1)).findById(1L);
+        verify(workerRepository, times(1)).findByEmail(email);
+        verifyNoMoreInteractions(workerRepository);
+    }
+
+    @Test
+    void updateWorkerById_ThrowsException_WhenEmailAlreadyExists() {
+        fakeWorker.setEmail(workerEntity2.getEmail());
+
+        when(workerRepository.findById(1L)).thenReturn(Optional.ofNullable(workerEntity1));
+        when(workerRepository.findByEmail(email)).thenReturn(workerEntity1);
+        when(workerRepository.findByEmail(fakeWorker.getEmail())).thenReturn(workerEntity2);
+
+        var exception = assertThrows(IllegalStateException.class, () -> workerService.updateWorkerById(1L, email, fakeWorker));
+        assertEquals("The updated email that you are trying to give to " + name
+                + " is already registered under another worker", exception.getMessage());
+
+        verify(workerRepository, times(1)).findById(1L);
+        verify(workerRepository, times(1)).findByEmail(email);
+        verify(workerRepository, times(1)).findByEmail(fakeWorker.getEmail());
+        verifyNoMoreInteractions(workerRepository);
+    }
+
+    @Test
+    void updateWorkerById_ThrowsException_WhenWorkerCodeAlreadyExists() {
+        fakeWorker.setWorkerCode(workerEntity2.getWorkerCode());
+
+        when(workerRepository.findById(1L)).thenReturn(Optional.ofNullable(workerEntity1));
+        when(workerRepository.findByEmail(email)).thenReturn(workerEntity1);
+        when(workerRepository.findByWorkerCode(fakeWorker.getWorkerCode())).thenReturn(workerEntity2);
+
+        var exception = assertThrows(IllegalStateException.class, () -> workerService.updateWorkerById(1L, email, fakeWorker));
+        assertEquals("The updated worker code that you are trying to give to "
+                + name + " is already registered under another worker", exception.getMessage());
+
+        verify(workerRepository, times(1)).findById(1L);
+        verify(workerRepository, times(1)).findByEmail(email);
+        verify(workerRepository, times(1)).findByWorkerCode(fakeWorker.getWorkerCode());
+    }
 }
