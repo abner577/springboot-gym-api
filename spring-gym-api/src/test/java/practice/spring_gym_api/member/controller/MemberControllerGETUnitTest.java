@@ -81,7 +81,7 @@ public class MemberControllerGETUnitTest {
         when(memberService.getMemberById(1L)).thenReturn(memberEntity1);
         when(memberMapper.convertToMemberDTO(memberEntity1)).thenReturn(memberDTO1);
 
-        mvc.perform(get("/api/v1/gym-api/member/" + 1L))
+        mvc.perform(get("/api/v1/gym-api/members/" + 1L))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(memberEntity1.getName()))
@@ -100,7 +100,7 @@ public class MemberControllerGETUnitTest {
         when(memberService.getMemberByHighestBench()).thenReturn(memberEntity1);
         when(memberMapper.convertToMemberDTO(memberEntity1)).thenReturn(memberDTO1);
 
-        mvc.perform(get("/api/v1/gym-api/member/highest/bench"))
+        mvc.perform(get("/api/v1/gym-api/members/highest/bench"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(memberEntity1.getName()))
@@ -119,7 +119,7 @@ public class MemberControllerGETUnitTest {
         when(memberService.getMemberByHighestSquat()).thenReturn(memberEntity1);
         when(memberMapper.convertToMemberDTO(memberEntity1)).thenReturn(memberDTO1);
 
-        mvc.perform(get("/api/v1/gym-api/member/highest/squat"))
+        mvc.perform(get("/api/v1/gym-api/members/highest/squat"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(memberEntity1.getName()))
@@ -138,7 +138,7 @@ public class MemberControllerGETUnitTest {
         when(memberService.getMemberByHighestDeadlift()).thenReturn(memberEntity1);
         when(memberMapper.convertToMemberDTO(memberEntity1)).thenReturn(memberDTO1);
 
-        mvc.perform(get("/api/v1/gym-api/member/highest/deadlift"))
+        mvc.perform(get("/api/v1/gym-api/members/highest/deadlift"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(memberEntity1.getName()))
@@ -157,7 +157,7 @@ public class MemberControllerGETUnitTest {
         when(memberService.getMemberByHighestTotal()).thenReturn(memberEntity1);
         when(memberMapper.convertToMemberDTO(memberEntity1)).thenReturn(memberDTO1);
 
-        mvc.perform(get("/api/v1/gym-api/member/highest/total"))
+        mvc.perform(get("/api/v1/gym-api/members/highest/total"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(memberEntity1.getName()))
@@ -202,7 +202,7 @@ public class MemberControllerGETUnitTest {
         when(memberMapper.convertToMemberDTO(memberEntity1)).thenReturn(memberDTO1);
         when(memberMapper.convertToMemberDTO(memberEntity2)).thenReturn(memberDTO2);
 
-        mvc.perform(get("/api/v1/gym-api/available/members"))
+        mvc.perform(get("/api/v1/gym-api/members/no-coach"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].name").value(memberEntity1.getName()))

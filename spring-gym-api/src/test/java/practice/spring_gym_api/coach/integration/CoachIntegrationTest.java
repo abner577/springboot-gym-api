@@ -98,7 +98,7 @@ public class CoachIntegrationTest {
 
     @Test
     void getCoachById_ReturnsExpectedCoach_WhenIdIsValid() throws Exception {
-        mvc.perform(get("/api/v1/gym-api/coach/id/" + seedCoachId))
+        mvc.perform(get("/api/v1/gym-api/coaches/" + seedCoachId))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Alex Smith"))
                 .andExpect(jsonPath("$.age").value(45))
@@ -122,7 +122,7 @@ public class CoachIntegrationTest {
        }
 
        // Performing query
-        mvc.perform(patch("/api/v1/gym-api/replace/coach/clients/" + seedCoachId)
+        mvc.perform(patch("/api/v1/gym-api/coaches/" + seedCoachId + "/clients/replace")
                         .with(csrf())
                         .queryParam("email", seedCoachEmail)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -151,7 +151,7 @@ public class CoachIntegrationTest {
             MemberEntity memberEntity = memberRepository.findMemberByEmail(client.getEmail());
             idsOfUpdatedClients.add(memberEntity.getId());
         }
-        var exception = mvc.perform(patch("/api/v1/gym-api/replace/coach/clients/" + 15L)
+        var exception = mvc.perform(patch("/api/v1/gym-api/coaches/15/clients/replace")
                 .with(csrf())
                 .queryParam("email", seedCoachEmail)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -168,7 +168,7 @@ public class CoachIntegrationTest {
     @Transactional
     @Test
     void updateRoleOfACoach_SuccessfullyUpdatesRoleToWorker_WhenIdAndEmailAreValid() throws Exception {
-        mvc.perform(patch("/api/v1/gym-api/update/coach/role/" + seedCoachId)
+        mvc.perform(patch("/api/v1/gym-api/coaches/" + seedCoachId + "/role")
                 .with(csrf())
                 .queryParam("email", coachEntity.getEmail())
                 .queryParam("role", "ROLE_WORKER")
@@ -192,7 +192,7 @@ public class CoachIntegrationTest {
     @Transactional
     @Test
     void updateRoleOfACoach_SuccessfullyUpdatesRoleToMember_WhenIdAndEmailAreValid() throws Exception {
-        mvc.perform(patch("/api/v1/gym-api/update/coach/role/" + seedCoachId)
+        mvc.perform(patch("/api/v1/gym-api/coaches/" + seedCoachId + "/role")
                 .with(csrf())
                 .queryParam("email", coachEntity.getEmail())
                 .queryParam("role", "ROLE_MEMBER")
@@ -215,7 +215,7 @@ public class CoachIntegrationTest {
     @Transactional
     @Test
     void updateRoleOfACoach_ThrowsException_WhenTryingToUpdateRoleToCoach() throws Exception {
-        var exception = mvc.perform(patch("/api/v1/gym-api/update/coach/role/" + seedCoachId)
+        var exception = mvc.perform(patch("/api/v1/gym-api/coaches/" + seedCoachId + "/role")
                 .with(csrf())
                 .queryParam("email", coachEntity.getEmail())
                 .queryParam("role", "ROLE_COACH")
@@ -231,7 +231,7 @@ public class CoachIntegrationTest {
     @Transactional
     @Test
     void registerNewCoach_SuccessfullyRegistersANewCoach_WhenCredentialsAreValid() throws Exception {
-        mvc.perform(post("/api/v1/gym-api/coach")
+        mvc.perform(post("/api/v1/gym-api/coaches")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(fakeCoach1))
@@ -247,7 +247,7 @@ public class CoachIntegrationTest {
     void registerNewCoach_ThrowsException_WhenEmailIsInvalid() throws Exception {
         fakeCoach1.setEmail(coachEntity.getEmail());
 
-        var exception = mvc.perform(post("/api/v1/gym-api/coach")
+        var exception = mvc.perform(post("/api/v1/gym-api/coaches")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(fakeCoach1))
@@ -266,7 +266,7 @@ public class CoachIntegrationTest {
     @Transactional
     @Test
     void deleteCoachById_SuccessfullyDeletesCoachAndFreesAllClients_WhenIdIsValid() throws Exception {
-        mvc.perform(delete("/api/v1/gym-api/coach/" + seedCoachId)
+        mvc.perform(delete("/api/v1/gym-api/coaches/" + seedCoachId)
                 .header("x-worker-id", workerId)
                 .header("x-worker-code", workerCode));
 
@@ -279,7 +279,7 @@ public class CoachIntegrationTest {
     @Transactional
     @Test
     void deleteCoachById_ThrowsException_WhenIdIsntValid() throws Exception {
-       var exception =  mvc.perform(delete("/api/v1/gym-api/coach/" + 15L)
+       var exception =  mvc.perform(delete("/api/v1/gym-api/coaches/" + 15L)
                 .header("x-worker-id", workerId)
                 .header("x-worker-code", workerCode))
                 .andExpect(status().isBadRequest())

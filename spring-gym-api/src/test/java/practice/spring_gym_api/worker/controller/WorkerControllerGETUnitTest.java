@@ -64,7 +64,7 @@ public class WorkerControllerGETUnitTest {
         when(workerService.getWorkerById(1L)).thenReturn(workerEntity1);
         when(workerMapper.convertToWorkerDTO(workerEntity1)).thenReturn(workerDTO1);
 
-        mvc.perform(get("/api/v1/gym-api/worker/" + 1L))
+        mvc.perform(get("/api/v1/gym-api/workers/" + 1L))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(workerDTO1.getName()))
@@ -83,7 +83,7 @@ public class WorkerControllerGETUnitTest {
         when(workerService.getWorkerByWorkerCode(1L, workerEntity1.getWorkerCode())).thenReturn(workerEntity1);
         when(workerMapper.convertToWorkerDTO(workerEntity1)).thenReturn(workerDTO1);
 
-        mvc.perform(get("/api/v1/gym-api/worker/" + 1L + "/")
+        mvc.perform(get("/api/v1/gym-api/workers/1/code")
                         .param("code", workerEntity1.getWorkerCode()))
                 .andDo(print())
                 .andExpect(status().isOk())

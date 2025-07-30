@@ -4,17 +4,12 @@ package practice.spring_gym_api.worker.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-import practice.spring_gym_api.dto.WorkerMapper;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import practice.spring_gym_api.entity.WorkerEntity;
@@ -22,18 +17,9 @@ import practice.spring_gym_api.entity.enums.Roles;
 import practice.spring_gym_api.repository.CoachRepository;
 import practice.spring_gym_api.repository.MemberRepository;
 import practice.spring_gym_api.repository.WorkerRepository;
-import practice.spring_gym_api.service.impl.WorkerServiceimpl;
-import practice.spring_gym_api.testdata.entity.CoachTestData;
-import practice.spring_gym_api.testdata.entity.MemberTestData;
-import practice.spring_gym_api.testdata.entity.WorkerTestData;
-
 import java.time.LocalDate;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -95,7 +81,7 @@ public class WorkerIntegrationTest {
     @Test
     @Transactional
     void updateRoleOfAWorker_SuccessfullyUpdatesRoleOfAWorker_WhenCredentialsAreValid() throws Exception {
-        mvc.perform(patch("/api/v1/gym-api/update/worker/role/" + seedWorkerID)
+        mvc.perform(patch("/api/v1/gym-api/workers/" + seedWorkerID + "/role")
                         .with(csrf())
                 .param("email", seedWorkerEmail)
                 .param("role", "ROLE_COACH")
@@ -113,7 +99,7 @@ public class WorkerIntegrationTest {
     @Test
     @Transactional
     void updateRoleOfAWorker_ThrowsException_WhenRoleEqualsWorker() throws Exception {
-        var exception = mvc.perform(patch("/api/v1/gym-api/update/worker/role/" + seedWorkerID)
+        var exception = mvc.perform(patch("/api/v1/gym-api/workers/" + seedWorkerID + "/role")
                         .with(csrf())
                         .param("email", seedWorkerEmail)
                         .param("role", "ROLE_WORKER")
@@ -129,7 +115,7 @@ public class WorkerIntegrationTest {
     @Test
     @Transactional
     void updateWorkerCodeById_SuccessfullyUpdatesWorkerCode_WhenCredentialsAreValid() throws Exception {
-        mvc.perform(patch("/api/v1/gym-api/update/worker/code/" + seedWorkerID)
+        mvc.perform(patch("/api/v1/gym-api/workers/" + seedWorkerID + "/code")
                         .with(csrf())
                         .param("email", seedWorkerEmail)
                         .param("code", fakeWorker.getWorkerCode())
@@ -144,7 +130,7 @@ public class WorkerIntegrationTest {
     @Test
     @Transactional
     void updateWorkerById_SuccessfullyUpdatesWorker_WhenCredentialsAreValid() throws Exception {
-        mvc.perform(put("/api/v1/gym-api/update/worker/" + seedWorkerID)
+        mvc.perform(put("/api/v1/gym-api/workers/" + seedWorkerID)
                         .with(csrf())
                         .param("email", seedWorkerEmail)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -161,7 +147,7 @@ public class WorkerIntegrationTest {
     @Transactional
     void updateWorkerById_ThrowsException_WhenCredentialsArentValid() throws Exception {
         fakeWorker.setEmail(workerEntity2.getEmail());
-        var exception = mvc.perform(put("/api/v1/gym-api/update/worker/" + seedWorkerID)
+        var exception = mvc.perform(put("/api/v1/gym-api/workers/" + seedWorkerID)
                         .with(csrf())
                         .param("email", seedWorkerEmail)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -180,7 +166,7 @@ public class WorkerIntegrationTest {
     @Test
     @Transactional
     void registerNewWorker_SuccessfullySavesNewWorker_WHenCredentialsAreValid() throws Exception {
-        mvc.perform(post("/api/v1/gym-api/worker")
+        mvc.perform(post("/api/v1/gym-api/workers")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(fakeWorker))
@@ -196,7 +182,7 @@ public class WorkerIntegrationTest {
     @Transactional
     void registerNewWorker_ThrowsException_WHenCredentialsArentValid() throws Exception {
         fakeWorker.setEmail(workerEntity1.getEmail());
-        var exception = mvc.perform(post("/api/v1/gym-api/worker")
+        var exception = mvc.perform(post("/api/v1/gym-api/workers")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(fakeWorker))

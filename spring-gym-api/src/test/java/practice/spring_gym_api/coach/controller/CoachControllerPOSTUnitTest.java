@@ -87,7 +87,7 @@ public class CoachControllerPOSTUnitTest {
 
         // Act
         System.out.println(objectMapper.writeValueAsString(fakeCoachEntity));
-        mvc.perform(post("/api/v1/gym-api/coach")
+        mvc.perform(post("/api/v1/gym-api/coaches")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(fakeCoachEntity)))

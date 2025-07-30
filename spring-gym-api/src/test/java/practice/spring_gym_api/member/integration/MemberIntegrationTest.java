@@ -94,7 +94,7 @@ public class MemberIntegrationTest {
     @Test
     @Transactional
     void registerNewMember_SuccessfullyRegisters_WhenCredentialsAreValid() throws Exception {
-        mvc.perform(post("/api/v1/gym-api/member")
+        mvc.perform(post("/api/v1/gym-api/members")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(fakeMember))
@@ -110,7 +110,7 @@ public class MemberIntegrationTest {
     void registerNewMember_ThrowsException_WhenEmailAlreadyExists() throws Exception {
         fakeMember.setEmail(memberEntity1.getEmail());
 
-       var exception = mvc.perform(post("/api/v1/gym-api/member")
+       var exception = mvc.perform(post("/api/v1/gym-api/members")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(fakeMember))
@@ -127,8 +127,8 @@ public class MemberIntegrationTest {
     @Test
     @Transactional
     void replaceCoach_SucessfullyReplacesCoach_WhenCredentialsAreValid() throws Exception {
-        mvc.perform(patch("/api/v1/gym-api/update/coachedBy/" + seedMemberId + "/" +
-                coachEntity1.getId() + "/" + coachEntity2.getId())
+        mvc.perform(patch("/api/v1/gym-api/members/" + seedMemberId + "/oldCoach/" +
+                coachEntity1.getId() + "/newCoach/" + coachEntity2.getId())
                 .with(csrf())
                 .header("x-coach-id", coachId)
                 .header("x-coach-code", coachCode));
@@ -144,8 +144,8 @@ public class MemberIntegrationTest {
     @Transactional
     void replaceCoach_ThrowsException_WhenCredentialsArentValid() throws Exception {
         var exception = mvc.perform
-                (patch("/api/v1/gym-api/update/coachedBy/" + seedMemberId + "/" +
-                20L + "/" + coachEntity2.getId())
+                (patch("/api/v1/gym-api/members/" + seedMemberId
+                        + "/oldCoach/20/newCoach/" + coachEntity2.getId())
                 .with(csrf())
                 .header("x-coach-id", coachId)
                 .header("x-coach-code", coachCode))
@@ -158,7 +158,7 @@ public class MemberIntegrationTest {
     @Test
     @Transactional
     void updateRole_SuccessfullyUpdatesMemberToCoach_WhenCredentialsAreValid() throws Exception {
-        mvc.perform(patch("/api/v1/gym-api/update/role/of/member/" + seedMemberId)
+        mvc.perform(patch("/api/v1/gym-api/members/" + seedMemberId + "/role")
                 .with(csrf())
                 .header("x-coach-id", coachId)
                 .header("x-coach-code", coachCode)
@@ -177,7 +177,7 @@ public class MemberIntegrationTest {
     @Test
     @Transactional
     void updateRole_SuccessfullyUpdatesMemberToWorker_WhenCredentialsAreValid() throws Exception {
-        mvc.perform(patch("/api/v1/gym-api/update/role/of/member/" + seedMemberId)
+        mvc.perform(patch("/api/v1/gym-api/members/" + seedMemberId + "/role")
                 .with(csrf())
                 .header("x-coach-id", coachId)
                 .header("x-coach-code", coachCode)
@@ -196,7 +196,7 @@ public class MemberIntegrationTest {
     @Test
     @Transactional
     void updateRole_ThrowsException_WhenRoleIsEqualToMember() throws Exception {
-        var exception = mvc.perform(patch("/api/v1/gym-api/update/role/of/member/" + seedMemberId)
+        var exception = mvc.perform(patch("/api/v1/gym-api/members/" + seedMemberId + "/role")
                 .with(csrf())
                 .header("x-coach-id", coachId)
                 .header("x-coach-code", coachCode)
@@ -212,7 +212,7 @@ public class MemberIntegrationTest {
     @Test
     @Transactional
     void deleteMembersBelowATotal_SuccessfullyDeletesMembers_WhenTotalIsntNegative() throws Exception {
-        mvc.perform(delete("/api/v1/gym-api/delete/all/below/10000")
+        mvc.perform(delete("/api/v1/gym-api/members/below/total/10000")
                 .with(csrf())
                 .header("x-worker-id", workerId)
                 .header("x-worker-code", workerCode));
@@ -224,7 +224,7 @@ public class MemberIntegrationTest {
     @Test
     @Transactional
     void deleteMembersBelowATotal_ThrowsExcpetion_WhenTotalIsNegative() throws Exception {
-        var exception = mvc.perform(delete("/api/v1/gym-api/delete/all/below/-10000")
+        var exception = mvc.perform(delete("/api/v1/gym-api/members/below/total/-10000")
                 .with(csrf())
                 .header("x-worker-id", workerId)
                 .header("x-worker-code", workerCode))

@@ -47,7 +47,7 @@ public class CoachController {
      * @param id the ID of the coach
      * @return the coach as a DTO
      */
-    @GetMapping(path = "/coach/id/{coach_id}")
+    @GetMapping(path = "/coaches/{coach_id}")
     public ResponseEntity<CoachDTO> getCoachById(@PathVariable("coach_id") Long id) {
         CoachEntity coachEntity = coachService.getCoachById(id);
         CoachDTO coachDTO = coachMapper.convertToCoachDto(coachEntity);
@@ -79,7 +79,7 @@ public class CoachController {
      *
      * @return the coach as a DTO
      */
-    @GetMapping (path = "/best/coach")
+    @GetMapping (path = "/coaches/most-clients")
     public ResponseEntity<CoachDTO> getCoachWithTheHighestAmountOfClients(){
         CoachEntity coachEntity = coachService.getCoachWithHighestClients();
         CoachDTO coachDTO = coachMapper.convertToCoachDto(coachEntity);
@@ -91,7 +91,7 @@ public class CoachController {
      *
      * @return the coach as a DTO
      */
-    @GetMapping (path = "/worst/coach")
+    @GetMapping (path = "/coaches/least-clients")
     public ResponseEntity<CoachDTO> getCoachWithTheLowestAmountOfClients(){
         CoachEntity coachEntity = coachService.getCoachWithLowestClients();
         CoachDTO coachDTO = coachMapper.convertToCoachDto(coachEntity);
@@ -104,7 +104,7 @@ public class CoachController {
      * @param id the id used to identify the coach
      * @return the set of the coaches clients
      */
-    @GetMapping (path = "/clients/of/{coach_id}")
+    @GetMapping (path = "/coaches/{coach_id}/clients")
     public Set<MemberDTO> getAllClientsOfACoach(@PathVariable("coach_id") Long id) {
         Set<MemberEntity> memberEntities = coachService.getAllClientsByCoachId(id);
 
@@ -119,7 +119,7 @@ public class CoachController {
      * @param name the coach's name
      * @return list of workout plans
      */
-    @GetMapping (path = "/coach/name/{coach_name}")
+    @GetMapping (path = "/coaches/{coach_name}/plans")
     public ResponseEntity<List<String>> getWorkoutPlansByCoachName(@PathVariable(name = "coach_name") String name){
         List<String> workoutPlans = coachService.getWorkoutPlansByCoachName(name);
         return ResponseEntity.ok(workoutPlans);
@@ -130,7 +130,7 @@ public class CoachController {
      *
      * @return List of available CoachDTOs
      */
-    @GetMapping (path = "/avaliable/coaches")
+    @GetMapping (path = "/coaches/no-clients")
     public List<CoachDTO> getAvaliableCoaches(){
         List<CoachEntity> coachEntities = coachService.getAllCoachesThatAreAvaliable();
 
@@ -146,8 +146,8 @@ public class CoachController {
      * @param code  Coach code to verify
      * @return      Matching CoachDTO
      */
-    @GetMapping (path = "/coach/by/{coach_id}")
-    public ResponseEntity<CoachDTO> getCoachByCode(
+    @GetMapping (path = "/coaches/{coach_id}/verify")
+    public ResponseEntity<CoachDTO> getCoachByIdAndCode(
             @PathVariable("coach_id") Long id,
             @RequestParam String code
     ) {
@@ -160,7 +160,7 @@ public class CoachController {
      *
      * @param coachEntity the coach entity to register
      */
-    @PostMapping (path = "/coach")
+    @PostMapping (path = "/coaches")
     public void registerNewCoach(@Valid @RequestBody CoachEntity coachEntity){
         coachService.registerNewCoach(coachEntity);
     }
@@ -170,7 +170,7 @@ public class CoachController {
      *
      * @param coachListWrapper wrapper object containing a list of coaches
      */
-    @PostMapping(path = "/coaches")
+    @PostMapping(path = "/coaches/batch")
     public void registerNewCoaches(@Valid @RequestBody CoachListWrapper coachListWrapper) {
         coachService.registerNewCoaches(coachListWrapper.getCoachList());
     }
@@ -181,7 +181,7 @@ public class CoachController {
      * @param id the coach ID
      * @param name the new name
      */
-    @PatchMapping(path = "/update/coach/name/{coach_id}")
+    @PatchMapping(path = "/coaches/{coach_id}/name")
     public void updateNameByIdAndEmail(
             @PathVariable("coach_id") Long id,
             @RequestParam String name,
@@ -196,7 +196,7 @@ public class CoachController {
      * @param id the coach ID
      * @param memberEntitySet the new set of clients
      */
-    @PatchMapping(path = "/add/clients/{coach_id}")
+    @PatchMapping(path = "/coaches/{coach_id}/clients/add")
     public void addClientsByIdAndEmail(
             @PathVariable("coach_id") Long id,
             @RequestParam String email,
@@ -212,7 +212,7 @@ public class CoachController {
      * @param email          Coach email
      * @param ids Id's of new clients
      */
-    @PatchMapping(path = "/replace/coach/clients/{coach_id}")
+    @PatchMapping(path = "/coaches/{coach_id}/clients/replace")
     public void replaceCLientListByIdAndEmail(
             @PathVariable("coach_id") Long id,
             @RequestParam String email,
@@ -229,7 +229,7 @@ public class CoachController {
      * @param email Coach email
      * @param role  New role (ROLE_MEMBER or ROLE_WORKER)
      */
-    @PatchMapping(path = "update/coach/role/{coach_id}")
+    @PatchMapping(path = "/coaches/{coach_id}/role")
     public void updateRoleOfACoach(
             @PathVariable("coach_id") Long id,
             @RequestParam String email,
@@ -245,7 +245,7 @@ public class CoachController {
      * @param email the email of the coach
      * @param coachEntity the updated coach object
      */
-    @PutMapping(path = "/update/coach/{coach_id}")
+    @PatchMapping(path = "/coaches/{coach_id}")
     public void updateCoachByIdAndEmail(
             @PathVariable("coach_id") Long id,
             @RequestParam String email,
@@ -261,7 +261,7 @@ public class CoachController {
      * @param email        Coach email for verification
      * @param workoutPlans List of new workout plans to assign
      */
-    @PutMapping(path = "/update/workout/plans/{coach_id}")
+    @PatchMapping(path = "/coaches/{coach_id}/plans")
     public void updateWorkoutPlans(
             @PathVariable("coach_id") Long id,
             @RequestParam String email,
@@ -280,7 +280,7 @@ public class CoachController {
      * @param email Email of the coach for verification
      * @param coachCode  New coach code to assign
      */
-    @PatchMapping (path = "update/coach/code/{coach_id}")
+    @PatchMapping (path = "/coaches/{coach_id}/code")
     public void updateCodeOfACoach(
             @PathVariable("coach_id") Long id,
             @RequestParam String email,
@@ -294,7 +294,7 @@ public class CoachController {
      *
      * @param id the coach ID
      */
-    @DeleteMapping(path = "/coach/{coach_id}")
+    @DeleteMapping(path = "/coaches/{coach_id}")
     public void deleteCoach(@PathVariable("coach_id") Long id){
         coachService.deleteCoachById(id);
     }
@@ -302,7 +302,7 @@ public class CoachController {
     /**
      * Deletes all coaches in the system.
      */
-    @DeleteMapping(path = "/coach")
+    @DeleteMapping(path = "/coaches")
     public void deleteAllCoaches(){
         coachService.deleteAllCoaches();
     }

@@ -38,7 +38,7 @@ public class MemberController {
      * @param id ID of the member
      * @return MemberDTO representation of the member
      */
-    @GetMapping(path = "/member/{member_id}")
+    @GetMapping(path = "/members/{member_id}")
     public ResponseEntity<MemberDTO> getMemberById(@PathVariable("member_id") Long id){
         MemberEntity memberEntity = memberService.getMemberById(id);
         MemberDTO memberDTO = memberMapper.convertToMemberDTO(memberEntity);
@@ -69,7 +69,7 @@ public class MemberController {
      * Gets the member with the highest bench press.
      * @return MemberDTO with the highest bench stat
      */
-    @GetMapping(path = "/member/highest/bench")
+    @GetMapping(path = "/members/highest/bench")
     public ResponseEntity<MemberDTO> getMemberWithHighestBench() {
         MemberEntity memberEntity = memberService.getMemberByHighestBench();
         MemberDTO memberDTO = memberMapper.convertToMemberDTO(memberEntity);
@@ -81,7 +81,7 @@ public class MemberController {
      * Gets the member with the highest squat.
      * @return MemberDTO with the highest squat stat
      */
-    @GetMapping(path = "/member/highest/squat")
+    @GetMapping(path = "/members/highest/squat")
     public MemberDTO getMemberWithHighestSquat() {
         MemberEntity memberEntity = memberService.getMemberByHighestSquat();
         return memberMapper.convertToMemberDTO(memberEntity);
@@ -91,7 +91,7 @@ public class MemberController {
      * Gets the member with the highest deadlift.
      * @return MemberDTO with the highest deadlift stat
      */
-    @GetMapping(path = "/member/highest/deadlift")
+    @GetMapping(path = "/members/highest/deadlift")
     public MemberDTO getMemberWithHighestDeadlift() {
         MemberEntity memberEntity = memberService.getMemberByHighestDeadlift();
         return memberMapper.convertToMemberDTO(memberEntity);
@@ -101,7 +101,7 @@ public class MemberController {
      * Gets the member with the highest combined total (bench + squat + deadlift).
      * @return MemberDTO with the highest total
      */
-    @GetMapping(path = "/member/highest/total")
+    @GetMapping(path = "/members/highest/total")
     public MemberDTO getMemberWithHighestTotal() {
         MemberEntity memberEntity = memberService.getMemberByHighestTotal();
         return memberMapper.convertToMemberDTO(memberEntity);
@@ -127,7 +127,7 @@ public class MemberController {
      * @return a list of {@link MemberDTO} objects representing avaliable members (members without coaches).
      * @throws IllegalStateException if no available members are found (thrown from the service layer).
      */
-    @GetMapping(path = "/available/members")
+    @GetMapping(path = "/members/no-coach")
     public List<MemberDTO> getAllAvaliableMembers(){
         List<MemberEntity> memberEntities = memberService.getAllAvaliableMembers();
         return memberEntities.stream()
@@ -139,7 +139,7 @@ public class MemberController {
      * Registers a single new member.
      * @param memberEntity The member entity to be saved
      */
-    @PostMapping(path = "/member")
+    @PostMapping(path = "/members")
     public void registerOneMember(@Valid @RequestBody MemberEntity memberEntity){
         memberService.registerNewMember(memberEntity);
     }
@@ -149,7 +149,7 @@ public class MemberController {
      * Validates that at least 2 members are submitted.
      * @param memberEntities List of new member entities
      */
-    @PostMapping(path = "/members")
+    @PostMapping(path = "/members/batch")
     public void registerMultipleMembers(
             @Size(min = 2, message = "At least two members must be provided,  if you only need to register one member use the singular endpoint")
             @NotNull(message = "List of members must not be null")
@@ -164,7 +164,7 @@ public class MemberController {
      * @param oldCoachesID   ID of the current coach
      * @param newCoachesID   ID of the new coach to assign
      */
-    @PatchMapping(path = "/update/coachedBy/{member_id}/{oldCoach_ID}/{newCoach_id}")
+    @PatchMapping(path = "/members/{member_id}/oldCoach/{oldCoach_ID}/newCoach/{newCoach_id}")
     public void replaceCoach(
             @PathVariable("member_id") Long id,
             @PathVariable("oldCoach_ID") Long oldCoachesID,
@@ -178,7 +178,7 @@ public class MemberController {
      *
      * @param id Member ID
      */
-    @PatchMapping(path = "/remove/coachedBy/{member_id}")
+    @PatchMapping(path = "/members/{member_id}/coach/remove")
     public void removeCoachedBy(@PathVariable("member_id") Long id){
         memberService.removeCoachedBy(id);
     }
@@ -189,7 +189,7 @@ public class MemberController {
      * @param name New name
      * @param email Current email
      */
-    @PatchMapping(path = "/member/{member_id}")
+    @PatchMapping(path = "/members/{member_id}/name")
     public void updateNameById(
             @PathVariable("member_id") Long id,
            @RequestParam(name = "name") String name,
@@ -202,7 +202,7 @@ public class MemberController {
      * Batch update names of multiple members based on lists of IDs and emails.
      * @param request Object containing IDs, names, and emails
      */
-    @PatchMapping(path = "/update/members")
+    @PatchMapping(path = "/members/name")
     public void updateListOfNamesByListOfIds(@Valid @RequestBody UpdateMultipleMembersRequest request){
         memberService.updateMultipleMembersNameByIdAndEmail(request.getIds(), request.getNames(), request.getEmails());
     }
@@ -214,7 +214,7 @@ public class MemberController {
      * @param squat New squat value
      * @param deadlift New deadlift value
      */
-    @PatchMapping(path = "/update/sbd/{member_id}")
+    @PatchMapping(path = "/members/{member_id}/sbd")
     public void updateSBDStats(
             @PathVariable("member_id") Long id,
             @RequestParam String email,
@@ -232,7 +232,7 @@ public class MemberController {
      * @param email Member email for verification
      * @param role  New role to assign (ROLE_COACH, ROLE_WORKER, or ROLE_MEMBER)
      */
-    @PatchMapping(path = "/update/role/of/member/{member_id}")
+    @PatchMapping(path = "/members/{member_id}/role")
     public void updateRoleOfAMemberByIdAndEmail(
             @PathVariable("member_id") Long id,
             @RequestParam String email,
@@ -246,7 +246,7 @@ public class MemberController {
      * @param id Member ID
      * @param updatedEntity Full MemberEntity with updated fields
      */
-    @PutMapping(path = "/member/{member_id}")
+    @PutMapping(path = "/members/{member_id}")
     public void updateFullMember(
             @PathVariable("member_id") Long id,
             @RequestParam String email,
@@ -259,7 +259,7 @@ public class MemberController {
      * Deletes a single member by ID.
      * @param id Member ID
      */
-    @DeleteMapping(path = "member/{member_id}")
+    @DeleteMapping(path = "members/{member_id}")
     public void deleteMemberById(@PathVariable("member_id") Long id){
         memberService.deleteMemberById(id);
     }
@@ -268,7 +268,7 @@ public class MemberController {
      * Deletes all members whose total (bench + squat + deadlift) is below the specified value.
      * @param total The minimum total threshold
      */
-    @DeleteMapping(path = "delete/all/below/{total}")
+    @DeleteMapping(path = "members/below/total/{total}")
     public void deleteAllMembersBelowATotal(@PathVariable("total") int total){
         memberService.deleteMembersBelowATotal(total);
     }

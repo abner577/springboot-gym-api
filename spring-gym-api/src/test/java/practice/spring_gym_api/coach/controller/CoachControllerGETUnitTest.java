@@ -84,7 +84,7 @@ public class CoachControllerGETUnitTest {
         when(coachMapper.convertToCoachDto(coachEntity1)).thenReturn(coachDTO1);
 
         // Act
-        mvc.perform(get("/api/v1/gym-api/coach/id/" + 1L))
+        mvc.perform(get("/api/v1/gym-api/coaches/" + 1L))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("Alex Smith"))
@@ -109,7 +109,7 @@ public class CoachControllerGETUnitTest {
                 .thenThrow(new NoSuchElementException("Coach with an id of: " + fakeID + " doesnt exist"));
 
         // Act
-        mvc.perform(get("/api/v1/gym-api/coach/id/" + fakeID))
+        mvc.perform(get("/api/v1/gym-api/coaches/" + fakeID))
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message").value("Coach with an id of: " + fakeID + " doesnt exist"));
@@ -128,7 +128,7 @@ public class CoachControllerGETUnitTest {
                 .thenReturn(List.of("FBEOD", "Upper/Lower"));
 
         // Act
-        mvc.perform(get("/api/v1/gym-api/coach/name/" + coachDTO1.getName()))
+        mvc.perform(get("/api/v1/gym-api/coaches/" + coachDTO1.getName() + "/plans"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0]").value("FBEOD"))
@@ -151,7 +151,7 @@ public class CoachControllerGETUnitTest {
                 .thenReturn(coachDTO2);
 
         // Act
-        mvc.perform(get("/api/v1/gym-api/avaliable/coaches"))
+        mvc.perform(get("/api/v1/gym-api/coaches/no-clients"))
                 .andDo(print())
                 .andExpect(jsonPath("$[0]").isNotEmpty())
                 .andExpect(jsonPath("$[1]").isNotEmpty())
@@ -176,7 +176,7 @@ public class CoachControllerGETUnitTest {
         when(coachMapper.convertToCoachDto(coachEntity1)).thenReturn(coachDTO1);
 
         // Act
-        mvc.perform(get("/api/v1/gym-api/best/coach"))
+        mvc.perform(get("/api/v1/gym-api/coaches/most-clients"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(coachEntity1.getName()))
@@ -198,7 +198,7 @@ public class CoachControllerGETUnitTest {
         when(coachMapper.convertToCoachDto(coachEntity2)).thenReturn(coachDTO2);
 
         // Act
-        mvc.perform(get("/api/v1/gym-api/worst/coach"))
+        mvc.perform(get("/api/v1/gym-api/coaches/least-clients"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value(coachEntity2.getName()))
@@ -258,7 +258,7 @@ public class CoachControllerGETUnitTest {
                 .thenReturn(memberDTO5);
 
         // Act
-        mvc.perform(get("/api/v1/gym-api/clients/of/" + 1L))
+        mvc.perform(get("/api/v1/gym-api/coaches/1/clients"))
                 .andDo(print())
                 .andExpect(jsonPath("$", hasSize(3)))
                 .andExpect(jsonPath("$[*]name", containsInAnyOrder(
@@ -285,7 +285,7 @@ public class CoachControllerGETUnitTest {
         when(coachMapper.convertToCoachDto(coachEntity1)).thenReturn(coachDTO1);
 
         // Act
-        mvc.perform(get("/api/v1/gym-api/coach/by/" + 1L)
+        mvc.perform(get("/api/v1/gym-api/coaches/1/verify")
                         .param("code", coachEntity1.getCoachCode()))
                 .andDo(print())
                 .andExpect(status().isOk())
@@ -307,7 +307,7 @@ public class CoachControllerGETUnitTest {
                 .thenThrow(new IllegalStateException("Coach with an id of: " + id + " isnt the same coach with a coach code of: " + coachCode));
 
         // Act
-        mvc.perform(get("/api/v1/gym-api/coach/by/" + 1L)
+        mvc.perform(get("/api/v1/gym-api/coaches/" + id + "/verify")
                 .param("code", coachCode))
                 .andDo(print())
                 .andExpect(status().isBadRequest())

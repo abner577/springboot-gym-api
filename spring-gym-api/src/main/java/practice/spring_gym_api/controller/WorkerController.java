@@ -26,7 +26,7 @@ public class WorkerController {
      * @param id Worker ID
      * @return WorkerDTO representing the worker
      */
-    @GetMapping(path = "worker/{worker_id}")
+    @GetMapping(path = "workers/{worker_id}")
     public WorkerDTO getWorkerByID(@PathVariable("worker_id") Long id){
         WorkerEntity workerEntity = workerService.getWorkerById(id);
         return workerMapper.convertToWorkerDTO(workerEntity);
@@ -39,7 +39,7 @@ public class WorkerController {
      * @param code  Worker code to verify
      * @return      Matching WorkerDTO
      */
-    @GetMapping(path = "worker/{worker_id}/")
+    @GetMapping(path = "workers/{worker_id}/code")
     public WorkerDTO getWorkerByCode(
             @PathVariable("worker_id") Long id,
             @RequestParam String code
@@ -53,7 +53,7 @@ public class WorkerController {
      *
      * @param workerEntity WorkerEntity object to be registered
      */
-    @PostMapping (path = "worker")
+    @PostMapping (path = "workers")
     public void registerNewWorker(@Valid @RequestBody WorkerEntity workerEntity) {
         workerService.registerNewWorker(workerEntity);
     }
@@ -65,7 +65,7 @@ public class WorkerController {
      * @param email Worker email
      * @param role  New role to assign
      */
-    @PatchMapping (path = "update/worker/role/{worker_id}")
+    @PatchMapping (path = "workers/{worker_id}/role")
     public void updateRoleOfAWorker(
             @PathVariable("worker_id") Long id,
             @RequestParam String email,
@@ -81,7 +81,7 @@ public class WorkerController {
      * @param email Email of the worker for verification
      * @param code  New worker code to assign
      */
-    @PatchMapping (path = "update/worker/code/{worker_id}")
+    @PatchMapping (path = "workers/{worker_id}/code")
     public void updateWorkerCodeById(
             @PathVariable("worker_id") Long id,
             @RequestParam String email,
@@ -97,7 +97,7 @@ public class WorkerController {
      * @param email         Email of the worker for verification
      * @param workerEntity  Updated worker data
      */
-    @PutMapping (path = "update/worker/{worker_id}")
+    @PutMapping (path = "workers/{worker_id}")
     public void updatedWorkerById(
             @PathVariable("worker_id") Long id,
             @RequestParam String email,
@@ -111,7 +111,7 @@ public class WorkerController {
      *
      * @param id Worker ID
      */
-    @DeleteMapping (path = "worker/{worker_id}")
+    @DeleteMapping (path = "workers/{worker_id}")
     public void deleteWorkerByID(@PathVariable("worker_id") Long id){
         workerService.deleteWorkerbyId(id);
     }
