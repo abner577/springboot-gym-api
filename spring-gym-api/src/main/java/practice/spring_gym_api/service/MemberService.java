@@ -4,6 +4,7 @@ package practice.spring_gym_api.service;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import practice.spring_gym_api.dto.request.MemberRequestDTO;
 import practice.spring_gym_api.entity.MemberEntity;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public interface MemberService {
     List<MemberEntity> getAllAvaliableMembers();
 
     // --- POST methods ---
-    void registerNewMember(MemberEntity memberEntity);
+    void registerNewMember(MemberRequestDTO memberEntity);
     void registerNewMembers(List<MemberEntity> memberEntities);
 
     // --- PUT/PATCH methods ---

@@ -1,5 +1,8 @@
 package practice.spring_gym_api.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,25 +23,23 @@ public class WorkerController {
         this.workerMapper= workerMapper;
     }
 
-    /**
-     * Retrieves a worker by their ID.
-     *
-     * @param id Worker ID
-     * @return WorkerDTO representing the worker
-     */
+    @Operation(summary = "Retrieves a worker by their ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Worker successfully retrieved"),
+            @ApiResponse(responseCode = "404", description = "Worker not found")
+    })
     @GetMapping(path = "workers/{worker_id}")
-    public WorkerDTO getWorkerByID(@PathVariable("worker_id") Long id){
+    public WorkerDTO getWorkerByID(@PathVariable("worker_id") Long id) {
         WorkerEntity workerEntity = workerService.getWorkerById(id);
         return workerMapper.convertToWorkerDTO(workerEntity);
     }
 
-    /**
-     * Retrieves a worker by their ID and worker code.
-     *
-     * @param id    ID of the worker
-     * @param code  Worker code to verify
-     * @return      Matching WorkerDTO
-     */
+    @Operation(summary = "Retrieves a worker by ID and code for verification")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Worker successfully retrieved"),
+            @ApiResponse(responseCode = "400", description = "Invalid worker code"),
+            @ApiResponse(responseCode = "404", description = "Worker not found")
+    })
     @GetMapping(path = "workers/{worker_id}/code")
     public WorkerDTO getWorkerByCode(
             @PathVariable("worker_id") Long id,
@@ -48,56 +49,53 @@ public class WorkerController {
         return workerMapper.convertToWorkerDTO(workerEntity);
     }
 
-    /**
-     * Registers a new worker in the system.
-     *
-     * @param workerEntity WorkerEntity object to be registered
-     */
-    @PostMapping (path = "workers")
+    @Operation(summary = "Registers a new worker")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Worker successfully registered"),
+            @ApiResponse(responseCode = "400", description = "Invalid worker data")
+    })
+    @PostMapping(path = "workers")
     public void registerNewWorker(@Valid @RequestBody WorkerEntity workerEntity) {
         workerService.registerNewWorker(workerEntity);
     }
 
-    /**
-     * Updates the role of a worker by ID and email.
-     *
-     * @param id    Worker ID
-     * @param email Worker email
-     * @param role  New role to assign
-     */
-    @PatchMapping (path = "workers/{worker_id}/role")
+    @Operation(summary = "Updates the role of a worker by ID and email")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Worker role successfully updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters"),
+            @ApiResponse(responseCode = "404", description = "Worker not found")
+    })
+    @PatchMapping(path = "workers/{worker_id}/role")
     public void updateRoleOfAWorker(
             @PathVariable("worker_id") Long id,
             @RequestParam String email,
             @RequestParam String role
-    ){
+    ) {
         workerService.updateRoleOfAWorker(id, email, role);
     }
 
-    /**
-     * Updates the worker code of a specific worker by ID.
-     *
-     * @param id    ID of the worker
-     * @param email Email of the worker for verification
-     * @param code  New worker code to assign
-     */
-    @PatchMapping (path = "workers/{worker_id}/code")
+    @Operation(summary = "Updates the worker code of a specific worker by ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Worker code successfully updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid request parameters"),
+            @ApiResponse(responseCode = "404", description = "Worker not found")
+    })
+    @PatchMapping(path = "workers/{worker_id}/code")
     public void updateWorkerCodeById(
             @PathVariable("worker_id") Long id,
             @RequestParam String email,
             @RequestParam String code
-    ){
+    ) {
         workerService.updateWorkerCodeById(id, email, code);
     }
 
-    /**
-     * Updates a worker's details by ID.
-     *
-     * @param id            ID of the worker to update
-     * @param email         Email of the worker for verification
-     * @param workerEntity  Updated worker data
-     */
-    @PutMapping (path = "workers/{worker_id}")
+    @Operation(summary = "Updates a worker's complete details using ID and email")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Worker successfully updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid update data"),
+            @ApiResponse(responseCode = "404", description = "Worker not found")
+    })
+    @PutMapping(path = "workers/{worker_id}")
     public void updatedWorkerById(
             @PathVariable("worker_id") Long id,
             @RequestParam String email,
@@ -106,13 +104,13 @@ public class WorkerController {
         workerService.updateWorkerById(id, email, workerEntity);
     }
 
-    /**
-     * Deletes a worker from the system by ID.
-     *
-     * @param id Worker ID
-     */
-    @DeleteMapping (path = "workers/{worker_id}")
-    public void deleteWorkerByID(@PathVariable("worker_id") Long id){
+    @Operation(summary = "Deletes a worker from the system by ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Worker successfully deleted"),
+            @ApiResponse(responseCode = "404", description = "Worker not found")
+    })
+    @DeleteMapping(path = "workers/{worker_id}")
+    public void deleteWorkerByID(@PathVariable("worker_id") Long id) {
         workerService.deleteWorkerbyId(id);
     }
 

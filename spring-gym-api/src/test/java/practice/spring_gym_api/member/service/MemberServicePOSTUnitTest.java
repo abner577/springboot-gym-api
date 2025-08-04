@@ -6,6 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import practice.spring_gym_api.dto.MemberMapper;
+import practice.spring_gym_api.dto.request.MemberRequestDTO;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import practice.spring_gym_api.entity.enums.Roles;
@@ -29,7 +31,11 @@ public class MemberServicePOSTUnitTest {
     @Mock
     private MemberRepository memberRepository;
 
+    @Mock
+    private MemberMapper memberMapper;
+
     private MemberEntity memberEntity1;
+    private MemberRequestDTO memberEntity1DTO;
     private MemberEntity memberEntity2;
     private CoachEntity coachEntity1;
 
@@ -42,7 +48,9 @@ public class MemberServicePOSTUnitTest {
     private String wrongEmail;
     private String noMembers;
 
-    private MemberEntity fakeMember;
+    private MemberRequestDTO fakeMember;
+    private MemberEntity fakeMemberEntity;
+
 
 
     @BeforeEach
@@ -60,7 +68,7 @@ public class MemberServicePOSTUnitTest {
         wrongEmail = "Member with an email of: " + email + " doesnt exist";
         noMembers = "There are currently no members registered";
 
-        fakeMember = new MemberEntity(
+        fakeMember = new MemberRequestDTO(
                 "Ginger Green",
                 LocalDate.of(1970, 4, 12),
                 "2023-10-10",
@@ -68,22 +76,38 @@ public class MemberServicePOSTUnitTest {
                 Roles.ROLE_MEMBER,
                100, 100, 100, 300
         );
+
+        fakeMemberEntity = new MemberEntity(
+                "Ginger Green",
+                LocalDate.of(1970, 4, 12),
+                "2023-10-10",
+                "gingerGreen@gmail.com",
+                Roles.ROLE_MEMBER,
+                100, 100, 100, 300
+        );
+
+        memberEntity1DTO = new MemberRequestDTO(
+                name, memberEntity1.getDateOfBirth(), memberEntity1.getMembershipDate(), email,
+                memberEntity1.getRole(), memberEntity1.getBench(), memberEntity1.getSquat(),
+                memberEntity1.getDeadlift(), memberEntity1.getTotal()
+        );
     }
 
     @Test
     void registerNewMember_SuccessfullySavesMemberToDB_IfCredentialsAreValid() {
         when(memberRepository.existsByEmail(fakeMember.getEmail())).thenReturn(false);
+        when(memberMapper.convertToMemberEntity(fakeMember)).thenReturn(fakeMemberEntity);
 
         memberService.registerNewMember(fakeMember);
 
-        verify(memberRepository, times(1)).save(fakeMember);
+        verify(memberRepository, times(1)).save(fakeMemberEntity);
     }
 
     @Test
     void registerNewMember_ThrowsExceptions_IfCredentialsArentValid() {
-        when(memberRepository.existsByEmail(memberEntity1.getEmail())).thenReturn(true);
+        when(memberRepository.existsByEmail(memberEntity1DTO.getEmail())).thenReturn(true);
 
-        var exception = assertThrows(IllegalStateException.class, () -> memberService.registerNewMember(memberEntity1));
+        var exception = assertThrows(IllegalStateException.class, () -> memberService.registerNewMember(memberEntity1DTO));
         assertEquals(emailExistsMessage, exception.getMessage());
 
         verify(memberRepository, times(0)).save(memberEntity1);

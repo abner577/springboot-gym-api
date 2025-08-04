@@ -2,6 +2,7 @@ package practice.spring_gym_api.dto.impl;
 
 import practice.spring_gym_api.dto.MemberDTO;
 import practice.spring_gym_api.dto.MemberMapper;
+import practice.spring_gym_api.dto.request.MemberRequestDTO;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import org.modelmapper.ModelMapper;
@@ -20,8 +21,9 @@ public class MemberMapperimpl implements MemberMapper {
     }
 
     @Override
-    public MemberEntity convertToMemberEntity(MemberDTO memberDTO) {
-        return modelMapper.map(memberDTO, MemberEntity.class);
+    public MemberEntity convertToMemberEntity(MemberRequestDTO m) {
+        return new MemberEntity(m.getName(), m.getDateOfBirth(), m.getMembershipDate(), m.getEmail(), m.getRole(),
+                m.getBench(), m.getSquat(), m.getDeadlift(), m.getTotal());
     }
 
     @Override
@@ -38,4 +40,6 @@ public class MemberMapperimpl implements MemberMapper {
     public WorkerEntity convertMemberToWorkerEntity (MemberEntity memberEntity){
         return new WorkerEntity(memberEntity.getName(), memberEntity.getDateOfBirth(), Roles.ROLE_WORKER, memberEntity.getEmail(), "Placeholder worker code");
     }
+
+
 }

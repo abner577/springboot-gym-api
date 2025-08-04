@@ -28,6 +28,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(customErrorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    // Handles NoSuchElementException
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<Object> handleNoSuchElementException(
             NoSuchElementException ex, WebRequest request
@@ -42,6 +43,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(customErrorResponse, HttpStatus.BAD_REQUEST);
     }
 
+    // Handles IllegalArgumentException
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<Object> handleIllegalArgumentException(
             IllegalArgumentException ex, WebRequest request

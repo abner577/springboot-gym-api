@@ -1,5 +1,8 @@
 package practice.spring_gym_api.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -12,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import practice.spring_gym_api.dto.MemberDTO;
 import practice.spring_gym_api.dto.MemberMapper;
 import practice.spring_gym_api.config.UpdateMultipleMembersRequest;
+import practice.spring_gym_api.dto.request.MemberRequestDTO;
 import practice.spring_gym_api.entity.MemberEntity;
 import practice.spring_gym_api.service.MemberService;
 
@@ -38,6 +42,11 @@ public class MemberController {
      * @param id ID of the member
      * @return MemberDTO representation of the member
      */
+    @Operation(summary = "Retrieves a member by their ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Member retrieved successfully"),
+            @ApiResponse(responseCode = "404", description = "Member not found")
+    })
     @GetMapping(path = "/members/{member_id}")
     public ResponseEntity<MemberDTO> getMemberById(@PathVariable("member_id") Long id){
         MemberEntity memberEntity = memberService.getMemberById(id);
@@ -51,6 +60,10 @@ public class MemberController {
      * @param size Number of members per page (default is 5)
      * @return List of paginated MemberDTOs
      */
+    @Operation(summary = "Retrieves all members with pagination")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Members retrieved successfully")
+    })
     @GetMapping(path = "/members")
     public List<MemberDTO> getAllMember(
             @RequestParam(defaultValue = "0") int page,
@@ -69,6 +82,10 @@ public class MemberController {
      * Gets the member with the highest bench press.
      * @return MemberDTO with the highest bench stat
      */
+    @Operation(summary = "Retrieves the member with the highest bench press")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Member retrieved successfully")
+    })
     @GetMapping(path = "/members/highest/bench")
     public ResponseEntity<MemberDTO> getMemberWithHighestBench() {
         MemberEntity memberEntity = memberService.getMemberByHighestBench();
@@ -76,11 +93,14 @@ public class MemberController {
         return ResponseEntity.ok(memberDTO);
     }
 
-
     /**
      * Gets the member with the highest squat.
      * @return MemberDTO with the highest squat stat
      */
+    @Operation(summary = "Retrieves the member with the highest squat")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Member retrieved successfully")
+    })
     @GetMapping(path = "/members/highest/squat")
     public MemberDTO getMemberWithHighestSquat() {
         MemberEntity memberEntity = memberService.getMemberByHighestSquat();
@@ -91,6 +111,10 @@ public class MemberController {
      * Gets the member with the highest deadlift.
      * @return MemberDTO with the highest deadlift stat
      */
+    @Operation(summary = "Retrieves the member with the highest deadlift")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Member retrieved successfully")
+    })
     @GetMapping(path = "/members/highest/deadlift")
     public MemberDTO getMemberWithHighestDeadlift() {
         MemberEntity memberEntity = memberService.getMemberByHighestDeadlift();
@@ -101,6 +125,10 @@ public class MemberController {
      * Gets the member with the highest combined total (bench + squat + deadlift).
      * @return MemberDTO with the highest total
      */
+    @Operation(summary = "Retrieves the member with the highest combined total")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Member retrieved successfully")
+    })
     @GetMapping(path = "/members/highest/total")
     public MemberDTO getMemberWithHighestTotal() {
         MemberEntity memberEntity = memberService.getMemberByHighestTotal();
@@ -112,6 +140,10 @@ public class MemberController {
      * @param total The minimum total to filter by
      * @return List of MemberDTOs
      */
+    @Operation(summary = "Retrieves members whose total exceeds a threshold")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Members retrieved successfully")
+    })
     @GetMapping(path = "/members/above/total/{member_total}")
     public List<MemberDTO> getAllMembersWithAGreaterTotalThan(@PathVariable("member_total") int total){
         List<MemberEntity> listOfEntities = memberService.getAllMembersAboveATotal(total);
@@ -127,6 +159,10 @@ public class MemberController {
      * @return a list of {@link MemberDTO} objects representing avaliable members (members without coaches).
      * @throws IllegalStateException if no available members are found (thrown from the service layer).
      */
+    @Operation(summary = "Retrieves all members not assigned to any coach")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Members retrieved successfully")
+    })
     @GetMapping(path = "/members/no-coach")
     public List<MemberDTO> getAllAvaliableMembers(){
         List<MemberEntity> memberEntities = memberService.getAllAvaliableMembers();
@@ -135,141 +171,133 @@ public class MemberController {
                 .toList();
     }
 
-    /**
-     * Registers a single new member.
-     * @param memberEntity The member entity to be saved
-     */
+    @Operation(summary = "Registers a single new member")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Member successfully registered"),
+            @ApiResponse(responseCode = "400", description = "Invalid member data")
+    })
     @PostMapping(path = "/members")
-    public void registerOneMember(@Valid @RequestBody MemberEntity memberEntity){
+    public void registerOneMember(@Valid @RequestBody MemberRequestDTO memberEntity) {
         memberService.registerNewMember(memberEntity);
     }
 
-    /**
-     * Registers multiple new members at once.
-     * Validates that at least 2 members are submitted.
-     * @param memberEntities List of new member entities
-     */
+    @Operation(summary = "Registers multiple new members at once")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Members successfully registered"),
+            @ApiResponse(responseCode = "400", description = "Invalid input or less than two members provided")
+    })
     @PostMapping(path = "/members/batch")
     public void registerMultipleMembers(
             @Size(min = 2, message = "At least two members must be provided,  if you only need to register one member use the singular endpoint")
             @NotNull(message = "List of members must not be null")
-            @RequestBody List<@Valid MemberEntity> memberEntities){
+            @RequestBody List<@Valid MemberEntity> memberEntities) {
         memberService.registerNewMembers(memberEntities);
     }
 
-    /**
-     * Replaces the current coach of a member with a new coach.
-     *
-     * @param id             Member ID
-     * @param oldCoachesID   ID of the current coach
-     * @param newCoachesID   ID of the new coach to assign
-     */
+    @Operation(summary = "Replaces the current coach of a member")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Coach successfully replaced"),
+            @ApiResponse(responseCode = "400", description = "Invalid member or coach ID")
+    })
     @PatchMapping(path = "/members/{member_id}/oldCoach/{oldCoach_ID}/newCoach/{newCoach_id}")
     public void replaceCoach(
             @PathVariable("member_id") Long id,
             @PathVariable("oldCoach_ID") Long oldCoachesID,
-            @PathVariable("newCoach_id") Long newCoachesID
-    ){
-      memberService.replaceCoach(id, oldCoachesID, newCoachesID);
+            @PathVariable("newCoach_id") Long newCoachesID) {
+        memberService.replaceCoach(id, oldCoachesID, newCoachesID);
     }
 
-    /**
-     * Removes the current coach assignment from a member.
-     *
-     * @param id Member ID
-     */
+    @Operation(summary = "Removes the current coach assignment from a member")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Coach successfully removed"),
+            @ApiResponse(responseCode = "400", description = "Invalid member ID")
+    })
     @PatchMapping(path = "/members/{member_id}/coach/remove")
-    public void removeCoachedBy(@PathVariable("member_id") Long id){
+    public void removeCoachedBy(@PathVariable("member_id") Long id) {
         memberService.removeCoachedBy(id);
     }
 
-    /**
-     * Updates the name of a member using their ID and email for validation.
-     * @param id Member ID
-     * @param name New name
-     * @param email Current email
-     */
+    @Operation(summary = "Updates the name of a member using ID and email")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Name successfully updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid member ID or email")
+    })
     @PatchMapping(path = "/members/{member_id}/name")
     public void updateNameById(
             @PathVariable("member_id") Long id,
-           @RequestParam(name = "name") String name,
-           @RequestParam(name = "email") String email
-    ) {
+            @RequestParam(name = "name") String name,
+            @RequestParam(name = "email") String email) {
         memberService.updateNameByIdAndEmail(id, name, email);
     }
 
-    /**
-     * Batch update names of multiple members based on lists of IDs and emails.
-     * @param request Object containing IDs, names, and emails
-     */
+    @Operation(summary = "Batch update names of multiple members by IDs and emails")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Names successfully updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid request body")
+    })
     @PatchMapping(path = "/members/name")
-    public void updateListOfNamesByListOfIds(@Valid @RequestBody UpdateMultipleMembersRequest request){
+    public void updateListOfNamesByListOfIds(@Valid @RequestBody UpdateMultipleMembersRequest request) {
         memberService.updateMultipleMembersNameByIdAndEmail(request.getIds(), request.getNames(), request.getEmails());
     }
 
-    /**
-     * Updates SBD (squat, bench, deadlift) stats for a member.
-     * @param id Member ID
-     * @param bench New bench value
-     * @param squat New squat value
-     * @param deadlift New deadlift value
-     */
+    @Operation(summary = "Updates SBD (squat, bench, deadlift) stats for a member")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "SBD stats successfully updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid ID or stat values")
+    })
     @PatchMapping(path = "/members/{member_id}/sbd")
     public void updateSBDStats(
             @PathVariable("member_id") Long id,
             @RequestParam String email,
             @RequestParam int bench,
             @RequestParam int squat,
-            @RequestParam int deadlift
-    ) {
+            @RequestParam int deadlift) {
         memberService.updateSBDStatus(id, email, bench, squat, deadlift);
     }
 
-    /**
-     * Updates the role of a member by ID and email.
-     *
-     * @param id    Member ID
-     * @param email Member email for verification
-     * @param role  New role to assign (ROLE_COACH, ROLE_WORKER, or ROLE_MEMBER)
-     */
+    @Operation(summary = "Updates the role of a member by ID and email")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Role successfully updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid role or member credentials")
+    })
     @PatchMapping(path = "/members/{member_id}/role")
     public void updateRoleOfAMemberByIdAndEmail(
             @PathVariable("member_id") Long id,
             @RequestParam String email,
-            @RequestParam String role
-    ) {
+            @RequestParam String role) {
         memberService.updatedRoleOfAMemberByIdAndEmail(id, email, role);
     }
 
-    /**
-     * Updates a member's entire record using their ID.
-     * @param id Member ID
-     * @param updatedEntity Full MemberEntity with updated fields
-     */
+    @Operation(summary = "Updates a member's full record using ID and email")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Member successfully updated"),
+            @ApiResponse(responseCode = "400", description = "Invalid update data or credentials")
+    })
     @PutMapping(path = "/members/{member_id}")
     public void updateFullMember(
             @PathVariable("member_id") Long id,
             @RequestParam String email,
-            @Valid @RequestBody MemberEntity updatedEntity
-    ){
+            @Valid @RequestBody MemberEntity updatedEntity) {
         memberService.updateCompleteMember(id, email, updatedEntity);
     }
 
-    /**
-     * Deletes a single member by ID.
-     * @param id Member ID
-     */
+    @Operation(summary = "Deletes a single member by ID")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Member successfully deleted"),
+            @ApiResponse(responseCode = "400", description = "Invalid member ID")
+    })
     @DeleteMapping(path = "members/{member_id}")
-    public void deleteMemberById(@PathVariable("member_id") Long id){
+    public void deleteMemberById(@PathVariable("member_id") Long id) {
         memberService.deleteMemberById(id);
     }
 
-    /**
-     * Deletes all members whose total (bench + squat + deadlift) is below the specified value.
-     * @param total The minimum total threshold
-     */
+    @Operation(summary = "Deletes all members whose total (bench+squat+deadlift) is below a threshold")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Members successfully deleted"),
+            @ApiResponse(responseCode = "400", description = "Invalid total value")
+    })
     @DeleteMapping(path = "members/below/total/{total}")
-    public void deleteAllMembersBelowATotal(@PathVariable("total") int total){
+    public void deleteAllMembersBelowATotal(@PathVariable("total") int total) {
         memberService.deleteMembersBelowATotal(total);
     }
 }

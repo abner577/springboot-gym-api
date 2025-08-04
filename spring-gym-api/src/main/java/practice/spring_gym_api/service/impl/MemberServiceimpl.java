@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.context.SecurityContextHolder;
 import practice.spring_gym_api.dto.MemberMapper;
+import practice.spring_gym_api.dto.request.MemberRequestDTO;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import org.springframework.stereotype.Service;
@@ -192,9 +193,10 @@ public class MemberServiceimpl implements MemberService {
      * @throws IllegalStateException if a member with the same email exists
      */
     @Override
-    public void registerNewMember(MemberEntity memberEntity) {
+    public void registerNewMember(MemberRequestDTO memberEntity) {
         if(memberRepository.existsByEmail(memberEntity.getEmail())) throw new IllegalStateException("Member with an email of: " + memberEntity.getEmail() + " already exists");
-        memberRepository.save(memberEntity);
+        MemberEntity memberEntity1 = memberMapper.convertToMemberEntity(memberEntity);
+        memberRepository.save(memberEntity1);
     }
 
     /**
