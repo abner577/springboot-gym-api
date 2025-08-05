@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import practice.spring_gym_api.dto.WorkerDTO;
 import practice.spring_gym_api.dto.WorkerMapper;
+import practice.spring_gym_api.dto.request.WorkerRequestDTO;
 import practice.spring_gym_api.entity.WorkerEntity;
 import practice.spring_gym_api.service.WorkerService;
 
@@ -55,8 +56,8 @@ public class WorkerController {
             @ApiResponse(responseCode = "400", description = "Invalid worker data")
     })
     @PostMapping(path = "workers")
-    public void registerNewWorker(@Valid @RequestBody WorkerEntity workerEntity) {
-        workerService.registerNewWorker(workerEntity);
+    public void registerNewWorker(@Valid @RequestBody WorkerRequestDTO workerRequestDTO) {
+        workerService.registerNewWorker(workerRequestDTO);
     }
 
     @Operation(summary = "Updates the role of a worker by ID and email")

@@ -3,6 +3,7 @@ package practice.spring_gym_api.dto.impl;
 import practice.spring_gym_api.dto.CoachDTO;
 import practice.spring_gym_api.dto.CoachMapper;
 import practice.spring_gym_api.dto.MemberDTO;
+import practice.spring_gym_api.dto.request.CoachRequestDTO;
 import practice.spring_gym_api.entity.CoachEntity;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
@@ -28,8 +29,12 @@ public class CoachMapperimpl implements CoachMapper {
     }
 
     @Override
-    public CoachEntity convertToCoachEntity(CoachDTO coachDTO) {
-        return modelMapper.map(coachDTO, CoachEntity.class);
+    public CoachEntity convertToCoachEntity(CoachRequestDTO coachRequestDTO) {
+        return new CoachEntity(
+                coachRequestDTO.getName(), coachRequestDTO.getDateOfBirth(),
+                coachRequestDTO.getRole(), coachRequestDTO.getEmail(),
+                coachRequestDTO.getWorkoutPlans(), "Placeholder coach code"
+        );
     }
 
     @Override

@@ -2,6 +2,7 @@ package practice.spring_gym_api.dto.impl;
 
 import practice.spring_gym_api.dto.WorkerDTO;
 import practice.spring_gym_api.dto.WorkerMapper;
+import practice.spring_gym_api.dto.request.WorkerRequestDTO;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import practice.spring_gym_api.entity.WorkerEntity;
@@ -21,8 +22,11 @@ public class WorkerMapperimpl implements WorkerMapper {
     }
 
     @Override
-    public WorkerEntity convertToWorkerEntity(WorkerDTO workerDTO) {
-        return modelMapper.map(workerDTO, WorkerEntity.class);
+    public WorkerEntity convertToWorkerEntity(WorkerRequestDTO workerRequestDTO) {
+        return new WorkerEntity(
+                workerRequestDTO.getName(), workerRequestDTO.getDateOfBirth(), workerRequestDTO.getRole(),
+                workerRequestDTO.getEmail(), "Placeholder worker code"
+        );
     }
 
     @Override

@@ -189,26 +189,28 @@ public class MemberServiceimpl implements MemberService {
     /**
      * Registers a new member after checking for email uniqueness.
      *
-     * @param memberEntity Member to register
+     * @param memberRequestDTO Member to register
      * @throws IllegalStateException if a member with the same email exists
      */
     @Override
-    public void registerNewMember(MemberRequestDTO memberEntity) {
-        if(memberRepository.existsByEmail(memberEntity.getEmail())) throw new IllegalStateException("Member with an email of: " + memberEntity.getEmail() + " already exists");
-        MemberEntity memberEntity1 = memberMapper.convertToMemberEntity(memberEntity);
-        memberRepository.save(memberEntity1);
+    public void registerNewMember(MemberRequestDTO memberRequestDTO) {
+        if(memberRepository.existsByEmail(memberRequestDTO.getEmail())) throw new IllegalStateException("Member with an email of: " + memberRequestDTO.getEmail() + " already exists");
+        MemberEntity memberEntity = memberMapper.convertToMemberEntity(memberRequestDTO);
+        memberRepository.save(memberEntity);
     }
 
     /**
      * Registers multiple members at once. All emails must be unique.
      *
-     * @param memberEntities List of members to register
+     * @param memberRequestDTOS List of members to register
      * @throws IllegalStateException if any email already exists
      */
     @Override
-    public void registerNewMembers(List<MemberEntity> memberEntities) {
-        for(MemberEntity memberEntity : memberEntities){
-            if(memberRepository.existsByEmail(memberEntity.getEmail())) throw new IllegalStateException("Member with an email of: " + memberEntity.getEmail() + " already exists");
+    public void registerNewMembers(List<MemberRequestDTO> memberRequestDTOS) {
+        List<MemberEntity> memberEntities = new ArrayList<>();
+        for(MemberRequestDTO memberRequestDTO : memberRequestDTOS){
+            if(memberRepository.existsByEmail(memberRequestDTO.getEmail())) throw new IllegalStateException("Member with an email of: " + memberRequestDTO.getEmail() + " already exists");
+            memberEntities.add(memberMapper.convertToMemberEntity(memberRequestDTO));
         }
         memberRepository.saveAll(memberEntities);
     }
@@ -353,11 +355,11 @@ public class MemberServiceimpl implements MemberService {
      * Fully replaces the data of a member by ID.
      *
      * @param id            Member ID
-     * @param memberEntity The full replacement member entity
+     * @param memberRequestDTO The full replacement member entity
      * @throws IllegalStateException if no member with the given ID exists
      */
     @Override
-    public void updateCompleteMember(Long id, String email, MemberEntity memberEntity) {
+    public void updateCompleteMember(Long id, String email, MemberRequestDTO memberRequestDTO) {
         MemberEntity entityToUpdate = memberRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Member with an id of: " + id + " doesnt exist"));
 
@@ -367,21 +369,21 @@ public class MemberServiceimpl implements MemberService {
         if(entityToUpdateEmail == null) throw new NoSuchElementException("Member with an email of: " + email + " doesnt exist");
         if(!entityToUpdate.equals(entityToUpdateEmail)) throw new IllegalStateException("Member with an id of: " + id + " is not the same member that has an email of: " + email);
 
-        if(!entityToUpdate.getEmail().equals(memberEntity.getEmail())) {
-            MemberEntity memberEntity1 = memberRepository.findMemberByEmail(memberEntity.getEmail());
-            if(memberEntity1 != null) throw new IllegalStateException("The updated email that you are trying to give to " + memberEntity.getName() + " is already registered under another member");
+        if(!entityToUpdate.getEmail().equals(memberRequestDTO.getEmail())) {
+            MemberEntity memberEntity1 = memberRepository.findMemberByEmail(memberRequestDTO.getEmail());
+            if(memberEntity1 != null) throw new IllegalStateException("The updated email that you are trying to give to " + memberRequestDTO.getName() + " is already registered under another member");
         }
 
-        int total = memberEntity.getBench() + memberEntity.getSquat() + memberEntity.getDeadlift();
+        int total = memberRequestDTO.getBench() + memberRequestDTO.getSquat() + memberRequestDTO.getDeadlift();
 
-        entityToUpdate.setName(memberEntity.getName());
-        entityToUpdate.setEmail(memberEntity.getEmail());
-        entityToUpdate.setRole(memberEntity.getRole());
-        entityToUpdate.setDateOfBirth(memberEntity.getDateOfBirth());
-        entityToUpdate.setMembershipDate(memberEntity.getMembershipDate());
-        entityToUpdate.setBench(memberEntity.getBench());
-        entityToUpdate.setSquat(memberEntity.getSquat());
-        entityToUpdate.setDeadlift(memberEntity.getDeadlift());
+        entityToUpdate.setName(memberRequestDTO.getName());
+        entityToUpdate.setEmail(memberRequestDTO.getEmail());
+        entityToUpdate.setRole(memberRequestDTO.getRole());
+        entityToUpdate.setDateOfBirth(memberRequestDTO.getDateOfBirth());
+        entityToUpdate.setMembershipDate(memberRequestDTO.getMembershipDate());
+        entityToUpdate.setBench(memberRequestDTO.getBench());
+        entityToUpdate.setSquat(memberRequestDTO.getSquat());
+        entityToUpdate.setDeadlift(memberRequestDTO.getDeadlift());
         entityToUpdate.setTotal(total);
 
         memberRepository.save(entityToUpdate);

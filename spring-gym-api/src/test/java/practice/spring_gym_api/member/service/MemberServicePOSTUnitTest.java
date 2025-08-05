@@ -35,7 +35,7 @@ public class MemberServicePOSTUnitTest {
     private MemberMapper memberMapper;
 
     private MemberEntity memberEntity1;
-    private MemberRequestDTO memberEntity1DTO;
+    private MemberRequestDTO memberEntity1RequestDTO;
     private MemberEntity memberEntity2;
     private CoachEntity coachEntity1;
 
@@ -48,7 +48,7 @@ public class MemberServicePOSTUnitTest {
     private String wrongEmail;
     private String noMembers;
 
-    private MemberRequestDTO fakeMember;
+    private MemberRequestDTO fakeMemberRequestDTO;
     private MemberEntity fakeMemberEntity;
 
 
@@ -68,7 +68,7 @@ public class MemberServicePOSTUnitTest {
         wrongEmail = "Member with an email of: " + email + " doesnt exist";
         noMembers = "There are currently no members registered";
 
-        fakeMember = new MemberRequestDTO(
+        fakeMemberRequestDTO = new MemberRequestDTO(
                 "Ginger Green",
                 LocalDate.of(1970, 4, 12),
                 "2023-10-10",
@@ -86,7 +86,7 @@ public class MemberServicePOSTUnitTest {
                 100, 100, 100, 300
         );
 
-        memberEntity1DTO = new MemberRequestDTO(
+        memberEntity1RequestDTO = new MemberRequestDTO(
                 name, memberEntity1.getDateOfBirth(), memberEntity1.getMembershipDate(), email,
                 memberEntity1.getRole(), memberEntity1.getBench(), memberEntity1.getSquat(),
                 memberEntity1.getDeadlift(), memberEntity1.getTotal()
@@ -95,19 +95,19 @@ public class MemberServicePOSTUnitTest {
 
     @Test
     void registerNewMember_SuccessfullySavesMemberToDB_IfCredentialsAreValid() {
-        when(memberRepository.existsByEmail(fakeMember.getEmail())).thenReturn(false);
-        when(memberMapper.convertToMemberEntity(fakeMember)).thenReturn(fakeMemberEntity);
+        when(memberRepository.existsByEmail(fakeMemberRequestDTO.getEmail())).thenReturn(false);
+        when(memberMapper.convertToMemberEntity(fakeMemberRequestDTO)).thenReturn(fakeMemberEntity);
 
-        memberService.registerNewMember(fakeMember);
+        memberService.registerNewMember(fakeMemberRequestDTO);
 
         verify(memberRepository, times(1)).save(fakeMemberEntity);
     }
 
     @Test
     void registerNewMember_ThrowsExceptions_IfCredentialsArentValid() {
-        when(memberRepository.existsByEmail(memberEntity1DTO.getEmail())).thenReturn(true);
+        when(memberRepository.existsByEmail(memberEntity1RequestDTO.getEmail())).thenReturn(true);
 
-        var exception = assertThrows(IllegalStateException.class, () -> memberService.registerNewMember(memberEntity1DTO));
+        var exception = assertThrows(IllegalStateException.class, () -> memberService.registerNewMember(memberEntity1RequestDTO));
         assertEquals(emailExistsMessage, exception.getMessage());
 
         verify(memberRepository, times(0)).save(memberEntity1);
@@ -115,25 +115,24 @@ public class MemberServicePOSTUnitTest {
 
     @Test
     void registerNewMembers_SuccessfullySavesMembersToDB_IfCredentialsAreValid() {
-        when(memberRepository.existsByEmail(memberEntity1.getEmail())).thenReturn(false);
-        when(memberRepository.existsByEmail(memberEntity2.getEmail())).thenReturn(false);
+        when(memberRepository.existsByEmail(memberEntity1RequestDTO.getEmail())).thenReturn(false);
+        when(memberMapper.convertToMemberEntity(memberEntity1RequestDTO)).thenReturn(memberEntity1);
 
-        memberService.registerNewMembers(List.of(memberEntity1, memberEntity2));
+        memberService.registerNewMembers(List.of(memberEntity1RequestDTO));
 
-        verify(memberRepository, times(1)).existsByEmail(memberEntity1.getEmail());
-        verify(memberRepository, times(1)).existsByEmail(memberEntity2.getEmail());
-        verify(memberRepository, times(1)).saveAll(List.of(memberEntity1, memberEntity2));
+        verify(memberRepository, times(1)).existsByEmail(memberEntity1RequestDTO.getEmail());
+        verify(memberRepository, times(1)).saveAll(List.of(memberEntity1));
     }
 
     @Test
     void registerNewMembers_ThrowsExceptions_IfCredentialsArentValid() {
-        when(memberRepository.existsByEmail(memberEntity1.getEmail())).thenReturn(true);
+        when(memberRepository.existsByEmail(memberEntity1RequestDTO.getEmail())).thenReturn(true);
 
         var exception = assertThrows(IllegalStateException.class, () ->
-                memberService.registerNewMembers(List.of(memberEntity1, memberEntity2)));
+                memberService.registerNewMembers(List.of(memberEntity1RequestDTO)));
         assertEquals(emailExistsMessage, exception.getMessage());
 
-        verify(memberRepository, times(1)).existsByEmail(memberEntity1.getEmail());
+        verify(memberRepository, times(1)).existsByEmail(memberEntity1RequestDTO.getEmail());
         verifyNoMoreInteractions(memberRepository);
     }
 }

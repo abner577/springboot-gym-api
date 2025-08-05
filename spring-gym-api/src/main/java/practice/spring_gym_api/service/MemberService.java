@@ -23,14 +23,14 @@ public interface MemberService {
 
     // --- POST methods ---
     void registerNewMember(MemberRequestDTO memberEntity);
-    void registerNewMembers(List<MemberEntity> memberEntities);
+    void registerNewMembers(List<MemberRequestDTO> memberRequestDTOS);
 
     // --- PUT/PATCH methods ---
     void replaceCoach(Long id, Long oldCoachesID, Long newCoachesID);
     void updateNameByIdAndEmail(Long id, String name, String email);
     void updateMultipleMembersNameByIdAndEmail(List<Long> ids, List<String> names, List<String> emails);
     void updateSBDStatus(Long id, String email, int bench, int squat, int deadlift); //make these requestParams, so make them optional, any one of them
-    void updateCompleteMember(Long id, String email, MemberEntity memberEntity);
+    void updateCompleteMember(Long id, String email, MemberRequestDTO memberRequestDTO);
     void removeCoachedBy(Long id);
     void updatedRoleOfAMemberByIdAndEmail(Long id, String email, String role);
 

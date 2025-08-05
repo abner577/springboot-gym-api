@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import practice.spring_gym_api.controller.CoachController;
 import practice.spring_gym_api.dto.CoachMapper;
 import practice.spring_gym_api.dto.MemberMapper;
+import practice.spring_gym_api.dto.request.CoachRequestDTO;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.enums.Roles;
 import practice.spring_gym_api.security.filter.CoachAuthFilter;
@@ -61,6 +62,7 @@ public class CoachControllerPOSTUnitTest {
     private CoachEntity coachEntity1;
     private CoachEntity coachEntity2;
     private CoachEntity fakeCoachEntity;
+    private CoachRequestDTO fakeCoachEntityRequestDTO;
 
     @BeforeEach
     void setup(){
@@ -76,6 +78,14 @@ public class CoachControllerPOSTUnitTest {
                 List.of("PPL", "Arnold"),
                 "PEM-990X-YTR8"
         );
+
+        fakeCoachEntityRequestDTO = new CoachRequestDTO(
+                "Ginger Green",
+                "gingerGreen@gmail.com",
+                LocalDate.of(1970, 4, 12),
+                Roles.ROLE_COACH,
+                List.of("PPL", "Arnold")
+        );
     }
 
     @Test
@@ -83,7 +93,7 @@ public class CoachControllerPOSTUnitTest {
     void registerNewCoach_ThrowsIllegalArgumentException_WhenEmailOfNewCoachAlreadyExists() throws Exception {
         // Arrange
         doThrow(new IllegalArgumentException("Coach with an email of: " + coachEntity1.getEmail() + " already exists"))
-                .when(coachService).registerNewCoach(fakeCoachEntity);
+                .when(coachService).registerNewCoach(fakeCoachEntityRequestDTO);
 
         // Act
         System.out.println(objectMapper.writeValueAsString(fakeCoachEntity));
@@ -96,7 +106,7 @@ public class CoachControllerPOSTUnitTest {
                 .andExpect(jsonPath("$.message").value("Coach with an email of: " + coachEntity1.getEmail() + " already exists"));
 
         // Assert
-        verify(coachService, times(1)).registerNewCoach(fakeCoachEntity);
+        verify(coachService, times(1)).registerNewCoach(fakeCoachEntityRequestDTO);
         verifyNoMoreInteractions(coachService);
     }
 }

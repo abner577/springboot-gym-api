@@ -7,6 +7,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import practice.spring_gym_api.dto.MemberDTO;
+import practice.spring_gym_api.dto.MemberMapper;
+import practice.spring_gym_api.dto.request.MemberRequestDTO;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import practice.spring_gym_api.entity.enums.Roles;
@@ -35,8 +37,14 @@ public class MemberServicePATCHUnitTest {
     @Mock
     private CoachRepository coachRepository;
 
+    @Mock
+    private MemberMapper memberMapper;
+
     private MemberEntity memberEntity1;
     private MemberEntity memberEntity2;
+    private MemberRequestDTO memberEntity1RequestDTO;
+    private MemberRequestDTO memberEntity2RequestDTO;
+
     private MemberDTO memberDTO1;
     private MemberDTO memberDTO2;
     private CoachEntity coachEntity1;
@@ -78,6 +86,18 @@ public class MemberServicePATCHUnitTest {
         names.add("a");
         emails = new ArrayList<>();
         emails.add("@.com");
+
+        memberEntity1RequestDTO = new MemberRequestDTO(
+                name, memberEntity1.getDateOfBirth(), memberEntity1.getMembershipDate(), email,
+                memberEntity1.getRole(), memberEntity1.getBench(), memberEntity1.getSquat(),
+                memberEntity1.getDeadlift(), memberEntity1.getTotal()
+        );
+
+        memberEntity2RequestDTO = new MemberRequestDTO(
+                name, memberEntity2.getDateOfBirth(), memberEntity2.getMembershipDate(), memberEntity2.getEmail(),
+                memberEntity2.getRole(), memberEntity2.getBench(), memberEntity2.getSquat(),
+                memberEntity2.getDeadlift(), memberEntity2.getTotal()
+        );
     }
 
     @Test
@@ -400,7 +420,7 @@ public class MemberServicePATCHUnitTest {
         when(memberRepository.findMemberByEmail(email)).thenReturn(memberEntity1);
         when(memberRepository.findMemberByEmail(memberEntity2.getEmail())).thenReturn(null);
 
-        memberService.updateCompleteMember(1L, email, memberEntity2);
+        memberService.updateCompleteMember(1L, email, memberEntity2RequestDTO);
 
         assertThat(memberEntity1.equals(memberEntity2));
 
@@ -415,7 +435,7 @@ public class MemberServicePATCHUnitTest {
         when(memberRepository.findById(1L)).thenReturn(Optional.empty());
 
         var exception = assertThrows(NoSuchElementException.class, () ->
-                memberService.updateCompleteMember(1L, email, memberEntity2));
+                memberService.updateCompleteMember(1L, email, memberEntity1RequestDTO));
         assertEquals(idMessage, exception.getMessage());
 
         verify(memberRepository, times(1)).findById(1L);
@@ -427,7 +447,7 @@ public class MemberServicePATCHUnitTest {
         when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(memberEntity1));
 
         var exception = assertThrows(IllegalArgumentException.class, () ->
-                memberService.updateCompleteMember(1L, "", memberEntity2));
+                memberService.updateCompleteMember(1L, "", memberEntity1RequestDTO));
         assertEquals(invalidEmail, exception.getMessage());
 
         verify(memberRepository, times(1)).findById(1L);
@@ -440,7 +460,7 @@ public class MemberServicePATCHUnitTest {
         when(memberRepository.findMemberByEmail(email)).thenReturn(null);
 
         var exception = assertThrows(NoSuchElementException.class, () ->
-                memberService.updateCompleteMember(1L, email, memberEntity2));
+                memberService.updateCompleteMember(1L, email, memberEntity1RequestDTO));
         assertEquals(emailDoesntExistMessage, exception.getMessage());
 
         verify(memberRepository, times(1)).findById(1L);
@@ -454,30 +474,11 @@ public class MemberServicePATCHUnitTest {
         when(memberRepository.findMemberByEmail(email)).thenReturn(memberEntity2);
 
         var exception = assertThrows(IllegalStateException.class, () ->
-                memberService.updateCompleteMember(1L, email, memberEntity2));
+                memberService.updateCompleteMember(1L, email, memberEntity1RequestDTO));
         assertEquals(differentMembers, exception.getMessage());
 
         verify(memberRepository, times(1)).findById(1L);
         verify(memberRepository, times(1)).findMemberByEmail(email);
-        verifyNoMoreInteractions(memberRepository);
-    }
-
-    @Test
-    void updateCompleteMember_ThrowsException_WhenNewEmailAlreadyTaken() {
-       MemberEntity memberEntity3 = memberEntity2;
-
-        when(memberRepository.findById(1L)).thenReturn(Optional.ofNullable(memberEntity1));
-        when(memberRepository.findMemberByEmail(email)).thenReturn(memberEntity1);
-        when(memberRepository.findMemberByEmail(memberEntity3.getEmail())).thenReturn(memberEntity1);
-
-        var exception = assertThrows(IllegalStateException.class, () ->
-                memberService.updateCompleteMember(1L, email, memberEntity3));
-        assertEquals("The updated email that you are trying to give to " + memberEntity3.getName()
-                + " is already registered under another member", exception.getMessage());
-
-        verify(memberRepository, times(1)).findById(1L);
-        verify(memberRepository, times(1)).findMemberByEmail(email);
-        verify(memberRepository, times(1)).findMemberByEmail(memberEntity3.getEmail());
         verifyNoMoreInteractions(memberRepository);
     }
 

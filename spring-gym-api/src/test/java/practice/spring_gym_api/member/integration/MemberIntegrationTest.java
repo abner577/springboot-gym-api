@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import practice.spring_gym_api.dto.request.MemberRequestDTO;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import practice.spring_gym_api.entity.WorkerEntity;
@@ -54,6 +55,7 @@ public class MemberIntegrationTest {
     private WorkerEntity workerEntity1;
 
     private MemberEntity fakeMember;
+    private MemberRequestDTO fakeMemberRequestDTO;
 
     private Long seedMemberId;
     private String seedMemberEmail;
@@ -89,6 +91,12 @@ public class MemberIntegrationTest {
                 "example@gmail.com", Roles.ROLE_MEMBER,
                 100, 200, 300, 600
         );
+
+        fakeMemberRequestDTO = new MemberRequestDTO(
+                memberEntity1.getName(), memberEntity1.getDateOfBirth(), memberEntity1.getMembershipDate(),
+                memberEntity1.getEmail(), memberEntity1.getRole(), memberEntity1.getBench(), memberEntity1.getSquat(),
+                memberEntity1.getDeadlift(), memberEntity1.getTotal()
+        );
     }
 
     @Test
@@ -97,23 +105,23 @@ public class MemberIntegrationTest {
         mvc.perform(post("/api/v1/gym-api/members")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(fakeMember))
+                        .content(objectMapper.writeValueAsString(fakeMemberRequestDTO))
                         .header("x-worker-id", workerId)
                         .header("x-worker-code", workerCode));
 
-        assertTrue(memberRepository.existsByEmail(fakeMember.getEmail()));
-        assertTrue(memberRepository.findMemberByEmail(fakeMember.getEmail()).getRole().equals(Roles.ROLE_MEMBER));
+        assertTrue(memberRepository.existsByEmail(fakeMemberRequestDTO.getEmail()));
+        assertTrue(memberRepository.findMemberByEmail(fakeMemberRequestDTO.getEmail()).getRole().equals(Roles.ROLE_MEMBER));
     }
 
     @Test
     @Transactional
     void registerNewMember_ThrowsException_WhenEmailAlreadyExists() throws Exception {
-        fakeMember.setEmail(memberEntity1.getEmail());
+        fakeMemberRequestDTO.setEmail(memberEntity1.getEmail());
 
        var exception = mvc.perform(post("/api/v1/gym-api/members")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(fakeMember))
+                        .content(objectMapper.writeValueAsString(fakeMemberRequestDTO))
                         .header("x-worker-id", workerId)
                         .header("x-worker-code", workerCode))
                         .andReturn();

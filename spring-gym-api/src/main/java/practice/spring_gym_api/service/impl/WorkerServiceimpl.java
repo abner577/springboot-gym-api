@@ -1,6 +1,7 @@
 package practice.spring_gym_api.service.impl;
 
 import practice.spring_gym_api.dto.WorkerMapper;
+import practice.spring_gym_api.dto.request.WorkerRequestDTO;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import practice.spring_gym_api.entity.WorkerEntity;
@@ -68,13 +69,14 @@ public class WorkerServiceimpl implements WorkerService {
     /**
      * Adds a new worker to the system.
      *
-     * @param workerEntity Worker entity to save
+     * @param workerRequestDTO Worker entity to save
      */
     @Override
-    public void registerNewWorker(WorkerEntity workerEntity) {
-        WorkerEntity workerEntity1 = workerRepository.findByEmail(workerEntity.getEmail());
-        if(workerEntity1 != null) throw new IllegalStateException("Worker with an email of: " + workerEntity.getEmail() + " already exists");
+    public void registerNewWorker(WorkerRequestDTO workerRequestDTO) {
+        WorkerEntity workerEntity1 = workerRepository.findByEmail(workerRequestDTO.getEmail());
+        if(workerEntity1 != null) throw new IllegalStateException("Worker with an email of: " + workerRequestDTO.getEmail() + " already exists");
 
+        WorkerEntity workerEntity = workerMapper.convertToWorkerEntity(workerRequestDTO);
         workerRepository.save(workerEntity);
     }
 

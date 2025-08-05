@@ -177,8 +177,8 @@ public class MemberController {
             @ApiResponse(responseCode = "400", description = "Invalid member data")
     })
     @PostMapping(path = "/members")
-    public void registerOneMember(@Valid @RequestBody MemberRequestDTO memberEntity) {
-        memberService.registerNewMember(memberEntity);
+    public void registerOneMember(@Valid @RequestBody MemberRequestDTO memberRequestDTO) {
+        memberService.registerNewMember(memberRequestDTO);
     }
 
     @Operation(summary = "Registers multiple new members at once")
@@ -190,8 +190,8 @@ public class MemberController {
     public void registerMultipleMembers(
             @Size(min = 2, message = "At least two members must be provided,  if you only need to register one member use the singular endpoint")
             @NotNull(message = "List of members must not be null")
-            @RequestBody List<@Valid MemberEntity> memberEntities) {
-        memberService.registerNewMembers(memberEntities);
+            @RequestBody List<@Valid MemberRequestDTO> memberRequestDTOS) {
+        memberService.registerNewMembers(memberRequestDTOS);
     }
 
     @Operation(summary = "Replaces the current coach of a member")
@@ -277,8 +277,8 @@ public class MemberController {
     public void updateFullMember(
             @PathVariable("member_id") Long id,
             @RequestParam String email,
-            @Valid @RequestBody MemberEntity updatedEntity) {
-        memberService.updateCompleteMember(id, email, updatedEntity);
+            @Valid @RequestBody MemberRequestDTO updatedMemberRequestDTO) {
+        memberService.updateCompleteMember(id, email, updatedMemberRequestDTO);
     }
 
     @Operation(summary = "Deletes a single member by ID")

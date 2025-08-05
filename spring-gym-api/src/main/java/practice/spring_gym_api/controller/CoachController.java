@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -13,9 +14,9 @@ import practice.spring_gym_api.dto.CoachDTO;
 import practice.spring_gym_api.dto.CoachMapper;
 import practice.spring_gym_api.dto.MemberDTO;
 import practice.spring_gym_api.dto.MemberMapper;
+import practice.spring_gym_api.dto.request.CoachRequestDTO;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
-import practice.spring_gym_api.entity.wrapper.CoachListWrapper;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -207,7 +208,7 @@ public class CoachController {
     /**
      * Registers a new coach in the system.
      *
-     * @param coachEntity the coach entity to register
+     * @param coachRequestDTO the coach entity to register
      */
     @Operation(summary = "Registers a new coach")
     @ApiResponses({
@@ -215,14 +216,14 @@ public class CoachController {
             @ApiResponse(responseCode = "400", description = "Bad request due to invalid coach data")
     })
     @PostMapping (path = "/coaches")
-    public void registerNewCoach(@Valid @RequestBody CoachEntity coachEntity){
-        coachService.registerNewCoach(coachEntity);
+    public void registerNewCoach(@Valid @RequestBody CoachRequestDTO coachRequestDTO){
+        coachService.registerNewCoach(coachRequestDTO);
     }
 
     /**
      * Registers multiple coaches in bulk.
      *
-     * @param coachListWrapper wrapper object containing a list of coaches
+     * @param coachRequestDTOS object containing a list of coaches
      */
     @Operation(summary = "Registers multiple coaches in a batch")
     @ApiResponses({
@@ -230,8 +231,8 @@ public class CoachController {
             @ApiResponse(responseCode = "400", description = "Bad request due to invalid batch input")
     })
     @PostMapping(path = "/coaches/batch")
-    public void registerNewCoaches(@Valid @RequestBody CoachListWrapper coachListWrapper) {
-        coachService.registerNewCoaches(coachListWrapper.getCoachList());
+    public void registerNewCoaches(@Valid @RequestBody List<CoachRequestDTO> coachRequestDTOS) {
+        coachService.registerNewCoaches(coachRequestDTOS);
     }
 
     /**
@@ -322,7 +323,7 @@ public class CoachController {
      *
      * @param id the coach ID
      * @param email the email of the coach
-     * @param coachEntity the updated coach object
+     * @param coachRequestDTO the updated coach object
      */
     @Operation(summary = "Fully updates a coach's details by ID and email")
     @ApiResponses({
@@ -333,9 +334,9 @@ public class CoachController {
     public void updateCoachByIdAndEmail(
             @PathVariable("coach_id") Long id,
             @RequestParam String email,
-            @Valid @RequestBody CoachEntity coachEntity
+            @Valid @RequestBody CoachRequestDTO coachRequestDTO
     ) {
-        coachService.updateCoachByIdAndEmail(id, email, coachEntity);
+        coachService.updateCoachByIdAndEmail(id, email, coachRequestDTO);
     }
 
     /**

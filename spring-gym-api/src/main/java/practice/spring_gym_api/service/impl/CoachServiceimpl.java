@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
 import practice.spring_gym_api.dto.CoachMapper;
+import practice.spring_gym_api.dto.request.CoachRequestDTO;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import org.springframework.data.domain.Page;
@@ -171,26 +172,29 @@ public class CoachServiceimpl implements CoachService {
     /**
      * Registers a new coach, ensuring email uniqueness.
      *
-     * @param coachEntity New coach to be registered
+     * @param coachRequestDTO New coach to be registered
      * @throws IllegalStateException if a coach with the given email already exists
      */
     @Override
-    public void registerNewCoach(CoachEntity coachEntity) {
-        Optional<CoachEntity> coachEntity1 = Optional.ofNullable(coachRepository.findByEmail(coachEntity.getEmail()));
-        if(coachEntity1.isPresent()) throw new IllegalArgumentException("Coach with an email of: " + coachEntity.getEmail() + " already exists");
+    public void registerNewCoach(CoachRequestDTO coachRequestDTO) {
+        Optional<CoachEntity> coachEntity1 = Optional.ofNullable(coachRepository.findByEmail(coachRequestDTO.getEmail()));
+        if(coachEntity1.isPresent()) throw new IllegalArgumentException("Coach with an email of: " + coachRequestDTO.getEmail() + " already exists");
+        CoachEntity coachEntity = coachMapper.convertToCoachEntity(coachRequestDTO);
         coachRepository.save(coachEntity);
     }
 
     /**
      * Registers multiple coaches after checking for email duplicates.
      *
-     * @param coachEntities List of coaches to be saved
+     * @param coachRequestDTOS List of coaches to be saved
      * @throws IllegalStateException if any email already exists
      */
     @Override
-    public void registerNewCoaches(List<CoachEntity> coachEntities) {
-        for(CoachEntity coachEntity : coachEntities){
-            if(coachRepository.existsByEmail(coachEntity.getEmail())) throw new IllegalArgumentException("Coach with an email of: " + coachEntity.getEmail() + " already exists");
+    public void registerNewCoaches(List<CoachRequestDTO> coachRequestDTOS) {
+        List<CoachEntity> coachEntities = new ArrayList<>();
+        for(CoachRequestDTO coachRequestDTO : coachRequestDTOS){
+            if(coachRepository.existsByEmail(coachRequestDTO.getEmail())) throw new IllegalArgumentException("Coach with an email of: " + coachRequestDTO.getEmail() + " already exists");
+            coachEntities.add(coachMapper.convertToCoachEntity(coachRequestDTO));
         }
         coachRepository.saveAll(coachEntities);
     }
@@ -310,11 +314,11 @@ public class CoachServiceimpl implements CoachService {
      *
      * @param id           Coach ID
      * @param email        Coach email for identity verification
-     * @param coachEntity  Updated coach entity
+     * @param coachRequestDTO  Updated coach entity
      * @throws IllegalStateException if ID/email do not match or do not exist
      */
     @Override
-    public void updateCoachByIdAndEmail(Long id, String email, CoachEntity coachEntity) {
+    public void updateCoachByIdAndEmail(Long id, String email, CoachRequestDTO coachRequestDTO) {
         if(email == null || email.isEmpty()) throw new IllegalArgumentException("Email cannot be null or an empty string");
 
         CoachEntity coachEntityToUpdate = coachRepository.findById(id)
@@ -325,17 +329,16 @@ public class CoachServiceimpl implements CoachService {
         if(!coachEntityToUpdate.equals(coachEntityToUpdateEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
 
         // If you are trying to set a new email
-        if(!coachEntityToUpdate.getEmail().equals(coachEntity.getEmail())) {
-            CoachEntity coachEntity1 = coachRepository.findByEmail(coachEntity.getEmail());
+        if(!coachEntityToUpdate.getEmail().equals(coachRequestDTO.getEmail())) {
+            CoachEntity coachEntity1 = coachRepository.findByEmail(coachRequestDTO.getEmail());
             if(coachEntity1 != null) throw new IllegalArgumentException("The updated email that you are trying to give to " + coachEntityToUpdate.getName() + " is already registered under another coach");
         }
 
-        coachEntityToUpdate.setName(coachEntity.getName());
-        coachEntityToUpdate.setRole(coachEntity.getRole());
-        coachEntityToUpdate.setClients(coachEntity.getClients());
-        coachEntityToUpdate.setWorkoutPlans(coachEntity.getWorkoutPlans());
-        coachEntityToUpdate.setDateOfBirth(coachEntity.getDateOfBirth());
-        coachEntityToUpdate.setEmail(coachEntity.getEmail());
+        coachEntityToUpdate.setName(coachRequestDTO.getName());
+        coachEntityToUpdate.setRole(coachRequestDTO.getRole());
+        coachEntityToUpdate.setWorkoutPlans(coachRequestDTO.getWorkoutPlans());
+        coachEntityToUpdate.setDateOfBirth(coachRequestDTO.getDateOfBirth());
+        coachEntityToUpdate.setEmail(coachRequestDTO.getEmail());
         coachRepository.save(coachEntityToUpdate);
     }
 

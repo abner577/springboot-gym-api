@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import practice.spring_gym_api.dto.WorkerMapper;
+import practice.spring_gym_api.dto.request.WorkerRequestDTO;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import practice.spring_gym_api.entity.WorkerEntity;
@@ -50,6 +51,9 @@ public class WorkerServiceUnitTest {
     private CoachEntity coachEntity1;
     private MemberEntity memberEntity1;
     private WorkerEntity fakeWorker;
+
+    private WorkerRequestDTO worker1RequestDTO;
+    private WorkerRequestDTO fakeWorkerRequestDTO;
 
     private String name;
     private String email;

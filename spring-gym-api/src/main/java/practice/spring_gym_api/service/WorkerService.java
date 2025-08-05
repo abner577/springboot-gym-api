@@ -1,6 +1,7 @@
 package practice.spring_gym_api.service;
 
 
+import practice.spring_gym_api.dto.request.WorkerRequestDTO;
 import practice.spring_gym_api.entity.WorkerEntity;
 
 public interface WorkerService {
@@ -9,7 +10,7 @@ public interface WorkerService {
     WorkerEntity getWorkerByWorkerCode(Long id, String code);
 
     // --- POST methods ---
-    void registerNewWorker(WorkerEntity workerEntity);
+    void registerNewWorker(WorkerRequestDTO workerRequestDTO);
 
     // --- PUT/PATCH methods ---
     void updateRoleOfAWorker(Long id, String email, String role);

@@ -1,5 +1,6 @@
 package practice.spring_gym_api.service;
 
+import practice.spring_gym_api.dto.request.CoachRequestDTO;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import org.springframework.data.domain.Page;
@@ -23,14 +24,14 @@ public interface CoachService {
 
 
     // --- POST methods ---
-    void registerNewCoach(CoachEntity coachEntity);
-    void registerNewCoaches(List<CoachEntity> coachEntities);
+    void registerNewCoach(CoachRequestDTO coachRequestDTO);
+    void registerNewCoaches(List<CoachRequestDTO> coachRequestDTOS);
 
     // --- PUT/PATCH methods ---
     void updateNameByIdAndEmail(Long id, String name, String email);
     void addClientsByIdAndEmail(Long id, String email, Set<MemberEntity> clients);
     void replaceClientListByIdAndEmail(Long id, String email, List<Long> listOfIds);
-    void updateCoachByIdAndEmail(Long id, String email, CoachEntity coachEntity);
+    void updateCoachByIdAndEmail(Long id, String email, CoachRequestDTO coachRequestDTO);
     void updateWorkoutPlans(Long id, String email, List<String> workoutPlans);
     void updateRoleOfACoach(Long id, String email, String role);
     void updateCodeOfACoach(Long id, String email, String coachCode);

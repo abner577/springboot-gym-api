@@ -7,6 +7,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import practice.spring_gym_api.dto.impl.CoachMapperimpl;
+import practice.spring_gym_api.dto.request.CoachRequestDTO;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import practice.spring_gym_api.entity.enums.Roles;
@@ -43,6 +44,8 @@ public class CoachServicePATCHUnitTest {
     private CoachEntity coachEntity1;
     private CoachEntity coachEntity2;
     private CoachEntity fakeCoachEntity;
+    private CoachRequestDTO coachRequestDTO1;
+    private CoachRequestDTO coachRequestDTO2;
 
     private String name;
     private String email;
@@ -74,6 +77,16 @@ public class CoachServicePATCHUnitTest {
                 "gingerGreen@gmail.com",
                 List.of("PPL", "Arnold"),
                 "PEM-990X-YTR8"
+        );
+
+        coachRequestDTO1 = new CoachRequestDTO(
+                coachEntity1.getName(), coachEntity1.getEmail(), coachEntity1.getDateOfBirth(),
+                coachEntity1.getRole(), coachEntity1.getWorkoutPlans()
+        );
+
+        coachRequestDTO2 = new CoachRequestDTO(
+                coachEntity2.getName(), coachEntity2.getEmail(), coachEntity2.getDateOfBirth(),
+                coachEntity2.getRole(), coachEntity2.getWorkoutPlans()
         );
     }
 
@@ -368,7 +381,7 @@ public class CoachServicePATCHUnitTest {
         when(coachRepository.findByEmail(email)).thenReturn(coachEntity1);
         when(coachRepository.findByEmail(newEmail)).thenReturn(null);
 
-        coachService.updateCoachByIdAndEmail(1L, email, coachEntity2);
+        coachService.updateCoachByIdAndEmail(1L, email, coachRequestDTO2);
 
         assertTrue(name != coachEntity1.getName());
         assertTrue(email != coachEntity1.getEmail());
@@ -382,7 +395,7 @@ public class CoachServicePATCHUnitTest {
     @Test
     void updateCoachByIdAndEmail_ThrowsException_WhenEmailIsInvalid() {
         var exception = assertThrows(IllegalArgumentException.class, () ->
-                coachService.updateCoachByIdAndEmail(1L, "", coachEntity2));
+                coachService.updateCoachByIdAndEmail(1L, "", coachRequestDTO2));
         assertEquals(invalidEmailMessage, exception.getMessage());
 
         verifyNoInteractions(coachRepository);
@@ -392,7 +405,7 @@ public class CoachServicePATCHUnitTest {
     void updateCoachByIdAndEmail_ThrowsException_WhenIdDoesntExist() {
         when(coachRepository.findById(1L)).thenReturn(Optional.empty());
         var exception = assertThrows(NoSuchElementException.class, () ->
-                coachService.updateCoachByIdAndEmail(1L, email, coachEntity2));
+                coachService.updateCoachByIdAndEmail(1L, email, coachRequestDTO2));
         assertEquals(idMessage, exception.getMessage());
 
         verify(coachRepository, times(1)).findById(1L);
@@ -405,7 +418,7 @@ public class CoachServicePATCHUnitTest {
         when(coachRepository.findByEmail(email)).thenReturn(null);
 
         var exception = assertThrows(NoSuchElementException.class, () ->
-                coachService.updateCoachByIdAndEmail(1L, email, coachEntity2));
+                coachService.updateCoachByIdAndEmail(1L, email, coachRequestDTO2));
         assertEquals(emailMessage, exception.getMessage());
 
         verify(coachRepository, times(1)).findById(1L);
@@ -418,7 +431,7 @@ public class CoachServicePATCHUnitTest {
         when(coachRepository.findById(1L)).thenReturn(Optional.ofNullable(coachEntity1));
         when(coachRepository.findByEmail(email)).thenReturn(coachEntity2);
 
-        var exception = assertThrows(IllegalStateException.class, () ->  coachService.updateCoachByIdAndEmail(1L, email, coachEntity2));
+        var exception = assertThrows(IllegalStateException.class, () ->  coachService.updateCoachByIdAndEmail(1L, email, coachRequestDTO2));
         assertEquals(notSameCoachMessage, exception.getMessage());
 
         verify(coachRepository, times(1)).findById(1l);
@@ -432,7 +445,7 @@ public class CoachServicePATCHUnitTest {
         when(coachRepository.findByEmail(email)).thenReturn(coachEntity1);
         when(coachRepository.findByEmail(coachEntity2.getEmail())).thenReturn(coachEntity2);
 
-        var exception = assertThrows(IllegalArgumentException.class, () ->  coachService.updateCoachByIdAndEmail(1L, email, coachEntity2));
+        var exception = assertThrows(IllegalArgumentException.class, () ->  coachService.updateCoachByIdAndEmail(1L, email, coachRequestDTO2));
         assertEquals("The updated email that you are trying to give to " + name + " is already registered under another coach"
                 , exception.getMessage());
 

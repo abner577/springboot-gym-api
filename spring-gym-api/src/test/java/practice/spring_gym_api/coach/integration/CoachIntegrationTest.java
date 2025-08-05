@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 import practice.spring_gym_api.dto.CoachMapper;
+import practice.spring_gym_api.dto.request.CoachRequestDTO;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import practice.spring_gym_api.entity.WorkerEntity;
@@ -50,6 +51,7 @@ public class CoachIntegrationTest {
 
     private MemberEntity fakeMember1;
     private CoachEntity fakeCoach1;
+    private CoachRequestDTO fakeCoach1RequestDTO;
     private CoachEntity coachEntity;
     private CoachEntity coachEntity2;
     private WorkerEntity workerEntity;
@@ -93,6 +95,14 @@ public class CoachIntegrationTest {
                 "bob@example.com",
                 List.of("UL6X", "FBEOD"),
                 "999-XXX-000"
+        );
+
+        fakeCoach1RequestDTO = new CoachRequestDTO(
+                "Ginger Green",
+                "gingerGreen@gmail.com",
+                LocalDate.of(1970, 4, 12),
+                Roles.ROLE_COACH,
+                List.of("PPL", "Arnold")
         );
     }
 
@@ -234,30 +244,30 @@ public class CoachIntegrationTest {
         mvc.perform(post("/api/v1/gym-api/coaches")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(fakeCoach1))
+                .content(objectMapper.writeValueAsString(fakeCoach1RequestDTO))
                 .header("x-worker-id", workerId)
                 .header("x-worker-code", workerCode));
 
-        assertTrue(coachRepository.existsByEmail(fakeCoach1.getEmail()));
+        assertTrue(coachRepository.existsByEmail(fakeCoach1RequestDTO.getEmail()));
         assertTrue(fakeCoach1.getRole().equals(Roles.ROLE_COACH));
     }
 
     @Transactional
     @Test
     void registerNewCoach_ThrowsException_WhenEmailIsInvalid() throws Exception {
-        fakeCoach1.setEmail(coachEntity.getEmail());
+        fakeCoach1RequestDTO.setEmail(coachEntity.getEmail());
 
         var exception = mvc.perform(post("/api/v1/gym-api/coaches")
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(fakeCoach1))
+                .content(objectMapper.writeValueAsString(fakeCoach1RequestDTO))
                 .header("x-worker-id", workerId)
                 .header("x-worker-code", workerCode))
                 .andExpect(status().isBadRequest())
                 .andReturn();
 
         String responseBody = exception.getResponse().getContentAsString();
-        assertTrue(responseBody.contains("Coach with an email of: " + fakeCoach1.getEmail() + " already exists"));
+        assertTrue(responseBody.contains("Coach with an email of: " + fakeCoach1RequestDTO.getEmail() + " already exists"));
 
         CoachEntity coach = coachRepository.findByCoachCode(fakeCoach1.getCoachCode());
         assertThat(coach == null);
