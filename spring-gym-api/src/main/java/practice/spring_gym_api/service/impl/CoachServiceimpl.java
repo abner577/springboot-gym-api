@@ -179,6 +179,7 @@ public class CoachServiceimpl implements CoachService {
     public void registerNewCoach(CoachRequestDTO coachRequestDTO) {
         Optional<CoachEntity> coachEntity1 = Optional.ofNullable(coachRepository.findByEmail(coachRequestDTO.getEmail()));
         if(coachEntity1.isPresent()) throw new IllegalArgumentException("Coach with an email of: " + coachRequestDTO.getEmail() + " already exists");
+        if(!Objects.equals(coachRequestDTO.getCoachCode(), "Placeholder coach code")) throw new IllegalArgumentException("Initial coach code must be: 'Placeholder coach code'");
         CoachEntity coachEntity = coachMapper.convertToCoachEntity(coachRequestDTO);
         coachRepository.save(coachEntity);
     }
@@ -194,6 +195,7 @@ public class CoachServiceimpl implements CoachService {
         List<CoachEntity> coachEntities = new ArrayList<>();
         for(CoachRequestDTO coachRequestDTO : coachRequestDTOS){
             if(coachRepository.existsByEmail(coachRequestDTO.getEmail())) throw new IllegalArgumentException("Coach with an email of: " + coachRequestDTO.getEmail() + " already exists");
+            if(!Objects.equals(coachRequestDTO.getCoachCode(), "Placeholder coach code")) throw new IllegalArgumentException("Initial coach code must be: 'Placeholder coach code'");
             coachEntities.add(coachMapper.convertToCoachEntity(coachRequestDTO));
         }
         coachRepository.saveAll(coachEntities);
@@ -227,11 +229,11 @@ public class CoachServiceimpl implements CoachService {
      * Does not override existing clients — appends to the list.
      *
      * @param id             Coach ID
-     * @param memberEntities Set of new clients to associate with the coach
+     * @param clientEmails Emails that represent new clients to be added
      * @throws IllegalStateException if coach is not found
      */
     @Override
-    public void addClientsByIdAndEmail(Long id, String email, Set<MemberEntity> memberEntities) {
+    public void addClientsByIdAndEmail(Long id, String email, List<String> clientEmails) {
         if(email == null || email.isEmpty()) throw new IllegalArgumentException("Email cannot be null or an empty string");
 
         CoachEntity coachEntityToUpdateClientsID = coachRepository.findById(id)
@@ -241,9 +243,14 @@ public class CoachServiceimpl implements CoachService {
         if(coachEntityToUpdateClientsEmail == null) throw new NoSuchElementException("Coach with an email of: " + email + " doesnt exist");
         if(!coachEntityToUpdateClientsID.equals(coachEntityToUpdateClientsEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
 
-        for(MemberEntity memberEntity : memberEntities){
-            memberEntity.setCoachedBy(coachEntityToUpdateClientsID);
+        List<MemberEntity> memberEntities = new ArrayList<>();
+        for(String clientEmail : clientEmails){
+            MemberEntity memberEntity = memberRepository.findMemberByEmail(clientEmail);
+            if(memberEntity == null) throw new IllegalStateException("Client with an email of: " + clientEmail + " doesnt exist");
+            memberEntities.add(memberEntity);
             }
+
+        for(MemberEntity memberEntity : memberEntities) memberEntity.setCoachedBy(coachEntityToUpdateClientsID);
 
         coachEntityToUpdateClientsID.getClients().addAll(memberEntities);
         coachRepository.save(coachEntityToUpdateClientsID);
@@ -328,6 +335,8 @@ public class CoachServiceimpl implements CoachService {
         if(coachEntityToUpdateEmail == null) throw new NoSuchElementException("Coach with an email of: " + email + " doesnt exist");
         if(!coachEntityToUpdate.equals(coachEntityToUpdateEmail)) throw new IllegalStateException("Coach with an email of: " + email + " isnt the same coach with an id of: " + id);
 
+        if(!Objects.equals(coachRequestDTO.getRole(), "ROLE_COACH")) throw new IllegalStateException("Role must be 'ROLE_COACH'");
+
         // If you are trying to set a new email
         if(!coachEntityToUpdate.getEmail().equals(coachRequestDTO.getEmail())) {
             CoachEntity coachEntity1 = coachRepository.findByEmail(coachRequestDTO.getEmail());
@@ -335,7 +344,6 @@ public class CoachServiceimpl implements CoachService {
         }
 
         coachEntityToUpdate.setName(coachRequestDTO.getName());
-        coachEntityToUpdate.setRole(coachRequestDTO.getRole());
         coachEntityToUpdate.setWorkoutPlans(coachRequestDTO.getWorkoutPlans());
         coachEntityToUpdate.setDateOfBirth(coachRequestDTO.getDateOfBirth());
         coachEntityToUpdate.setEmail(coachRequestDTO.getEmail());

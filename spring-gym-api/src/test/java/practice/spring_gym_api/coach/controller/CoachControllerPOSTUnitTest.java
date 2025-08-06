@@ -84,7 +84,8 @@ public class CoachControllerPOSTUnitTest {
                 "gingerGreen@gmail.com",
                 LocalDate.of(1970, 4, 12),
                 Roles.ROLE_COACH,
-                List.of("PPL", "Arnold")
+                List.of("PPL", "Arnold"),
+                "Placeholder coach code"
         );
     }
 

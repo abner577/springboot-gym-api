@@ -31,6 +31,9 @@ public class CoachRequestDTO {
     @Size(min = 1, message = "At least one workout plan must be provided")
     private List<@NotBlank(message = "Workout plans are required") String> workoutPlans;
 
+    @NotBlank(message = "Coach code is Required")
+    private String coachCode;
+
     public String getName() {
         return name;
     }
@@ -71,11 +74,20 @@ public class CoachRequestDTO {
         this.workoutPlans = workoutPlans;
     }
 
-    public CoachRequestDTO(String name, String email, LocalDate dateOfBirth, Roles role, List<String> workoutPlans) {
+    public String getCoachCode() {
+        return coachCode;
+    }
+
+    public void setCoachCode(String coachCode) {
+        this.coachCode = coachCode;
+    }
+
+    public CoachRequestDTO(String name, String email, LocalDate dateOfBirth, Roles role, List<String> workoutPlans, String coachCode) {
         this.name = name;
         this.email = email;
         this.dateOfBirth = dateOfBirth;
         this.role = role;
         this.workoutPlans = workoutPlans;
+        this.coachCode = coachCode;
     }
 }

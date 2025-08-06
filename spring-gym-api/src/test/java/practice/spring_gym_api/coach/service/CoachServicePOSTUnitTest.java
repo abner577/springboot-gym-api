@@ -70,17 +70,18 @@ public class CoachServicePOSTUnitTest {
                 "gingerGreen@gmail.com",
                 LocalDate.of(1970, 4, 12),
                 Roles.ROLE_COACH,
-                List.of("PPL", "Arnold")
+                List.of("PPL", "Arnold"),
+                "Placeholder coach code"
         );
 
         coachRequestDTO1 = new CoachRequestDTO(
                 coachEntity1.getName(), coachEntity1.getEmail(), coachEntity1.getDateOfBirth(),
-                coachEntity1.getRole(), coachEntity1.getWorkoutPlans()
+                coachEntity1.getRole(), coachEntity1.getWorkoutPlans(), "Placeholder coach code"
         );
 
         coachRequestDTO2 = new CoachRequestDTO(
                 coachEntity2.getName(), coachEntity2.getEmail(), coachEntity2.getDateOfBirth(),
-                coachEntity2.getRole(), coachEntity2.getWorkoutPlans()
+                coachEntity2.getRole(), coachEntity2.getWorkoutPlans(), "Placeholder coach code"
         );
 
         coachRequestDTOList = List.of(coachRequestDTO1, coachRequestDTO2);
@@ -105,7 +106,7 @@ public class CoachServicePOSTUnitTest {
         when(coachRepository.findByEmail(fakeCoachRequestDTO.getEmail())).thenReturn(fakeCoachEntity);
 
         // Act
-       var exception = assertThrows(IllegalStateException.class, () -> coachService.registerNewCoach(fakeCoachRequestDTO));
+       var exception = assertThrows(IllegalArgumentException.class, () -> coachService.registerNewCoach(fakeCoachRequestDTO));
        assertEquals("Coach with an email of: " + fakeCoachEntity.getEmail() + " already exists"
        , exception.getMessage());
 

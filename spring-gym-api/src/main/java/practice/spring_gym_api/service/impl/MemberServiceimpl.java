@@ -369,7 +369,10 @@ public class MemberServiceimpl implements MemberService {
         if(entityToUpdateEmail == null) throw new NoSuchElementException("Member with an email of: " + email + " doesnt exist");
         if(!entityToUpdate.equals(entityToUpdateEmail)) throw new IllegalStateException("Member with an id of: " + id + " is not the same member that has an email of: " + email);
 
-        if(!entityToUpdate.getEmail().equals(memberRequestDTO.getEmail())) {
+        if(!Objects.equals(memberRequestDTO.getRole(), "ROLE_MEMBER")) throw new IllegalStateException("role must be 'ROLE_MEMBER'");
+
+        // if trying to update email
+        if(!Objects.equals(entityToUpdateEmail.getEmail(), memberRequestDTO.getEmail())) {
             MemberEntity memberEntity1 = memberRepository.findMemberByEmail(memberRequestDTO.getEmail());
             if(memberEntity1 != null) throw new IllegalStateException("The updated email that you are trying to give to " + memberRequestDTO.getName() + " is already registered under another member");
         }
@@ -378,7 +381,6 @@ public class MemberServiceimpl implements MemberService {
 
         entityToUpdate.setName(memberRequestDTO.getName());
         entityToUpdate.setEmail(memberRequestDTO.getEmail());
-        entityToUpdate.setRole(memberRequestDTO.getRole());
         entityToUpdate.setDateOfBirth(memberRequestDTO.getDateOfBirth());
         entityToUpdate.setMembershipDate(memberRequestDTO.getMembershipDate());
         entityToUpdate.setBench(memberRequestDTO.getBench());

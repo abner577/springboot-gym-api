@@ -29,7 +29,7 @@ public interface CoachService {
 
     // --- PUT/PATCH methods ---
     void updateNameByIdAndEmail(Long id, String name, String email);
-    void addClientsByIdAndEmail(Long id, String email, Set<MemberEntity> clients);
+    void addClientsByIdAndEmail(Long id, String email, List<String> clientEmails);
     void replaceClientListByIdAndEmail(Long id, String email, List<Long> listOfIds);
     void updateCoachByIdAndEmail(Long id, String email, CoachRequestDTO coachRequestDTO);
     void updateWorkoutPlans(Long id, String email, List<String> workoutPlans);

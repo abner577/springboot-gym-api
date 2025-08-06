@@ -12,6 +12,7 @@ import practice.spring_gym_api.repository.WorkerRepository;
 import practice.spring_gym_api.service.WorkerService;
 
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 @Service
 public class WorkerServiceimpl implements WorkerService {
@@ -75,6 +76,7 @@ public class WorkerServiceimpl implements WorkerService {
     public void registerNewWorker(WorkerRequestDTO workerRequestDTO) {
         WorkerEntity workerEntity1 = workerRepository.findByEmail(workerRequestDTO.getEmail());
         if(workerEntity1 != null) throw new IllegalStateException("Worker with an email of: " + workerRequestDTO.getEmail() + " already exists");
+        if(!Objects.equals(workerRequestDTO.getWorkerCode(), "Placeholder worker code")) throw new IllegalArgumentException("Initial worker code must be: 'Placeholder worker code'");
 
         WorkerEntity workerEntity = workerMapper.convertToWorkerEntity(workerRequestDTO);
         workerRepository.save(workerEntity);
@@ -122,11 +124,11 @@ public class WorkerServiceimpl implements WorkerService {
      *
      * @param id                Worker ID
      * @param email             Current worker email
-     * @param updatedWorkerEntity Updated worker data
+     * @param workerRequestDTO Updated worker data
      * @throws IllegalStateException if credentials are invalid or email is already in use
      */
     @Override
-    public void updateWorkerById(Long id, String email, WorkerEntity updatedWorkerEntity) {
+    public void updateWorkerById(Long id, String email, WorkerRequestDTO workerRequestDTO) {
         WorkerEntity workerEntity = workerRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Worker with an id of: " + id + " doesnt exist"));
         if(email == null || email.isEmpty()) throw new IllegalArgumentException("Email cannot be null or empty");
@@ -136,20 +138,22 @@ public class WorkerServiceimpl implements WorkerService {
         if(workerEntity1 == null) throw new NoSuchElementException("Worker with an email of: " + workerEntity.getEmail() + " doesnt exist");
         if(!workerEntity.equals(workerEntity1)) throw new IllegalStateException("Worker with an email of: " + workerEntity.getEmail() + " is not the same worker with an id of: " + workerEntity.getId());
 
-        if(!workerEntity.getEmail().equals(updatedWorkerEntity.getEmail())) {
-            WorkerEntity workerEntity2 = workerRepository.findByEmail(updatedWorkerEntity.getEmail());
+        // if you are trying to update email
+        if(!Objects.equals(workerEntity.getEmail(), workerRequestDTO.getEmail())) {
+            WorkerEntity workerEntity2 = workerRepository.findByEmail(workerRequestDTO.getEmail());
             if(workerEntity2 != null) throw new IllegalStateException("The updated email that you are trying to give to " + workerEntity.getName() + " is already registered under another worker");
         }
 
-       if(workerRepository.findByWorkerCode(updatedWorkerEntity.getWorkerCode()) != null) {
+        if(!Objects.equals(workerRequestDTO.getRole(), "ROLE_WORKER")) throw new IllegalStateException("role must be 'ROLE_WORKER'");
+
+       if(workerRepository.findByWorkerCode(workerRequestDTO.getWorkerCode()) != null) {
            throw new IllegalStateException("The updated worker code that you are trying to give to " + workerEntity.getName() + " is already registered under another worker");
        }
 
-        workerEntity.setDateOfBirth(updatedWorkerEntity.getDateOfBirth());
-        workerEntity.setEmail(updatedWorkerEntity.getEmail());
-        workerEntity.setName(updatedWorkerEntity.getName());
-        workerEntity.setRole(updatedWorkerEntity.getRole());
-        workerEntity.setWorkerCode(updatedWorkerEntity.getWorkerCode());
+        workerEntity.setDateOfBirth(workerRequestDTO.getDateOfBirth());
+        workerEntity.setEmail(workerRequestDTO.getEmail());
+        workerEntity.setName(workerRequestDTO.getName());
+        workerEntity.setWorkerCode(workerRequestDTO.getWorkerCode());
         workerRepository.save(workerEntity);
     }
 

@@ -16,6 +16,7 @@ import practice.spring_gym_api.repository.MemberRepository;
 import practice.spring_gym_api.repository.WorkerRepository;
 import practice.spring_gym_api.service.impl.CoachServiceimpl;
 import practice.spring_gym_api.testdata.entity.CoachTestData;
+import practice.spring_gym_api.testdata.entity.MemberTestData;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -47,6 +48,9 @@ public class CoachServicePATCHUnitTest {
     private CoachRequestDTO coachRequestDTO1;
     private CoachRequestDTO coachRequestDTO2;
 
+    private MemberEntity memberEntity2;
+    private MemberEntity memberEntity4;
+
     private String name;
     private String email;
     private Set<MemberEntity> clients;
@@ -54,6 +58,9 @@ public class CoachServicePATCHUnitTest {
     private String emailMessage;
     private String notSameCoachMessage;
     private String invalidEmailMessage;
+
+    private List<String> client1Emails;
+    private List<String> client2Emails;
 
     @BeforeEach
     void setUp() {
@@ -64,10 +71,16 @@ public class CoachServicePATCHUnitTest {
         email = coachEntity1.getEmail();
         clients = coachEntity1.getClients();
 
+        memberEntity2 = MemberTestData.createSeedMember2();
+        memberEntity4 = MemberTestData.createSeedMember4();
+
         idMessage = "Coach with an id of: " + 1L + " doesnt exist";
         emailMessage = "Coach with an email of: " + email + " doesnt exist";
         notSameCoachMessage = "Coach with an email of: " + email + " isnt the same coach with an id of: " + 1L;
         invalidEmailMessage = "Email cannot be null or an empty string";
+
+        client1Emails = List.of("johnDoe@gmail.com", "davidLee@gmail.com", "carlosRivera@gmail.com");
+        client2Emails = List.of("janeSmith@gmail.com", "emelyChen@gmail.com");
 
         fakeCoachEntity = new CoachEntity(
                 3L,
@@ -81,12 +94,12 @@ public class CoachServicePATCHUnitTest {
 
         coachRequestDTO1 = new CoachRequestDTO(
                 coachEntity1.getName(), coachEntity1.getEmail(), coachEntity1.getDateOfBirth(),
-                coachEntity1.getRole(), coachEntity1.getWorkoutPlans()
+                coachEntity1.getRole(), coachEntity1.getWorkoutPlans(), coachEntity1.getCoachCode()
         );
 
         coachRequestDTO2 = new CoachRequestDTO(
                 coachEntity2.getName(), coachEntity2.getEmail(), coachEntity2.getDateOfBirth(),
-                coachEntity2.getRole(), coachEntity2.getWorkoutPlans()
+                coachEntity2.getRole(), coachEntity2.getWorkoutPlans(), coachEntity2.getCoachCode()
         );
     }
 
@@ -166,9 +179,11 @@ public class CoachServicePATCHUnitTest {
         Set<MemberEntity> oldClientList = new HashSet<>(coachEntity1.getClients());
         when(coachRepository.findById(1L)).thenReturn(Optional.ofNullable(coachEntity1));
         when(coachRepository.findByEmail(email)).thenReturn(coachEntity1);
+        when(memberRepository.findMemberByEmail("janeSmith@gmail.com")).thenReturn(memberEntity2);
+        when(memberRepository.findMemberByEmail("emelyChen@gmail.com")).thenReturn(memberEntity4);
 
         // Act
-        coachService.addClientsByIdAndEmail(1L, email, coachEntity2.getClients());
+        coachService.addClientsByIdAndEmail(1L, email, client2Emails);
 
         // Assert
         assertTrue(oldClientList != coachEntity1.getClients());
@@ -183,7 +198,7 @@ public class CoachServicePATCHUnitTest {
     void addClientsByIdAndEmail_ThrowsException_WhenIdDoesntExist() {
         when(coachRepository.findById(1L)).thenReturn(Optional.empty());
 
-        var exception = assertThrows(NoSuchElementException.class, () -> coachService.addClientsByIdAndEmail(1L, email, clients));
+        var exception = assertThrows(NoSuchElementException.class, () -> coachService.addClientsByIdAndEmail(1L, email, client1Emails));
         assertEquals(idMessage, exception.getMessage());
 
         verify(coachRepository, times(1)).findById(1L);
@@ -192,7 +207,7 @@ public class CoachServicePATCHUnitTest {
 
     @Test
     void addClientsByIdAndEmail_ThrowsException_WhenEmailIsInvalid() {
-        var exception = assertThrows(IllegalArgumentException.class, () -> coachService.updateNameByIdAndEmail(1L, name, ""));
+        var exception = assertThrows(IllegalArgumentException.class, () -> coachService.addClientsByIdAndEmail(1L, "", client1Emails));
         assertEquals(invalidEmailMessage, exception.getMessage());
 
         verifyNoInteractions(coachRepository);
@@ -203,25 +218,12 @@ public class CoachServicePATCHUnitTest {
         when(coachRepository.findById(1L)).thenReturn(Optional.ofNullable(coachEntity1));
         when(coachRepository.findByEmail(email)).thenReturn(null);
 
-        var exception = assertThrows(NoSuchElementException.class, () -> coachService.addClientsByIdAndEmail(1L, email, clients));
+        var exception = assertThrows(NoSuchElementException.class, () -> coachService.addClientsByIdAndEmail(1L, email, client1Emails));
         assertEquals(emailMessage, exception.getMessage());
 
         verify(coachRepository, times(1)).findById(1l);
         verify(coachRepository, times(1)).findByEmail(email);
         verifyNoMoreInteractions(coachRepository);
-    }
-
-    @Test
-    void addClientsByIdAndEmail_ThrowsException_WhenNameAndEmailDontBelongToSameCoach() {
-        when(coachRepository.findById(1L)).thenReturn(Optional.ofNullable(coachEntity1));
-        when(coachRepository.findByEmail(email)).thenReturn(coachEntity2);
-
-        var exception = assertThrows(IllegalStateException.class, () -> coachService.updateNameByIdAndEmail(1L, name, email));
-        assertEquals(notSameCoachMessage, exception.getMessage());
-
-        verify(coachRepository, times(1)).findById(1l);
-        verify(coachRepository, times(1)).findByEmail(email);
-        verify(coachRepository, never()).save(any());
     }
 
     @Test

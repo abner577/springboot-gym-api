@@ -14,7 +14,7 @@ public interface WorkerService {
 
     // --- PUT/PATCH methods ---
     void updateRoleOfAWorker(Long id, String email, String role);
-    void updateWorkerById(Long id, String email, WorkerEntity updatedWorkerEntity);
+    void updateWorkerById(Long id, String email, WorkerRequestDTO workerRequestDTO);
     void updateWorkerCodeById(Long id, String email, String newCode);
 
     // --- DELETE methods --- *All Delete methods need to have authentication implemented, we are looking for a heading that has a ROLE-WORKER*

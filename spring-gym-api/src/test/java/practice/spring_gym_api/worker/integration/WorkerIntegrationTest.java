@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import practice.spring_gym_api.dto.request.WorkerRequestDTO;
 import practice.spring_gym_api.entity.CoachEntity;
 import practice.spring_gym_api.entity.MemberEntity;
 import practice.spring_gym_api.entity.WorkerEntity;
@@ -45,10 +46,13 @@ public class WorkerIntegrationTest {
 
     private WorkerEntity workerEntity1;
     private WorkerEntity workerEntity2;
+    private WorkerRequestDTO workerEntity1RequestDTO;
+
     private CoachEntity coachEntity1;
     private MemberEntity memberEntity1;
 
     private WorkerEntity fakeWorker;
+    private WorkerRequestDTO fakeWorkerRequestDTO;
 
     private Long seedWorkerID;
     private String seedWorkerEmail;
@@ -76,6 +80,16 @@ public class WorkerIntegrationTest {
         );
 
         workerEntity2 = workerRepository.findByWorkerCode("WRK2024-AZ19");
+
+        workerEntity1RequestDTO = new WorkerRequestDTO(
+                workerEntity1.getName(), workerEntity1.getDateOfBirth(), workerEntity1.getRole(),
+                workerEntity1.getEmail(), "Placeholder worker code"
+        );
+
+        fakeWorkerRequestDTO = new WorkerRequestDTO(
+                fakeWorker.getName(), fakeWorker.getDateOfBirth(), fakeWorker.getRole(),
+                fakeWorker.getEmail(), "Placeholder worker code"
+        );
     }
 
     @Test
@@ -169,23 +183,23 @@ public class WorkerIntegrationTest {
         mvc.perform(post("/api/v1/gym-api/workers")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(fakeWorker))
+                        .content(objectMapper.writeValueAsString(fakeWorkerRequestDTO))
                         .header("x-worker-id", seedWorkerID)
                         .header("x-worker-code", seedWorkerCode))
                 .andDo(print());
 
-        WorkerEntity newWorker = workerRepository.findByEmail(fakeWorker.getEmail());
+        WorkerEntity newWorker = workerRepository.findByEmail(fakeWorkerRequestDTO.getEmail());
         assertTrue(newWorker != null);
     }
 
     @Test
     @Transactional
     void registerNewWorker_ThrowsException_WHenCredentialsArentValid() throws Exception {
-        fakeWorker.setEmail(workerEntity1.getEmail());
+        fakeWorkerRequestDTO.setEmail(workerEntity1.getEmail());
         var exception = mvc.perform(post("/api/v1/gym-api/workers")
                         .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(fakeWorker))
+                        .content(objectMapper.writeValueAsString(fakeWorkerRequestDTO))
                         .header("x-worker-id", seedWorkerID)
                         .header("x-worker-code", seedWorkerCode))
                 .andDo(print())
@@ -194,7 +208,7 @@ public class WorkerIntegrationTest {
         String responseBody = exception.getResponse().getContentAsString();
         assertTrue(responseBody.contains("Worker with an email of: " + seedWorkerEmail + " already exists"));
 
-        WorkerEntity newWorker = workerRepository.findByWorkerCode(fakeWorker.getWorkerCode());
+        WorkerEntity newWorker = workerRepository.findByWorkerCode("Placeholder worker code");
         assertTrue(newWorker == null);
     }
 

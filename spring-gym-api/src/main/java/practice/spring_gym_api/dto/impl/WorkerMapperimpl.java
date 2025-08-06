@@ -25,7 +25,7 @@ public class WorkerMapperimpl implements WorkerMapper {
     public WorkerEntity convertToWorkerEntity(WorkerRequestDTO workerRequestDTO) {
         return new WorkerEntity(
                 workerRequestDTO.getName(), workerRequestDTO.getDateOfBirth(), workerRequestDTO.getRole(),
-                workerRequestDTO.getEmail(), "Placeholder worker code"
+                workerRequestDTO.getEmail(), workerRequestDTO.getWorkerCode()
         );
     }
 

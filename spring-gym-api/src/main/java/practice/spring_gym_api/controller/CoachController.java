@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -188,7 +187,7 @@ public class CoachController {
      * Retrieves a coach by their ID and worker code.
      *
      * @param id    ID of the coach
-     * @param code  Coach code to verify
+     * @param coachCode  Coach code to verify
      * @return      Matching CoachDTO
      */
     @Operation(summary = "Retrieves a coach using their ID and verification code")
@@ -199,9 +198,9 @@ public class CoachController {
     @GetMapping (path = "/coaches/{coach_id}/verify")
     public ResponseEntity<CoachDTO> getCoachByIdAndCode(
             @PathVariable("coach_id") Long id,
-            @RequestParam String code
+            @RequestParam String coachCode
     ) {
-        CoachDTO coachDTO =  coachMapper.convertToCoachDto(coachService.getCoachByCoachCode(id, code));
+        CoachDTO coachDTO =  coachMapper.convertToCoachDto(coachService.getCoachByCoachCode(id, coachCode));
         return ResponseEntity.ok(coachDTO);
     }
 
@@ -215,6 +214,7 @@ public class CoachController {
             @ApiResponse(responseCode = "200", description = "Coach successfully registered"),
             @ApiResponse(responseCode = "400", description = "Bad request due to invalid coach data")
     })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Must put 'Placeholder coach code' for coachCode field")
     @PostMapping (path = "/coaches")
     public void registerNewCoach(@Valid @RequestBody CoachRequestDTO coachRequestDTO){
         coachService.registerNewCoach(coachRequestDTO);
@@ -230,6 +230,7 @@ public class CoachController {
             @ApiResponse(responseCode = "200", description = "Batch registration successful"),
             @ApiResponse(responseCode = "400", description = "Bad request due to invalid batch input")
     })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Must put 'Placeholder coach code' for coachCode field")
     @PostMapping(path = "/coaches/batch")
     public void registerNewCoaches(@Valid @RequestBody List<CoachRequestDTO> coachRequestDTOS) {
         coachService.registerNewCoaches(coachRequestDTOS);
@@ -246,6 +247,8 @@ public class CoachController {
             @ApiResponse(responseCode = "200", description = "Coach name updated successfully"),
             @ApiResponse(responseCode = "400", description = "Bad request due to invalid ID or email")
     })
+    @Parameter(name = "name", description = "The updated name that you want to give the coach retrieved by id and email.")
+    @Parameter(name = "email", description = "The email of the coach whose name you are trying to update.")
     @PatchMapping(path = "/coaches/{coach_id}/name")
     public void updateNameByIdAndEmail(
             @PathVariable("coach_id") Long id,
@@ -259,20 +262,23 @@ public class CoachController {
      * Updates the list of clients (members) assigned to a coach.
      *
      * @param id the coach ID
-     * @param memberEntitySet the new set of clients
+     * @param clientEmails Emails that represent new clients to be added
      */
     @Operation(summary = "Adds new clients to the coach by ID and email")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Clients successfully added"),
             @ApiResponse(responseCode = "400", description = "Bad request due to invalid coach or client data")
     })
+    @Parameter(name = "email", description = "The email of the coach whose client list you are trying to add too.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "List of emails that represent" +
+            " the clients to add onto the client list of specified coach.")
     @PatchMapping(path = "/coaches/{coach_id}/clients/add")
     public void addClientsByIdAndEmail(
             @PathVariable("coach_id") Long id,
             @RequestParam String email,
-            @Valid @RequestBody Set<MemberEntity> memberEntitySet
+            @Valid @RequestBody List<String> clientEmails
     ) {
-        coachService.addClientsByIdAndEmail(id, email, memberEntitySet);
+        coachService.addClientsByIdAndEmail(id, email, clientEmails);
     }
 
     /**
@@ -287,8 +293,11 @@ public class CoachController {
             @ApiResponse(responseCode = "200", description = "Client list successfully replaced"),
             @ApiResponse(responseCode = "400", description = "Bad request due to invalid data")
     })
+    @Parameter(name = "email", description = "The email of the coach whose client list you are trying to replace.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "List of ids that represent" +
+            " the clients that are going to replace the specified coaches current client list.")
     @PatchMapping(path = "/coaches/{coach_id}/clients/replace")
-    public void replaceCLientListByIdAndEmail(
+    public void replaceClientListByIdAndEmail(
             @PathVariable("coach_id") Long id,
             @RequestParam String email,
             @RequestBody List<Long> ids
@@ -309,6 +318,8 @@ public class CoachController {
             @ApiResponse(responseCode = "200", description = "Coach role successfully updated"),
             @ApiResponse(responseCode = "400", description = "Bad request due to invalid role or email")
     })
+    @Parameter(name = "email", description = "The email of the coach whose role you are trying to change.")
+    @Parameter(name = "role", description = "The new role you wish to assign to the current coach.")
     @PatchMapping(path = "/coaches/{coach_id}/role")
     public void updateRoleOfACoach(
             @PathVariable("coach_id") Long id,
@@ -330,6 +341,7 @@ public class CoachController {
             @ApiResponse(responseCode = "200", description = "Coach updated successfully"),
             @ApiResponse(responseCode = "400", description = "Bad request due to invalid coach data")
     })
+    @Parameter(name = "email", description = "The email of the coach who you are trying to update.")
     @PutMapping(path = "/coaches/{coach_id}")
     public void updateCoachByIdAndEmail(
             @PathVariable("coach_id") Long id,
@@ -351,6 +363,9 @@ public class CoachController {
             @ApiResponse(responseCode = "200", description = "Workout plans updated successfully"),
             @ApiResponse(responseCode = "400", description = "Bad request due to invalid input")
     })
+    @Parameter(name = "email", description = "The email of the coach whose workout plans you are trying to update.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The new list of workout plans you wish" +
+            " to assign the specified coach.")
     @PatchMapping(path = "/coaches/{coach_id}/plans")
     public void updateWorkoutPlans(
             @PathVariable("coach_id") Long id,

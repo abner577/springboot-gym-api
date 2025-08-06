@@ -26,6 +26,9 @@ public class WorkerRequestDTO {
     @Email(message = "Invalid email format")
     private String email;
 
+    @NotBlank(message = "Worker Code is Required")
+    private String workerCode;
+
     public String getName() {
         return name;
     }
@@ -58,10 +61,19 @@ public class WorkerRequestDTO {
         this.email = email;
     }
 
-    public WorkerRequestDTO(String name, LocalDate dateOfBirth, Roles role, String email) {
+    public String getWorkerCode() {
+        return workerCode;
+    }
+
+    public void setWorkerCode(String workerCode) {
+        this.workerCode = workerCode;
+    }
+
+    public WorkerRequestDTO(String name, LocalDate dateOfBirth, Roles role, String email, String workerCode) {
         this.name = name;
         this.dateOfBirth = dateOfBirth;
         this.role = role;
         this.email = email;
+        this.workerCode = workerCode;
     }
 }

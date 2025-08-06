@@ -85,6 +85,16 @@ public class WorkerServiceUnitTest {
                "Andrew Matthew", LocalDate.of(1950, 05, 18),
                 Roles.ROLE_MEMBER, "andrew123@gmail.com", "000-999-111"
         );
+
+        worker1RequestDTO = new WorkerRequestDTO(
+                name, workerEntity1.getDateOfBirth(), workerEntity1.getRole(),
+                email, "Placeholder worker code"
+        );
+
+        fakeWorkerRequestDTO = new WorkerRequestDTO(
+                fakeWorker.getName(), fakeWorker.getDateOfBirth(), fakeWorker.getRole(),
+                fakeWorker.getEmail(), "Placeholder worker code"
+        );
     }
 
     @Test
@@ -167,24 +177,25 @@ public class WorkerServiceUnitTest {
 
     @Test
     void registerNewMember_SuccessfullySavesMember_WhenCredentialsAreValid() {
-        when(workerRepository.findByEmail(fakeWorker.getEmail())).thenReturn(null);
+        when(workerRepository.findByEmail(fakeWorkerRequestDTO.getEmail())).thenReturn(null);
+        when(workerMapper.convertToWorkerEntity(fakeWorkerRequestDTO)).thenReturn(fakeWorker);
 
-        workerService.registerNewWorker(fakeWorker);
+        workerService.registerNewWorker(fakeWorkerRequestDTO);
 
-        verify(workerRepository, times(1)).findByEmail(fakeWorker.getEmail());
+        verify(workerRepository, times(1)).findByEmail(fakeWorkerRequestDTO.getEmail());
         verify(workerRepository, times(1)).save(fakeWorker);
 
     }
 
     @Test
     void registerNewMember_ThrowsException_WhenCredentialsAreInvalid() {
-        when(workerRepository.findByEmail(fakeWorker.getEmail())).thenReturn(workerEntity1);
+        when(workerRepository.findByEmail(worker1RequestDTO.getEmail())).thenReturn(workerEntity1);
 
-        var exception = assertThrows(IllegalStateException.class, () -> workerService.registerNewWorker(fakeWorker));
-        assertEquals("Worker with an email of: " + fakeWorker.getEmail() + " already exists",
+        var exception = assertThrows(IllegalStateException.class, () -> workerService.registerNewWorker(worker1RequestDTO));
+        assertEquals("Worker with an email of: " + worker1RequestDTO.getEmail() + " already exists",
                 exception.getMessage());
 
-        verify(workerRepository, times(1)).findByEmail(fakeWorker.getEmail());
+        verify(workerRepository, times(1)).findByEmail(worker1RequestDTO.getEmail());
         verifyNoMoreInteractions(workerRepository);
     }
 
@@ -361,7 +372,7 @@ public class WorkerServiceUnitTest {
         when(workerRepository.findByEmail(email)).thenReturn(null);
 
         var exception = assertThrows(NoSuchElementException.class, () ->
-                workerService.updateWorkerById(1L, email, fakeWorker));
+                workerService.updateWorkerById(1L, email, fakeWorkerRequestDTO));
         assertEquals(emailDoesntExist, exception.getMessage());
 
         verify(workerRepository, times(1)).findById(1L);
@@ -373,7 +384,7 @@ public class WorkerServiceUnitTest {
         when(workerRepository.findById(1L)).thenReturn(Optional.ofNullable(workerEntity1));
         when(workerRepository.findByEmail(email)).thenReturn(workerEntity2);
 
-        var exception = assertThrows(IllegalStateException.class, () -> workerService.updateWorkerById(1L, email, fakeWorker));
+        var exception = assertThrows(IllegalStateException.class, () -> workerService.updateWorkerById(1L, email, fakeWorkerRequestDTO));
         assertEquals(differentMembers, exception.getMessage());
 
         verify(workerRepository, times(1)).findById(1L);
@@ -387,15 +398,15 @@ public class WorkerServiceUnitTest {
 
         when(workerRepository.findById(1L)).thenReturn(Optional.ofNullable(workerEntity1));
         when(workerRepository.findByEmail(email)).thenReturn(workerEntity1);
-        when(workerRepository.findByEmail(fakeWorker.getEmail())).thenReturn(workerEntity2);
+        when(workerRepository.findByEmail(fakeWorkerRequestDTO.getEmail())).thenReturn(workerEntity2);
 
-        var exception = assertThrows(IllegalStateException.class, () -> workerService.updateWorkerById(1L, email, fakeWorker));
+        var exception = assertThrows(IllegalStateException.class, () -> workerService.updateWorkerById(1L, email, fakeWorkerRequestDTO));
         assertEquals("The updated email that you are trying to give to " + name
                 + " is already registered under another worker", exception.getMessage());
 
         verify(workerRepository, times(1)).findById(1L);
         verify(workerRepository, times(1)).findByEmail(email);
-        verify(workerRepository, times(1)).findByEmail(fakeWorker.getEmail());
+        verify(workerRepository, times(1)).findByEmail(fakeWorkerRequestDTO.getEmail());
         verifyNoMoreInteractions(workerRepository);
     }
 
@@ -405,14 +416,14 @@ public class WorkerServiceUnitTest {
 
         when(workerRepository.findById(1L)).thenReturn(Optional.ofNullable(workerEntity1));
         when(workerRepository.findByEmail(email)).thenReturn(workerEntity1);
-        when(workerRepository.findByWorkerCode(fakeWorker.getWorkerCode())).thenReturn(workerEntity2);
+        when(workerRepository.findByWorkerCode(fakeWorkerRequestDTO.getWorkerCode())).thenReturn(workerEntity2);
 
-        var exception = assertThrows(IllegalStateException.class, () -> workerService.updateWorkerById(1L, email, fakeWorker));
+        var exception = assertThrows(IllegalStateException.class, () -> workerService.updateWorkerById(1L, email, fakeWorkerRequestDTO));
         assertEquals("The updated worker code that you are trying to give to "
                 + name + " is already registered under another worker", exception.getMessage());
 
         verify(workerRepository, times(1)).findById(1L);
         verify(workerRepository, times(1)).findByEmail(email);
-        verify(workerRepository, times(1)).findByWorkerCode(fakeWorker.getWorkerCode());
+        verify(workerRepository, times(1)).findByWorkerCode(fakeWorkerRequestDTO.getWorkerCode());
     }
 }

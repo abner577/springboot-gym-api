@@ -56,6 +56,7 @@ public class WorkerController {
             @ApiResponse(responseCode = "400", description = "Invalid worker data")
     })
     @PostMapping(path = "workers")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Must put 'Placeholder worker code' for workerCode field")
     public void registerNewWorker(@Valid @RequestBody WorkerRequestDTO workerRequestDTO) {
         workerService.registerNewWorker(workerRequestDTO);
     }
@@ -100,9 +101,9 @@ public class WorkerController {
     public void updatedWorkerById(
             @PathVariable("worker_id") Long id,
             @RequestParam String email,
-            @Valid @RequestBody WorkerEntity workerEntity
+            @Valid @RequestBody WorkerRequestDTO workerRequestDTO
     ) {
-        workerService.updateWorkerById(id, email, workerEntity);
+        workerService.updateWorkerById(id, email, workerRequestDTO);
     }
 
     @Operation(summary = "Deletes a worker from the system by ID")
