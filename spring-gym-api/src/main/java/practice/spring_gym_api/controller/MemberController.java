@@ -1,6 +1,8 @@
 package practice.spring_gym_api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
@@ -65,7 +67,7 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "Members retrieved successfully")
     })
     @GetMapping(path = "/members")
-    public List<MemberDTO> getAllMember(
+    public List<MemberDTO> getAllMembers(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size
     ){
@@ -177,6 +179,10 @@ public class MemberController {
             @ApiResponse(responseCode = "400", description = "Invalid member data")
     })
     @PostMapping(path = "/members")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Role must be 'ROLE_MEMBER'")
+    @Parameter(name = "x-worker-id", description = "ID of the worker making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-worker-code", description = "Code of the worker making the request", in = ParameterIn.HEADER)
     public void registerOneMember(@Valid @RequestBody MemberRequestDTO memberRequestDTO) {
         memberService.registerNewMember(memberRequestDTO);
     }
@@ -186,6 +192,10 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "Members successfully registered"),
             @ApiResponse(responseCode = "400", description = "Invalid input or less than two members provided")
     })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "Role must be 'ROLE_MEMBER'")
+    @Parameter(name = "x-worker-id", description = "ID of the worker making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-worker-code", description = "Code of the worker making the request", in = ParameterIn.HEADER)
     @PostMapping(path = "/members/batch")
     public void registerMultipleMembers(
             @Size(min = 2, message = "At least two members must be provided,  if you only need to register one member use the singular endpoint")
@@ -199,6 +209,11 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "Coach successfully replaced"),
             @ApiResponse(responseCode = "400", description = "Invalid member or coach ID")
     })
+    @Parameter(name = "member_id", description = "The ID of the member whose coach is being replaced.")
+    @Parameter(name = "oldCoach_ID", description = "The ID of the coach to be replaced.")
+    @Parameter(name = "newCoach_id", description = "The ID of the new coach to assign.")
+    @Parameter(name = "x-coach-id", description = "ID of the coach making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-coach-code", description = "Code of the coach making the request", in = ParameterIn.HEADER)
     @PatchMapping(path = "/members/{member_id}/oldCoach/{oldCoach_ID}/newCoach/{newCoach_id}")
     public void replaceCoach(
             @PathVariable("member_id") Long id,
@@ -212,6 +227,9 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "Coach successfully removed"),
             @ApiResponse(responseCode = "400", description = "Invalid member ID")
     })
+    @Parameter(name = "member_id", description = "The ID of the member whose coach assignment will be removed.")
+    @Parameter(name = "x-coach-id", description = "ID of the coach making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-coach-code", description = "Code of the coach making the request", in = ParameterIn.HEADER)
     @PatchMapping(path = "/members/{member_id}/coach/remove")
     public void removeCoachedBy(@PathVariable("member_id") Long id) {
         memberService.removeCoachedBy(id);
@@ -222,8 +240,12 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "Name successfully updated"),
             @ApiResponse(responseCode = "400", description = "Invalid member ID or email")
     })
+    @Parameter(name = "name", description = "The new name to assign to the member.")
+    @Parameter(name = "email", description = "The email of the member being updated.")
+    @Parameter(name = "x-coach-id", description = "ID of the coach making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-coach-code", description = "Code of the coach making the request", in = ParameterIn.HEADER)
     @PatchMapping(path = "/members/{member_id}/name")
-    public void updateNameById(
+    public void updateNameByIdAndEmail(
             @PathVariable("member_id") Long id,
             @RequestParam(name = "name") String name,
             @RequestParam(name = "email") String email) {
@@ -235,6 +257,9 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "Names successfully updated"),
             @ApiResponse(responseCode = "400", description = "Invalid request body")
     })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Must include three lists of equal size: member IDs, updated names, and matching emails.")
+    @Parameter(name = "x-coach-id", description = "ID of the coach making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-coach-code", description = "Code of the coach making the request", in = ParameterIn.HEADER)
     @PatchMapping(path = "/members/name")
     public void updateListOfNamesByListOfIds(@Valid @RequestBody UpdateMultipleMembersRequest request) {
         memberService.updateMultipleMembersNameByIdAndEmail(request.getIds(), request.getNames(), request.getEmails());
@@ -245,6 +270,12 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "SBD stats successfully updated"),
             @ApiResponse(responseCode = "400", description = "Invalid ID or stat values")
     })
+    @Parameter(name = "email", description = "The email of the member whose SBD stats are being updated.")
+    @Parameter(name = "bench", description = "The updated bench press value.")
+    @Parameter(name = "squat", description = "The updated squat value.")
+    @Parameter(name = "deadlift", description = "The updated deadlift value.")
+    @Parameter(name = "x-coach-id", description = "ID of the coach making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-coach-code", description = "Code of the coach making the request", in = ParameterIn.HEADER)
     @PatchMapping(path = "/members/{member_id}/sbd")
     public void updateSBDStats(
             @PathVariable("member_id") Long id,
@@ -260,6 +291,10 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "Role successfully updated"),
             @ApiResponse(responseCode = "400", description = "Invalid role or member credentials")
     })
+    @Parameter(name = "email", description = "The email of the member whose role you are trying to change.")
+    @Parameter(name = "role", description = "The new role to assign to the member (e.g., ROLE_COACH, ROLE_MEMBER, etc.)")
+    @Parameter(name = "x-coach-id", description = "ID of the coach making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-coach-code", description = "Code of the coach making the request", in = ParameterIn.HEADER)
     @PatchMapping(path = "/members/{member_id}/role")
     public void updateRoleOfAMemberByIdAndEmail(
             @PathVariable("member_id") Long id,
@@ -273,6 +308,9 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "Member successfully updated"),
             @ApiResponse(responseCode = "400", description = "Invalid update data or credentials")
     })
+    @Parameter(name = "email", description = "The email of the member to be updated.")
+    @Parameter(name = "x-coach-id", description = "ID of the coach making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-coach-code", description = "Code of the coach making the request", in = ParameterIn.HEADER)
     @PutMapping(path = "/members/{member_id}")
     public void updateFullMember(
             @PathVariable("member_id") Long id,
@@ -287,6 +325,8 @@ public class MemberController {
             @ApiResponse(responseCode = "400", description = "Invalid member ID")
     })
     @DeleteMapping(path = "members/{member_id}")
+    @Parameter(name = "x-worker-id", description = "ID of the worker making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-worker-code", description = "Code of the worker making the request", in = ParameterIn.HEADER)
     public void deleteMemberById(@PathVariable("member_id") Long id) {
         memberService.deleteMemberById(id);
     }
@@ -296,6 +336,8 @@ public class MemberController {
             @ApiResponse(responseCode = "200", description = "Members successfully deleted"),
             @ApiResponse(responseCode = "400", description = "Invalid total value")
     })
+    @Parameter(name = "x-worker-id", description = "ID of the worker making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-worker-code", description = "Code of the worker making the request", in = ParameterIn.HEADER)
     @DeleteMapping(path = "members/below/total/{total}")
     public void deleteAllMembersBelowATotal(@PathVariable("total") int total) {
         memberService.deleteMembersBelowATotal(total);

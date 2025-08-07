@@ -179,6 +179,8 @@ public class CoachServiceimpl implements CoachService {
     public void registerNewCoach(CoachRequestDTO coachRequestDTO) {
         Optional<CoachEntity> coachEntity1 = Optional.ofNullable(coachRepository.findByEmail(coachRequestDTO.getEmail()));
         if(coachEntity1.isPresent()) throw new IllegalArgumentException("Coach with an email of: " + coachRequestDTO.getEmail() + " already exists");
+        if(!Objects.equals(coachRequestDTO.getRole(), "ROLE_COACH")) throw new IllegalArgumentException("Role must be 'ROLE_COACH'");
+
         if(!Objects.equals(coachRequestDTO.getCoachCode(), "Placeholder coach code")) throw new IllegalArgumentException("Initial coach code must be: 'Placeholder coach code'");
         CoachEntity coachEntity = coachMapper.convertToCoachEntity(coachRequestDTO);
         coachRepository.save(coachEntity);
@@ -196,6 +198,7 @@ public class CoachServiceimpl implements CoachService {
         for(CoachRequestDTO coachRequestDTO : coachRequestDTOS){
             if(coachRepository.existsByEmail(coachRequestDTO.getEmail())) throw new IllegalArgumentException("Coach with an email of: " + coachRequestDTO.getEmail() + " already exists");
             if(!Objects.equals(coachRequestDTO.getCoachCode(), "Placeholder coach code")) throw new IllegalArgumentException("Initial coach code must be: 'Placeholder coach code'");
+            if(!Objects.equals(coachRequestDTO.getRole(), "ROLE_COACH")) throw new IllegalArgumentException("Role must be 'ROLE_COACH'");
             coachEntities.add(coachMapper.convertToCoachEntity(coachRequestDTO));
         }
         coachRepository.saveAll(coachEntities);
@@ -235,6 +238,7 @@ public class CoachServiceimpl implements CoachService {
     @Override
     public void addClientsByIdAndEmail(Long id, String email, List<String> clientEmails) {
         if(email == null || email.isEmpty()) throw new IllegalArgumentException("Email cannot be null or an empty string");
+        if(clientEmails.isEmpty()) throw new IllegalArgumentException("Client emails cannot be null or an empty string");
 
         CoachEntity coachEntityToUpdateClientsID = coachRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Coach with an id of: " + id + " doesnt exist"));

@@ -1,5 +1,6 @@
 package practice.spring_gym_api.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
@@ -20,6 +21,7 @@ public class WorkerRequestDTO {
 
     @NotNull(message = "Role is Required")
     @Enumerated(EnumType.STRING)
+    @Schema(example = "ROLE_WORKER")
     private Roles role;
 
     @NotBlank(message = "Email is Required")
@@ -27,6 +29,7 @@ public class WorkerRequestDTO {
     private String email;
 
     @NotBlank(message = "Worker Code is Required")
+    @Schema(example = "Placeholder worker code")
     private String workerCode;
 
     public String getName() {

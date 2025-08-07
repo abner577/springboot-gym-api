@@ -1,5 +1,6 @@
 package practice.spring_gym_api.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.*;
@@ -24,6 +25,7 @@ public class MemberRequestDTO {
 
     @NotNull(message = "Role is Required")
     @Enumerated(EnumType.STRING)
+    @Schema(example = "ROLE_MEMBER")
     private Roles role;
 
     @Min(value = 0, message = "Bench cannot be negative")

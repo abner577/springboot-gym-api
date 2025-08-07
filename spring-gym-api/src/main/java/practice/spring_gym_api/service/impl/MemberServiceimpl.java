@@ -195,6 +195,7 @@ public class MemberServiceimpl implements MemberService {
     @Override
     public void registerNewMember(MemberRequestDTO memberRequestDTO) {
         if(memberRepository.existsByEmail(memberRequestDTO.getEmail())) throw new IllegalStateException("Member with an email of: " + memberRequestDTO.getEmail() + " already exists");
+        if(!Objects.equals(memberRequestDTO.getRole(), "ROLE_MEMBER")) throw new IllegalArgumentException("Role must be 'ROLE_MEMBER'");
         MemberEntity memberEntity = memberMapper.convertToMemberEntity(memberRequestDTO);
         memberRepository.save(memberEntity);
     }
@@ -210,6 +211,7 @@ public class MemberServiceimpl implements MemberService {
         List<MemberEntity> memberEntities = new ArrayList<>();
         for(MemberRequestDTO memberRequestDTO : memberRequestDTOS){
             if(memberRepository.existsByEmail(memberRequestDTO.getEmail())) throw new IllegalStateException("Member with an email of: " + memberRequestDTO.getEmail() + " already exists");
+            if(!Objects.equals(memberRequestDTO.getRole(), "ROLE_COACH")) throw new IllegalArgumentException("Role must be 'ROLE_MEMBER'");
             memberEntities.add(memberMapper.convertToMemberEntity(memberRequestDTO));
         }
         memberRepository.saveAll(memberEntities);

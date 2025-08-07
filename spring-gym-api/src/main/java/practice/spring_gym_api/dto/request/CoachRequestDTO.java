@@ -1,5 +1,6 @@
 package practice.spring_gym_api.dto.request;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -24,6 +25,7 @@ public class CoachRequestDTO {
 
     @NotNull(message = "Role is Required")
     @Enumerated(EnumType.STRING)
+    @Schema(example = "ROLE_COACH")
     private Roles role;
 
     @ElementCollection
@@ -32,6 +34,7 @@ public class CoachRequestDTO {
     private List<@NotBlank(message = "Workout plans are required") String> workoutPlans;
 
     @NotBlank(message = "Coach code is Required")
+    @Schema(example = "Placeholder coach code")
     private String coachCode;
 
     public String getName() {

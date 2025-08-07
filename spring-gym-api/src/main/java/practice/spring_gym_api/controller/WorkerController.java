@@ -1,6 +1,9 @@
 package practice.spring_gym_api.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
@@ -41,6 +44,8 @@ public class WorkerController {
             @ApiResponse(responseCode = "400", description = "Invalid worker code"),
             @ApiResponse(responseCode = "404", description = "Worker not found")
     })
+    @Parameter(name = "worker_id", description = "The ID of the worker to retrieve")
+    @Parameter(name = "code", description = "The unique worker code assigned to the worker")
     @GetMapping(path = "workers/{worker_id}/code")
     public WorkerDTO getWorkerByCode(
             @PathVariable("worker_id") Long id,
@@ -56,7 +61,10 @@ public class WorkerController {
             @ApiResponse(responseCode = "400", description = "Invalid worker data")
     })
     @PostMapping(path = "workers")
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Must put 'Placeholder worker code' for workerCode field")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "workerCode must be 'Placeholder worker code' " +
+            " and role must be 'ROLE_WORKER'")
+    @Parameter(name = "x-worker-id", description = "ID of the worker making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-worker-code", description = "Code of the worker making the request", in = ParameterIn.HEADER)
     public void registerNewWorker(@Valid @RequestBody WorkerRequestDTO workerRequestDTO) {
         workerService.registerNewWorker(workerRequestDTO);
     }
@@ -67,6 +75,10 @@ public class WorkerController {
             @ApiResponse(responseCode = "400", description = "Invalid request parameters"),
             @ApiResponse(responseCode = "404", description = "Worker not found")
     })
+    @Parameter(name = "email", description = "The email of the worker whose role is being updated")
+    @Parameter(name = "role", description = "The new role to assign (e.g., ROLE_COACH)")
+    @Parameter(name = "x-coach-id", description = "ID of the coach making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-coach-code", description = "Code of the coach making the request", in = ParameterIn.HEADER)
     @PatchMapping(path = "workers/{worker_id}/role")
     public void updateRoleOfAWorker(
             @PathVariable("worker_id") Long id,
@@ -82,6 +94,10 @@ public class WorkerController {
             @ApiResponse(responseCode = "400", description = "Invalid request parameters"),
             @ApiResponse(responseCode = "404", description = "Worker not found")
     })
+    @Parameter(name = "email", description = "The email of the worker whose code is being updated")
+    @Parameter(name = "code", description = "The new unique worker code to assign")
+    @Parameter(name = "x-coach-id", description = "ID of the coach making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-coach-code", description = "Code of the coach making the request", in = ParameterIn.HEADER)
     @PatchMapping(path = "workers/{worker_id}/code")
     public void updateWorkerCodeById(
             @PathVariable("worker_id") Long id,
@@ -97,6 +113,9 @@ public class WorkerController {
             @ApiResponse(responseCode = "400", description = "Invalid update data"),
             @ApiResponse(responseCode = "404", description = "Worker not found")
     })
+    @Parameter(name = "email", description = "The email of the worker to be updated")
+    @Parameter(name = "x-coach-id", description = "ID of the coach making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-coach-code", description = "Code of the coach making the request", in = ParameterIn.HEADER)
     @PutMapping(path = "workers/{worker_id}")
     public void updatedWorkerById(
             @PathVariable("worker_id") Long id,
@@ -111,6 +130,8 @@ public class WorkerController {
             @ApiResponse(responseCode = "200", description = "Worker successfully deleted"),
             @ApiResponse(responseCode = "404", description = "Worker not found")
     })
+    @Parameter(name = "x-worker-id", description = "ID of the worker making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-worker-code", description = "Code of the worker making the request", in = ParameterIn.HEADER)
     @DeleteMapping(path = "workers/{worker_id}")
     public void deleteWorkerByID(@PathVariable("worker_id") Long id) {
         workerService.deleteWorkerbyId(id);

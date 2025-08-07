@@ -3,6 +3,7 @@ package practice.spring_gym_api.controller;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -214,9 +215,14 @@ public class CoachController {
             @ApiResponse(responseCode = "200", description = "Coach successfully registered"),
             @ApiResponse(responseCode = "400", description = "Bad request due to invalid coach data")
     })
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Must put 'Placeholder coach code' for coachCode field")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "coachCode must be 'Placeholder coach code' " +
+            " and role must be 'ROLE_COACH'")
+    @Parameter(name = "x-worker-id", description = "ID of the worker making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-worker-code", description = "Code of the worker making the request", in = ParameterIn.HEADER)
     @PostMapping (path = "/coaches")
-    public void registerNewCoach(@Valid @RequestBody CoachRequestDTO coachRequestDTO){
+    public void registerNewCoach(
+            @Valid @RequestBody CoachRequestDTO coachRequestDTO
+    ){
         coachService.registerNewCoach(coachRequestDTO);
     }
 
@@ -230,7 +236,10 @@ public class CoachController {
             @ApiResponse(responseCode = "200", description = "Batch registration successful"),
             @ApiResponse(responseCode = "400", description = "Bad request due to invalid batch input")
     })
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Must put 'Placeholder coach code' for coachCode field")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "coachCode must be 'Placeholder coach code' " +
+            " and role must be 'ROLE_COACH'")
+    @Parameter(name = "x-worker-id", description = "ID of the worker making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-worker-code", description = "Code of the worker making the request", in = ParameterIn.HEADER)
     @PostMapping(path = "/coaches/batch")
     public void registerNewCoaches(@Valid @RequestBody List<CoachRequestDTO> coachRequestDTOS) {
         coachService.registerNewCoaches(coachRequestDTOS);
@@ -249,6 +258,8 @@ public class CoachController {
     })
     @Parameter(name = "name", description = "The updated name that you want to give the coach retrieved by id and email.")
     @Parameter(name = "email", description = "The email of the coach whose name you are trying to update.")
+    @Parameter(name = "x-coach-id", description = "ID of the coach making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-coach-code", description = "Code of the coach making the request", in = ParameterIn.HEADER)
     @PatchMapping(path = "/coaches/{coach_id}/name")
     public void updateNameByIdAndEmail(
             @PathVariable("coach_id") Long id,
@@ -272,6 +283,8 @@ public class CoachController {
     @Parameter(name = "email", description = "The email of the coach whose client list you are trying to add too.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "List of emails that represent" +
             " the clients to add onto the client list of specified coach.")
+    @Parameter(name = "x-coach-id", description = "ID of the coach making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-coach-code", description = "Code of the coach making the request", in = ParameterIn.HEADER)
     @PatchMapping(path = "/coaches/{coach_id}/clients/add")
     public void addClientsByIdAndEmail(
             @PathVariable("coach_id") Long id,
@@ -296,6 +309,8 @@ public class CoachController {
     @Parameter(name = "email", description = "The email of the coach whose client list you are trying to replace.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "List of ids that represent" +
             " the clients that are going to replace the specified coaches current client list.")
+    @Parameter(name = "x-coach-id", description = "ID of the coach making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-coach-code", description = "Code of the coach making the request", in = ParameterIn.HEADER)
     @PatchMapping(path = "/coaches/{coach_id}/clients/replace")
     public void replaceClientListByIdAndEmail(
             @PathVariable("coach_id") Long id,
@@ -320,6 +335,8 @@ public class CoachController {
     })
     @Parameter(name = "email", description = "The email of the coach whose role you are trying to change.")
     @Parameter(name = "role", description = "The new role you wish to assign to the current coach.")
+    @Parameter(name = "x-coach-id", description = "ID of the coach making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-coach-code", description = "Code of the coach making the request", in = ParameterIn.HEADER)
     @PatchMapping(path = "/coaches/{coach_id}/role")
     public void updateRoleOfACoach(
             @PathVariable("coach_id") Long id,
@@ -342,6 +359,8 @@ public class CoachController {
             @ApiResponse(responseCode = "400", description = "Bad request due to invalid coach data")
     })
     @Parameter(name = "email", description = "The email of the coach who you are trying to update.")
+    @Parameter(name = "x-coach-id", description = "ID of the coach making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-coach-code", description = "Code of the coach making the request", in = ParameterIn.HEADER)
     @PutMapping(path = "/coaches/{coach_id}")
     public void updateCoachByIdAndEmail(
             @PathVariable("coach_id") Long id,
@@ -366,6 +385,8 @@ public class CoachController {
     @Parameter(name = "email", description = "The email of the coach whose workout plans you are trying to update.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The new list of workout plans you wish" +
             " to assign the specified coach.")
+    @Parameter(name = "x-coach-id", description = "ID of the coach making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-coach-code", description = "Code of the coach making the request", in = ParameterIn.HEADER)
     @PatchMapping(path = "/coaches/{coach_id}/plans")
     public void updateWorkoutPlans(
             @PathVariable("coach_id") Long id,
@@ -389,6 +410,10 @@ public class CoachController {
             @ApiResponse(responseCode = "200", description = "Coach code updated successfully"),
             @ApiResponse(responseCode = "400", description = "Bad request due to invalid data")
     })
+    @Parameter(name = "email", description = "The email of the coach whose workout plans you are trying to update.")
+    @Parameter(name = "coachCode", description = "The updated coachCode you wish to give to the specified coach.")
+    @Parameter(name = "x-coach-id", description = "ID of the coach making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-coach-code", description = "Code of the coach making the request", in = ParameterIn.HEADER)
     @PatchMapping (path = "/coaches/{coach_id}/code")
     public void updateCodeOfACoach(
             @PathVariable("coach_id") Long id,
@@ -408,6 +433,8 @@ public class CoachController {
             @ApiResponse(responseCode = "200", description = "Coach deleted successfully"),
             @ApiResponse(responseCode = "400", description = "Bad request due to invalid ID")
     })
+    @Parameter(name = "x-worker-id", description = "ID of the worker making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-worker-code", description = "Code of the worker making the request", in = ParameterIn.HEADER)
     @DeleteMapping(path = "/coaches/{coach_id}")
     public void deleteCoach(@PathVariable("coach_id") Long id){
         coachService.deleteCoachById(id);
@@ -420,6 +447,8 @@ public class CoachController {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "All coaches deleted successfully")
     })
+    @Parameter(name = "x-worker-id", description = "ID of the worker making the request", in = ParameterIn.HEADER)
+    @Parameter(name = "x-worker-code", description = "Code of the worker making the request", in = ParameterIn.HEADER)
     @DeleteMapping(path = "/coaches")
     public void deleteAllCoaches(){
         coachService.deleteAllCoaches();

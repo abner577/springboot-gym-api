@@ -76,8 +76,9 @@ public class WorkerServiceimpl implements WorkerService {
     public void registerNewWorker(WorkerRequestDTO workerRequestDTO) {
         WorkerEntity workerEntity1 = workerRepository.findByEmail(workerRequestDTO.getEmail());
         if(workerEntity1 != null) throw new IllegalStateException("Worker with an email of: " + workerRequestDTO.getEmail() + " already exists");
-        if(!Objects.equals(workerRequestDTO.getWorkerCode(), "Placeholder worker code")) throw new IllegalArgumentException("Initial worker code must be: 'Placeholder worker code'");
+        if(!Objects.equals(workerRequestDTO.getRole(), "ROLE_WORKER")) throw new IllegalArgumentException("Role must be 'ROLE_WORKER'");
 
+        if(!Objects.equals(workerRequestDTO.getWorkerCode(), "Placeholder worker code")) throw new IllegalArgumentException("Initial worker code must be: 'Placeholder worker code'");
         WorkerEntity workerEntity = workerMapper.convertToWorkerEntity(workerRequestDTO);
         workerRepository.save(workerEntity);
     }
