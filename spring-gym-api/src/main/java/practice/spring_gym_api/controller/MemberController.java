@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import practice.spring_gym_api.dto.MemberDTO;
 import practice.spring_gym_api.dto.MemberMapper;
-import practice.spring_gym_api.config.UpdateMultipleMembersRequest;
+import practice.spring_gym_api.dto.request.UpdateMultipleMembersRequest;
 import practice.spring_gym_api.dto.request.MemberRequestDTO;
 import practice.spring_gym_api.entity.MemberEntity;
 import practice.spring_gym_api.service.MemberService;

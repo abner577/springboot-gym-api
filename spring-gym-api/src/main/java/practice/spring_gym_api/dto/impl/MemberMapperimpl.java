@@ -40,6 +40,4 @@ public class MemberMapperimpl implements MemberMapper {
     public WorkerEntity convertMemberToWorkerEntity (MemberEntity memberEntity){
         return new WorkerEntity(memberEntity.getName(), memberEntity.getDateOfBirth(), Roles.ROLE_WORKER, memberEntity.getEmail(), "Placeholder worker code");
     }
-
-
 }

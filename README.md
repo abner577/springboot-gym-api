@@ -203,22 +203,22 @@ curl -X GET "http://localhost:8081/api/v1/gym-api/coaches/1" \
 ### 📸 Swagger UI Screenshots
 
 #### 🧑‍🏫 Coach Controller
-![Coach Controller](./docs/Coach%20Controller.png)
+![Coach Controller.png](spring-gym-api/docs/Coach%20Controller.png)
 
 #### 🧑‍💼 Member Controller
-![Member Controller](./docs/Member%20Controller.png)
+![Member Controller.png](spring-gym-api/docs/Member%20Controller.png)
 
 #### 🧑 Worker Controller
-![Worker Controller](./docs/Worker%20Controller.png)
+![Worker Controller.png](spring-gym-api/docs/Worker%20Controller.png)
 
 #### 📦 Schemas
-![Schemas](./docs/Schemas.png)
+![Schemas.png](spring-gym-api/docs/Schemas.png)
 
 #### ✅ Coach GET Success
-![Coach GET Success](./docs/Coach%20GET%20Sucess.png)
+![Coach GET Sucess.png](spring-gym-api/docs/Coach%20GET%20Sucess.png)
 
 #### ❌ Coach GET Failure
-![Coach GET Failure](./docs/Coach%20GET%20Failure.png)
+![Coach GET Failure.png](spring-gym-api/docs/Coach%20GET%20Failure.png)
 
 ---
 
